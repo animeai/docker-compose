@@ -11,10 +11,10 @@ echo "" > /root/vars.sh # clear current file
 #Secret Data
 echo "CLOUDFLARE_API_EMAIL=nathankeir@outlook.com" >> /root/vars.sh #cloudflare email
 echo "CLOUDFLARE_API_KEY=af0f951432378e02926dc361ee8e88b35be8b" #cloudflare api key
-echo "DOMAIN=prombot.co.uk" >> /root/vars.sh #default domain
-echo "EMAIL=nathankeir@outlook.com" >> /root/vars.sh #default email
+echo "DOMAIN=test.co.uk" >> /root/vars.sh #default domain
+echo "EMAIL=usernamer@outlook.com" >> /root/vars.sh #default email
 echo "PLEX_TOKEN=plextoken" >> /root/vars.sh #Set your plex token for connectivity
-echo "PROJECTSEND_WORK_DOMAIN=files.myqms.co.uk" >> /root/vars.sh #Work project send domain (single variable, include subdomain)
+echo "PROJECTSEND_WORK_DOMAIN=files.test.co.uk" >> /root/vars.sh #Work project send domain (single variable, include subdomain)
 echo "RADARR_TOKEN=12345" >> /root/vars.sh #Set your Radarr token for connectivity
 echo "TRAEFIK_BASIC_AUTH=/var/data/secrets/traefik_basic_auth.htpasswd" >> /root/vars.sh #traefik basic auth file
 
