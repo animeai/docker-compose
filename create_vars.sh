@@ -1,5 +1,5 @@
 #!/bin/bash
-#Set up Variables
+#Set up Variables...
 timestamp=$(date +%d-%m-%Y_%H-%M-%S)
 
 #File operations
