@@ -1,0 +1,96 @@
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  app:
+    image: traefik:latest
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.services.traefik-https.loadbalancer.server.port=443
+        - traefik.http.routers.traefik-https.entrypoints=https
+        - traefik.http.routers.traefik-https.rule=Host(`${TRAEFIK_SUB?Variable not set}.${DOMAIN?Variable not set}`)
+        - traefik.http.routers.traefik-https.tls=true
+        - traefik.http.routers.traefik-https.tls.certresolver=myresolver
+        - traefik.http.routers.traefik-https.service=api@internal
+        - traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://${AUTHELIA_SUB?AUTHELIA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+        - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
+        - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email
+        - traefik.http.middlewares.authelia-basic.forwardauth.address=http://authelia:9091/api/verify?auth=basic
+        - traefik.http.middlewares.authelia-basic.forwardauth.trustForwardHeader=true
+        - traefik.http.middlewares.authelia-basic.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email
+#        - traefik.http.middlewares.auth.basicauth.usersfile=${TRAEFIK_BASIC_AUTH?Variable not set}
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+    command:
+      - --global.checkNewVersion=true
+      - --global.sendAnonymousUsage=true
+      - --entryPoints.http.address=:80
+      - --entryPoints.https.address=:443
+      - --entryPoints.ping.address=:8081
+      - --entrypoints.https.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      - --entrypoints.https.http.tls.domains[0].main=${DOMAIN?Variable not set}
+      - --entrypoints.https.http.tls.domains[0].sans=*.${DOMAIN?Variable not set}
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.http.http.redirections.entrypoint.scheme=https
+      - --api=true
+      - --api.insecure=false
+      - --api.dashboard=true
+      - --log=true
+      - --log.level=ERROR  # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --accessLog=true
+      - --accessLog.filePath=/traefik.log
+      - --accessLog.bufferingSize=100
+      - --accessLog.filters.statusCodes=400-499
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=t2_proxy
+      - --providers.docker.swarmMode=true
+      - --providers.file.directory=/rules # Load dynamic configuration from one or more .toml or .yml files in a directory.
+      - --providers.file.watch=true # Only works on top level files in the rules folder
+      - --certificatesresolvers.myresolver.acme.dnschallenge=true
+      - --certificatesResolvers.myresolver.acme.email=${CLOUDFLARE_API_EMAIL?Variable not set}
+      - --certificatesResolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.myresolver.acme.dnschallenge.delaybeforecheck=0
+#      - --certificatesresolvers.myresolver.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory # LetsEncrypt Staging Server - uncomment when testing
+    networks:
+      t2_proxy:
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8181:8181"
+    volumes:
+      - /var/data/files/traefik/rules:/rules 
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/data/files/traefik/acme:/letsencrypt
+      - /var/data/files/traefik/traefik.log:/traefik.log 
+      - /var/data/files/shared:/shared
+    environment:
+      - CF_API_EMAIL=${CLOUDFLARE_API_EMAIL?Variable not set}
+      - CF_API_KEY=${CLOUDFLARE_API_KEY?Variable not set}
+  authelia:
+    image: authelia/authelia
+    volumes:
+      - /var/data/authelia/config:/config
+    networks:
+      t2_proxy:
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.services.transmission-https.loadbalancer.server.port=9091
+        - traefik.http.routers.authelia.rule=Host(`${AUTHELIA_SUB?AUTHELIA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+        - traefik.http.routers.authelia.entrypoints=https
+        - traefik.http.routers.authelia.tls=true
+        - traefik.http.routers.authelia.tls.certresolver=myresolver
+        - traefik.http.routers.authelia.service=api@internal
+    ports:
+      - "9091:9091"
+    restart: unless-stopped
+    environment:
+      - Europe/London

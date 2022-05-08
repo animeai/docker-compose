@@ -1,0 +1,155 @@
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  drawio:
+#diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, etc
+    image: jgraph/drawio
+    container_name: drawio
+    restart: unless-stopped
+    environment:
+      PUBLIC_DNS: ${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      ORGANISATION_UNIT: ${DRAWIO_ORGNAME?DRAWIO_ORGNAME Variable not set}
+      ORGANISATION: ${DRAWIO_ORGNAME?DRAWIO_ORGNAME
+      CITY: ${DRAWIO_CITY?DRAWIO_CITY
+      STATE: ${DRAWIO_STATE?DRAWIO_STATE
+      COUNTRY_CODE: ${DRAWIO_COUNTRY?DRAWIO_COUNTRY
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}:8080 || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.drawio-https.loadbalancer.server.port=8443 #or 8080
+      - traefik.http.routers.drawio-https.entrypoints=https
+      - traefik.http.routers.drawio-https.rule=Host(`${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.drawio-https.tls=true
+      - traefik.http.routers.drawio-https.tls.certresolver=myresolver
+      - traefik.http.routers.drawio-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  gitea:
+#Gitea - Git with a cup of tea · A painless self-hosted Git service. 
+    image: gitea/gitea:1.16.4
+    container_name: gitea
+    environment:
+      - USER_UID=0
+      - USER_GID=0
+      - GITEA__database__DB_TYPE=mysql
+      - GITEA__database__HOST=gitea-db:3306
+      - GITEA__database__NAME=${GITEADB_DB?GITEADB_DB Variable not set}
+      - GITEA__database__USER=${GITEADB_USER?GITEADB_USER Variable not set}
+      - GITEA__database__PASSWD=${GITEADB_PASS?GITEADB_PASS Variable not set}
+    restart: unless-stopped
+    volumes:
+      - /var/data/gitea/data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - ${GITEA_SSHPORT?GITEA_SSHPORT Variable not set}:22
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.gitea-https.loadbalancer.server.port=3000 
+      - traefik.http.routers.gitea-https.entrypoints=https
+      - traefik.http.routers.gitea-https.rule=Host(`${GITEA_SUB?GITEA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.gitea-https.tls=true
+      - traefik.http.routers.gitea-https.tls.certresolver=myresolver
+      - traefik.http.routers.gitea-https.middlewares=authelia@docker
+    depends_on:
+      - gitea-db
+    networks:
+      - t2_proxy 
+  gitea-db:
+#Gitea database
+    image: mysql:8
+    container_name: gitea-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${GITEADB_ROOTPASS?GITEADB_ROOTPASS Variable not set}
+      - MYSQL_USER=${GITEADB_USER?GITEADB_USER Variable not set}
+      - MYSQL_PASSWORD=${GITEADB_PASS?GITEADB_PASS Variable not set}
+      - MYSQL_DATABASE=${GITEADB_DB?GITEADB_DB Variable not set}
+    volumes:
+      - /var/data/gitea/mysql:/var/lib/mysql
+  kanboard:
+#Kanboard is a free and open source Kanban project management software. Kanban Board. Visualize your work; 
+    image: kanboard/kanboard:latest
+    container_name: kanboard
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/data/kanboard/app:/var/www/app/data
+      - /var/data/kanboard/plugins:/var/www/app/plugins
+      - /var/data/kanboard/ssl:/etc/nginx/ssl
+    environment:
+      DATABASE_URL: mysql://${KANBOARDDB_USER?KANBOARDDB_USER Variable not set}:${KANBOARDDB_PASS?KANBOARDDB_PASS Variable not set}@kanboard-db/${KANBOARDDB_DB?KANBOARDDB_DB Variable not set}
+    restart: unless-stopped    
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.kanboard-https.loadbalancer.server.port=80 
+      - traefik.http.routers.exkanboardportarr-https.entrypoints=https
+      - traefik.http.routers.kanboard-https.rule=Host(`${KANBOARD_SUB?KANBOARD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.kanboard-https.tls=true
+      - traefik.http.routers.kanboard-https.tls.certresolver=myresolver
+      - traefik.http.routers.kanboard-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+    depends_on:
+      - kanboard-db
+  kanboard-db:
+#Database for kanboard
+    image: mariadb:latest
+    container_name: kanboard-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${KANBOARDDB_ROOT?KANBOARDDB_ROOT Variable not set}
+      MYSQL_DATABASE: ${KANBOARDDB_DB?KANBOARDDB_DB Variable not set}
+      MYSQL_USER: ${KANBOARDDB_USER?KANBOARDDB_USER Variable not set}
+      MYSQL_PASSWORD: ${KANBOARDDB_PASS?KANBOARDDB_PASS Variable not set}
+    volumes:
+    - /var/data/kanboard/db:/var/lib/mysql
+  projectsend-work:
+#ProjectSend is a self-hosted application (you can install it easily on your own VPS or shared web hosting account) that lets you upload files and assign them to specific clients that you create yourself! Secure, private and easy. No more depending on external services or e-mail to send those files!
+    image: lscr.io/linuxserver/projectsend
+    container_name: projectsend-work
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+      - MAX_UPLOAD=<5000>
+    volumes:
+      - /var/data/projectsendwork/config:/config
+      - /mnt/projectsendwork/data:/data
+    ports:
+      - 80:80
+    restart: unless-stopped    labels:
+      - traefik.enable=true
+      - traefik.http.services.projectsendwork-https.loadbalancer.server.port=80
+      - traefik.http.routers.projectsendwork-https.entrypoints=https
+      - traefik.http.routers.projectsendwork-https.rule=Host(`${PROJECTSEND_WORK_DOMAIN?PROJECTSEND_WORK_DOMAIN Variable not set}`)
+      - traefik.http.routers.projectsendwork-https.tls=true
+      - traefik.http.routers.projectsendwork-https.tls.certresolver=myresolver
+      - traefik.http.routers.projectsendwork-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  whiteboard:
+#WBO is an online collaborative whiteboard that allows many users to draw simultaneously on a large virtual board. The board is updated in real time
+    image: lovasoa/wbo:latest 
+    container_name: whiteboard
+    volumes:
+      - /var/data/whiteboard/data:/opt/app/server-data
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.whiteboard-https.loadbalancer.server.port=80 
+      - traefik.http.routers.whiteboard-https.entrypoints=https
+      - traefik.http.routers.whiteboard-https.rule=Host(`${HASTEBIN_SUB?HASTEBIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.whiteboard-https.tls=true
+      - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
+      - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy    

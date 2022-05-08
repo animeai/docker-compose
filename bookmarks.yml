@@ -1,0 +1,182 @@
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  dashmachine:
+#Another web application bookmark dashboard, with fun features.
+    image: rmountjoy/dashmachine:latest
+    container_name: dashmachine
+    volumes:
+      - /var/data/dashmachine/data:/dashmachine/dashmachine/user_data
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.dashmachine-https.loadbalancer.server.port=5000
+      - traefik.http.routers.dashmachine-https.entrypoints=https
+      - traefik.http.routers.dashmachine-https.rule=Host(`${DASHMACHINE_SUB?DASHMACHINE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dashmachine-https.tls=true
+      - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
+      - traefik.http.routers.dashmachine-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  flame:
+#Flame is self-hosted startpage for your server. Its design is inspired (heavily) by SUI. Flame is very easy to setup and use. With built-in editor
+    image: pawelmalak/flame
+    container_name: flame
+    volumes:
+      - /var/data/flame/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock 
+    environment:
+      - PASSWORD=${FLAME_PASS?FLAME_PASS Variable not set}
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.flame-https.loadbalancer.server.port=5005
+      - traefik.http.routers.flame-https.entrypoints=https
+      - traefik.http.routers.flame-https.rule=Host(`${FLAME_SUB?FLAME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.flame-https.tls=true
+      - traefik.http.routers.flame-https.tls.certresolver=myresolver
+      - traefik.http.routers.flame-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  heimdall:
+#Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way. Simplicity is the key
+    image: lscr.io/linuxserver/heimdall
+    container_name: heimdall
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - /var/data/heimdall/config:/config
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.heimdall-https.loadbalancer.server.port=80
+      - traefik.http.routers.heimdall-https.entrypoints=https
+      - traefik.http.routers.heimdall-https.rule=Host(`${HEIMDALL_SUB?HEIMDALL_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.heimdall-https.tls=true
+      - traefik.http.routers.heimdall-https.tls.certresolver=myresolver
+      - traefik.http.routers.heimdall-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  homer:
+#Homer is a full static html/js dashboard, generated from the source in /src using webpack
+    image: b4bz/homer
+    container_name: homer
+    volumes:
+      - /var/data/homer/assets:/www/assets
+    environment:
+      - UID=0
+      - GID=0
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.homer-https.loadbalancer.server.port=8080
+      - traefik.http.routers.homer-https.entrypoints=https
+      - traefik.http.routers.homer-https.rule=Host(`${HOMER_SUB?FLAME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.homer-https.tls=true
+      - traefik.http.routers.homer-https.tls.certresolver=myresolver
+      - traefik.http.routers.homer-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+
+  htpcmanager:
+#Htpcmanager is a front end for many htpc related applications.
+    image: lscr.io/linuxserver/htpcmanager
+    container_name: htpcmanager
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - /var/data/htpcmanager/config:/config
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.htpcmanager-https.loadbalancer.server.port=8085
+      - traefik.http.routers.htpcmanager-https.entrypoints=https
+      - traefik.http.routers.htpcmanager-https.rule=Host(`${HTPCMANAGER_SUB?HTPCMANAGER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.htpcmanager-https.tls=true
+      - traefik.http.routers.htpcmanager-https.tls.certresolver=myresolver
+      - traefik.http.routers.htpcmanager-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  linkding:
+#linkding is a simple bookmark service that you can host yourself. It's designed be to be minimal, fast and easy to set up using Docker
+    image: sissbruecker/linkding:latest
+    container_name: linkding
+    volumes:
+      - /var/data/linkding/data:/etc/linkding/data
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.linkding-https.loadbalancer.server.port=80 
+      - traefik.http.routers.linkding-https.entrypoints=https
+      - traefik.http.routers.linkding-https.rule=Host(`${LINKDING_SUB?LINKDING_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.linkding-https.tls=true
+      - traefik.http.routers.linkding-https.tls.certresolver=myresolver
+      - traefik.http.routers.linkding-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  muximux:
+#​Muximux is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
+    image: lscr.io/linuxserver/muximux
+    container_name: muximux
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - /var/data/muximux/config:/config
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.muximux-https.loadbalancer.server.port=80
+      - traefik.http.routers.muximux-https.entrypoints=https
+      - traefik.http.routers.muximux-https.rule=Host(`${MUXIMUX_SUB?MUXIMUX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.muximux-https.tls=true
+      - traefik.http.routers.muximux-https.tls.certresolver=myresolver
+      - traefik.http.routers.muximux-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  organizr:
+#Organizr allows you to setup "Tabs" that will be loaded all in one webpage. You can then work on your server with ease.
+    image: organizr/organizr
+    container_name: organizr
+    environment:
+      - PUID=0
+      - PGID=0
+      - fpm="false"
+      - branch="v2-master"
+    volumes:
+      - /var/data/organizr/config:/config
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.organizr-https.loadbalancer.server.port=80
+      - traefik.http.routers.organizr-https.entrypoints=https
+      - traefik.http.routers.organizr-https.rule=Host(`${ORGANIZR_SUB?ORGANIZR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.organizr-https.tls=true
+      - traefik.http.routers.organizr-https.tls.certresolver=myresolver
+      - traefik.http.routers.organizr-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  snippitbox:
+#Snippet Box is a simple self-hosted app for organizing your code snippets. It allows you to easily create, edit, browse and manage your snippets 
+    image: pawelmalak/snippet-box
+    container_name: snippitbox
+    volumes:
+      - /var/data/snippitbox/data:/app/data
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.snippitbox-https.loadbalancer.server.port=5000 
+      - traefik.http.routers.snippitbox-https.entrypoints=https
+      - traefik.http.routers.snippitbox-https.rule=Host(`${SNIPPITBOX_SUB?SNIPPITBOX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.snippitbox-https.tls=true
+      - traefik.http.routers.snippitbox-https.tls.certresolver=myresolver
+      - traefik.http.routers.snippitbox-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy

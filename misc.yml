@@ -1,0 +1,40 @@
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  beehive:
+#Beehive is an event and agent system, which allows you to create your own agents that perform automated tasks triggered by events and filters. It is modular, flexible and really easy to extend for anyone. It has modules (we call them Hives), so it can interface with, talk to, or retrieve information from Twitter, Tumblr, Email, IRC, Jabber, RSS, Jenkins, Hue - to name just a few. 
+    image: fribbledom/beehive
+    container_name: beehive
+    restart: unless-stopped
+    volumes:
+      - /var/data/beehive/conf:/conf
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.beehive-https.loadbalancer.server.port=8181
+      - traefik.http.routers.beehive-https.entrypoints=https
+      - traefik.http.routers.beehive-https.rule=Host(`${BEEHIVE_SUB?BEEHIVE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.beehive-https.tls=true
+      - traefik.http.routers.beehive-https.tls.certresolver=myresolver
+      - traefik.http.routers.beehive-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy 
+  huginn:
+#Huginn is a system for building agents that perform automated tasks for you online. They can read the web, watch for events, and take actions on your behalf. Huginn's Agents create and consume events, propagating them along a directed graph. Think of it as a hackable version of IFTTT or Zapier on your own server. You always know who has your data. You do.
+    image: huginn/huginn
+    container_name: huginn
+    volumes:
+      - /var/data/huginn/mysql:/var/lib/mysql
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.huginn-https.loadbalancer.server.port=3000
+      - traefik.http.routers.huginn-https.entrypoints=https
+      - traefik.http.routers.huginn-https.rule=Host(`${HUGINN_SUB?HUGINN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.huginn-https.tls=true
+      - traefik.http.routers.huginn-https.tls.certresolver=myresolver
+      - traefik.http.routers.huginn-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+

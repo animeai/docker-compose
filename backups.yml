@@ -1,0 +1,152 @@
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  borgmatic:
+#A little container based on b3vis's work to automate my Borgbackups using the excellent Borgmatic. It uses cron to run the backups at a time you can configure in data/borgmatic.d/crontab.txt.
+    image: modem7/borgmatic-docker
+    container_name: borgmatic
+    restart: unless-stopped
+    volumes:
+      - /mnt/borgmatic/source
+      - /:/mnt/source:ro           # backup source
+      - /mnt/borgmatic/target:/mnt/borg-repository     # backup target
+      - /mnt/borgmatic/config:/etc/borgmatic.d/ # borgmatic config file(s) + crontab.txt
+      - /mnt/borgmatic/config2:/root/.config/borg  # config and keyfiles
+      - /mnt/borgmatic/ssh:/root/.ssh                  # ssh key for remote repositories
+      - /mnt/borgmatic/cache:/root/.cache/borg    # checksums used for deduplication
+    environment:
+      - TZ=Europe/London
+      - BORG_PASSPHRASE=${BORG_PASSPHRASE?BORG_PASSPHRASE Variable not set}
+  duplicati:
+#Duplicati was designed for online backups from scratch. It is not only data efficient but also handles network issues nicely
+    image: lscr.io/linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+#      - CLI_ARGS= #optional
+    volumes:
+      - /var/data/duplicati/config:/config
+      - /mnt/backups:/backups
+      - /mnt/to-backup:/source #symlink data to here to backup, mount elsewhere?
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.duplicati-https.loadbalancer.server.port=8200
+      - traefik.http.routers.duplicati-https.entrypoints=https
+      - traefik.http.routers.duplicati-https.rule=Host(`${DUPLICATI_SUB?NEXTCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.duplicati-https.tls=true
+      - traefik.http.routers.duplicati-https.tls.certresolver=myresolver
+      - traefik.http.routers.duplicati-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  nextcloud:
+#Nextcloud Hub is the first completely integrated on-premises content collaboration platform on the market, ready for a new generation of users 
+    image: lscr.io/linuxserver/nextcloud
+    container_name: nextcloud
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - /var/data/nextcloud/config:/config
+      - /mnt:/data
+    ports:
+      - 443:443
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.nextcloud-https.loadbalancer.server.port=443
+      - traefik.http.routers.nextcloud-https.entrypoints=https
+      - traefik.http.routers.nextcloud-https.rule=Host(`${NEXTCLOUD_SUB?NEXTCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.nextcloud-https.tls=true
+      - traefik.http.routers.nextcloud-https.tls.certresolver=myresolver
+      - traefik.http.routers.nextcloud-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+  owncloud:
+#ownCloud, your collaboration tool · Filesharing, trusted by 200 million users worldwide · For organizations with high data governance requirements
+    image: owncloud/server
+    container_name: owncloud
+    restart: unless-stopped
+    environment:
+      - OWNCLOUD_DOMAIN=${OWNCLOUD_SUB?OWNCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=owncloud
+      - OWNCLOUD_DB_USERNAME=${OWNCLOUD_MYSQL_USERNAME?OWNCLOUD_MYSQL_USERNAME variable does not exist}
+      - OWNCLOUD_DB_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD?OWNCLOUD_MYSQL_PASSWORD variable does not exist}
+      - OWNCLOUD_DB_HOST=owncloud-mariadb
+      - OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME?OWNCLOUD_ADMIN_USERNAME variable does not exist}
+      - OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD?OWNCLOUD_ADMIN_PASSWORD variable does not exist}
+      - OWNCLOUD_MYSQL_UTF8MB4=true
+      - OWNCLOUD_REDIS_ENABLED=true
+      - OWNCLOUD_REDIS_HOST=owncloud-redis
+    healthcheck:
+      test: ["CMD", "/usr/bin/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - /mnt/owncloud:/mnt/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.owncloud-https.loadbalancer.server.port=8080
+      - traefik.http.routers.owncloud-https.entrypoints=https
+      - traefik.http.routers.owncloud-https.rule=Host(`${OWNCLOUD_SUB?OWNCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.owncloud-https.tls=true
+      - traefik.http.routers.owncloud-https.tls.certresolver=myresolver
+      - traefik.http.routers.owncloud-https.middlewares=authelia@docker
+    networks:
+      - t2_proxy
+    depends_on:
+      - owncloud-mariadb
+      - owncloud-redis
+  owncloud-mariadb:
+#Database for owncloud
+    image: mariadb:10.5
+    container_name: owncloud_mariadb
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${OWNCLOUD_ROOT_PASSWORD?OWNCLOUD_ROOT_PASSWORD variable does not exist}
+      - MYSQL_USER=${OWNCLOUD_MYSQL_USERNAME?OWNCLOUD_MYSQL_USERNAME variable does not exist}
+      - MYSQL_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD?OWNCLOUD_MYSQL_PASSWORD variable does not exist}
+      - MYSQL_DATABASE=owncloud
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${OWNCLOUD_ROOT_PASSWORD?OWNCLOUD_ROOT_PASSWORD variable does not exist}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /var/data/owncloud/mysql:/var/lib/mysql
+  owncloud-redis:
+#Redis database for owncloud
+    image: redis:6
+    container_name: owncloud-redis
+    restart: unless-stopped
+    command: ["--databases", "1"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /var/data/owncloud/redis:/data
+  rsnapshot:
+#rsnapshot is a filesystem snapshot utility based on rsync. rsnapshot makes it easy to make periodic snapshots of local machines, and remote machines
+    image: lscr.io/linuxserver/rsnapshot
+    container_name: rsnapshot
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - /var/data/rsnapshot/config:/config
+      - /mnt/snapshots:/.snapshots #optional
+      - /mnt/external:/data #optional
+    restart: unless-stopped
+    networks:
+      - docker-only
