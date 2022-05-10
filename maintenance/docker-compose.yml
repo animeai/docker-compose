@@ -1,8 +1,9 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
+
 services:
   dozzle:
 #Dozzle is a simple and responsive application that provides you with a web based interface to monitor your Docker container logs live. 
@@ -19,15 +20,15 @@ services:
       - traefik.http.routers.dozzle-https.tls.certresolver=myresolver
       - traefik.http.routers.dozzle-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   librespeed:
 #Librespeed is a very lightweight Speedtest implemented in Javascript, using XMLHttpRequest and Web Workers. No Flash, No Java, No Websocket,
     image: lscr.io/linuxserver/librespeed
     container_name: librespeed
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - PASSWORD=PASSWORD
       - CUSTOM_RESULTS=false
       - DB_TYPE=sqlite 
@@ -43,13 +44,13 @@ services:
       - traefik.http.routers.exportarr-https.tls.certresolver=myresolver
       - traefik.http.routers.exportarr-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   monitorr:
 #Monitorr is a self-hosted PHP web app that monitors the status of local and remote network services, websites, and applications.
     image: monitorr/monitorr
     container_name: monitorr
     environment:
-      TZ: Europe/London
+      TZ: ${TIMEZONE?TIMEZONE Variable not set}
       PGID: 0
       PUGI: 0
     volumes:
@@ -64,14 +65,14 @@ services:
       - traefik.http.routers.monitorr-https.tls.certresolver=myresolver
       - traefik.http.routers.monitorr-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   netbootxyz:
 #netboot.xyz enables you to PXE boot many Operating System installers and utilities from a simple to use menu powered by the iPXE project.
     image: lscr.io/linuxserver/netbootxyz
     container_name: netbootxyz
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
 #      - MENU_VERSION=1.9.9 #Leave commented for latest, uncomment to select
       - PORT_RANGE=30000:30010 #optional
       - SUBFOLDER=/ #optional
@@ -91,7 +92,46 @@ services:
       - traefik.http.routers.netbootxyz-https.tls.certresolver=myresolver
       - traefik.http.routers.netbootxyz-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
+  pihole-one:
+    container_name: pihole-one
+    image: pihole/pihole:latest
+    hostname: pi-hole
+#     cap_add: # Uncomment if you want to use Pi-Hole for DHCP
+#       - NET_ADMIN
+    ports:
+      - 443/tcp
+      - 53/tcp
+      - 53/udp
+#       - 67/udp # Uncomment if you want to use Pi-Hole for DHCP
+      - 80/tcp
+      - 22/tcp
+    environment:
+      - FTLCONF_REPLY_ADDR4=192.168.1.5
+      - WEBPASSWORD=${WEBPASSWORD}
+      - PIHOLE_DNS_=192.168.1.6;192.168.1.13
+    volumes:
+      - /volume1/docker/pihole-unbound/pihole/volume:/etc/pihole:rw
+      - /volume1/docker/pihole-unbound/pihole/config/hosts:/etc/hosts:ro
+      - /volume1/docker/pihole-unbound/pihole/config/resolv.conf:/etc/resolv.conf:ro
+      - /volume1/docker/pihole-unbound/pihole/config/dnsmasq.conf:/etc/dnsmasq.d/02-network.conf:ro
+      - /volume1/docker/pihole-unbound/pihole/config/pihole-FTL.conf:/etc/pihole/pihole-FTL.conf:ro
+    networks:
+      smarthome:
+        ipv4_address: ${PIHOLE_ONE_IP?PIHOLE_ONE_IP Variable not set}
+    restart: always
+  pihole-unbound:
+    container_name: unbound
+    image: mvance/unbound:latest
+    hostname: syn-unbound
+    mac_address: d0:ca:ab:cd:ef:02
+    ports:
+      - 53/tcp
+      - 53/udp
+    networks:
+      smarthome:
+        ipv4_address: ${PIHOLEUNBOUND_IP?PIHOLEUNBOUND_IP Variable not set}
+    restart: always
   portainer:
 #Portainer is a self-service container service delivery platform. It is the definitive container management GUI for Kubernetes, Docker and Swarm.
     image: portainer/portainer-ce:latest
@@ -111,7 +151,7 @@ services:
       - traefik.http.routers.portainer-https.tls.certresolver=myresolver
       - traefik.http.routers.portainer-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   portus:
 #Self hosted registry
     build: .
@@ -146,7 +186,7 @@ services:
       - portus-db
       - portus-webpack
   networks:
-    - t2_proxy
+    t2_proxy:
   portus-background:
     image: opensuse/portus:development
     container_name: portus-background
@@ -222,7 +262,7 @@ services:
         - traefik.http.routers.portus-registry-https.tls.certresolver=myresolver
 #        - traefik.http.routers.portus-registry-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   depends_on:
     - portus
   taisun:
@@ -241,7 +281,7 @@ services:
       - traefik.http.routers.taisun-https.tls.certresolver=myresolver
       - traefik.http.routers.taisun-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   uptime-kuma:
 #Is a self-hosted monitoring tool like "Uptime Robot
     image: louislam/uptime-kuma
@@ -258,7 +298,7 @@ services:
       - traefik.http.routers.kuma-https.tls.certresolver=myresolver
       - traefik.http.routers.kuma-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   wireguard:
     image: lscr.io/linuxserver/wireguard
     container_name: wireguard
@@ -269,7 +309,7 @@ services:
       - PUID=1 
       - PGID=1
       - SERVERURL=${WIREGUARD_SUB?WIREGUARD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
-      - TZ=Europe/London
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - SERVERPORT=51820
       - PEERS=1
       - PEERDNS=auto

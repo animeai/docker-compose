@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -9,9 +9,9 @@ services:
     image: lscr.io/linuxserver/emulatorjs
     container_name: emulatorjs
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - SUBFOLDER=/ #optional
     volumes:
       - /var/data/emulatorjs/config:/config
@@ -32,7 +32,7 @@ services:
       - traefik.http.routers.emulatorjs-https.tls.certresolver=myresolver
       - traefik.http.routers.emulatorjs-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   openra:
 #OpenRA is an open source project that recreates and modernizes classic real time strategy games, like Red Alert, Command & Conquer, and Dune
     image: rmoriz/openra
@@ -54,7 +54,7 @@ services:
       - traefik.http.routers.openra-https.tls.certresolver=myresolver
       - traefik.http.routers.openra-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   supermario:
 #Infinite Mario in HTML5 JavaScript - using Canvas and Audio elements
     image: pengbai/docker-supermario
@@ -69,4 +69,4 @@ services:
       - traefik.http.routers.supermario-https.tls.certresolver=myresolver
       - traefik.http.routers.supermario-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:

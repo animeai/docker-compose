@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -9,8 +9,8 @@ services:
     image: lscr.io/linuxserver/bookstack
     container_name: bookstack
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
       - APP_URL=https://${BOOKSTACK_SUB?BOOKSTACK_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
       - DB_HOST=bookstack-db
       - DB_USER=bookstack
@@ -30,16 +30,16 @@ services:
     depends_on:
      - bookstack-db
     networks:
-      - t2_proxy
+      t2_proxy:
   bookstack-db:
 #Database for bookstack
     image: lscr.io/linuxserver/mariadb
     container_name: bookstack_db
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
       - MYSQL_ROOT_PASSWORD=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT Variable not set}
-      - TZ=Europe/London
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - MYSQL_DATABASE=bookstackapp
       - MYSQL_USER=bookstack
       - MYSQL_PASSWORD=${BOOKSTACK_MYSQL?BOOKSTACK_MYSQL Variable not set}
@@ -51,9 +51,9 @@ services:
     image: lscr.io/linuxserver/code-server
     container_name: code-server
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - PASSWORD=${BOOKSTACK_MYSQL?BOOKSTACK_MYSQL Variable not set}
 #      - HASHED_PASSWORD= #optional
 #      - SUDO_PASSWORD=password #optional
@@ -74,7 +74,7 @@ services:
       - traefik.http.routers.codeserver-https.tls.certresolver=myresolver
       - traefik.http.routers.codeserver-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   ghost:
 #Ghost is an open source, professional publishing platform built on a modern Node.js technology stack — designed for teams who need power, flexibility and performance.
     image: ghost:4-alpine
@@ -93,7 +93,6 @@ services:
       url: http://${GHOST_SUB?GHOST_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
       # contrary to the default mentioned in the linked documentation, this image defaults to NODE_ENV=production (so development mode needs to be explicitly specified if desired)
       #NODE_ENV: development
-    restart: unless-stopped
     labels:
       - traefik.enable=true
       - traefik.http.services.ghost-https.loadbalancer.server.port=22300 
@@ -105,7 +104,7 @@ services:
     depends_on:
       - ghost-db
     networks:
-      - t2_proxy 
+      t2_proxy: 
   ghost-db:
 #Database for ghost
     image: mysql:8.0
@@ -130,7 +129,7 @@ services:
       - traefik.http.routers.privatebin-https.tls.certresolver=myresolver
       - traefik.http.routers.privatebin-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
     depends_on:
       - hastebin-redis
   hastebin-redis:
@@ -153,7 +152,6 @@ services:
       - POSTGRES_USER=${JOPLINDB_USER?JOPLINDB_USER Variable not set}
       - POSTGRES_PORT=${JOPLINDB_PORT?JOPLINDB_PORT Variable not set}
       - POSTGRES_HOST=joplindb
-    restart: unless-stopped
     labels:
       - traefik.enable=true
       - traefik.http.services.whiteboard-https.loadbalancer.server.port=22300 
@@ -163,7 +161,7 @@ services:
       - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
       - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
     networks:
-      - t2_proxy 
+      t2_proxy: 
     depends_on:
       joplin-db
   joplin-db:
@@ -199,15 +197,15 @@ services:
       - traefik.http.routers.languagetool-https.tls.certresolver=myresolver
       - traefik.http.routers.languagetool-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   openvscode-server:
 #Provides a version of VS Code that runs a server on a remote machine and allows access through a modern web browser
     image: lscr.io/linuxserver/openvscode-server
     container_name: openvscode-server
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
 #      - CONNECTION_TOKEN= #optional
 #      - CONNECTION_SECRET= #optional path to internal file overrides CONNECTION_TOKEN
 #      - SUDO_PASSWORD=${SUDO_PASSWORD?SUDO_PASSWORD Variable not set} #optional
@@ -224,7 +222,7 @@ services:
       - traefik.http.routers.vscode-https.tls.certresolver=myresolver
       - traefik.http.routers.vscode-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   privatebin:
 #PrivateBin is a minimalist, open source online pastebin where the server has zero knowledge of pasted data. Data is encrypted and decrypted in the browser
     image: privatebin/nginx-fpm-alpine
@@ -241,22 +239,23 @@ services:
       - traefik.http.routers.privatebin-https.tls.certresolver=myresolver
       - traefik.http.routers.privatebin-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   projectsend-personal:
 #ProjectSend is a self-hosted application (you can install it easily on your own VPS or shared web hosting account) that lets you upload files and assign them to specific clients that you create yourself! Secure, private and easy. No more depending on external services or e-mail to send those files!
     image: lscr.io/linuxserver/projectsend
     container_name: projectsend-personal
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - MAX_UPLOAD=<5000>
     volumes:
       - /var/data/projectsend/config:/config
       - /mnt/projectsend/data:/data
     ports:
       - 80:80
-    restart: unless-stopped    labels:
+    restart: unless-stopped
+    labels:
       - traefik.enable=true
       - traefik.http.services.projectsend-https.loadbalancer.server.port=5055
       - traefik.http.routers.projectsend-https.entrypoints=https
@@ -265,7 +264,7 @@ services:
       - traefik.http.routers.projectsend-https.tls.certresolver=myresolver
       - traefik.http.routers.projectsend-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   wordpress:
 #Wordpress ready to go
     image: wordpress
@@ -280,7 +279,6 @@ services:
       WORDPRESS_DB_NAME: ${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS Variable not set}
     volumes:
       - /var/data/wordpress/html:/var/www/html
-    restart: unless-stopped
     labels:
       - traefik.enable=true
       - traefik.http.services.wordpress-https.loadbalancer.server.port=22300 
@@ -290,7 +288,7 @@ services:
       - traefik.http.routers.wordpress-https.tls.certresolver=myresolver
       - traefik.http.routers.wordpress-https.middlewares=authelia@docker
     networks:
-      - t2_proxy 
+      t2_proxy: 
     depends_on:
       - wordpress-db
   wordpress-db:

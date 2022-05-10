@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -31,7 +31,7 @@ services:
       - traefik.http.routers.drawio-https.tls.certresolver=myresolver
       - traefik.http.routers.drawio-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   gitea:
 #Gitea - Git with a cup of tea · A painless self-hosted Git service. 
     image: gitea/gitea:1.16.4
@@ -62,7 +62,7 @@ services:
     depends_on:
       - gitea-db
     networks:
-      - t2_proxy 
+      t2_proxy: 
   gitea-db:
 #Gitea database
     image: mysql:8
@@ -98,7 +98,7 @@ services:
       - traefik.http.routers.kanboard-https.tls.certresolver=myresolver
       - traefik.http.routers.kanboard-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
     depends_on:
       - kanboard-db
   kanboard-db:
@@ -118,16 +118,17 @@ services:
     image: lscr.io/linuxserver/projectsend
     container_name: projectsend-work
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - MAX_UPLOAD=<5000>
     volumes:
       - /var/data/projectsendwork/config:/config
       - /mnt/projectsendwork/data:/data
     ports:
       - 80:80
-    restart: unless-stopped    labels:
+    restart: unless-stopped
+    labels:
       - traefik.enable=true
       - traefik.http.services.projectsendwork-https.loadbalancer.server.port=80
       - traefik.http.routers.projectsendwork-https.entrypoints=https
@@ -136,7 +137,7 @@ services:
       - traefik.http.routers.projectsendwork-https.tls.certresolver=myresolver
       - traefik.http.routers.projectsendwork-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   whiteboard:
 #WBO is an online collaborative whiteboard that allows many users to draw simultaneously on a large virtual board. The board is updated in real time
     image: lovasoa/wbo:latest 
@@ -153,4 +154,4 @@ services:
       - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
       - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
     networks:
-      - t2_proxy    
+      t2_proxy:    
