@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -17,20 +17,20 @@ services:
       - traefik.enable=true
       - traefik.http.services.audiobookshelf-https.loadbalancer.server.port=80
       - traefik.http.routers.audiobookshelf-https.entrypoints=https
-      - traefik.http.routers.audiobookshelf-https.rule=Host(`${KUMA_SUB?KUMA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.audiobookshelf-https.rule=Host(`${AUDIOBOOKSHELF_SUB?AUDIOBOOKSHELF_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.audiobookshelf-https.tls=true
       - traefik.http.routers.audiobookshelf-https.tls.certresolver=myresolver
       - traefik.http.routers.audiobookshelf-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   booksonic-air:
 #Booksonic Air - A server for streaming your audiobooks, successor to the original Booksonic server. Based on Airsonic. 
     image: lscr.io/linuxserver/booksonic-air
     container_name: booksonic-air
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - CONTEXT_PATH=${BOOKSONIC_SUB?BOOKSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
     volumes:
       - /var/data/booksonic/config:/config
@@ -46,4 +46,4 @@ services:
       - traefik.http.routers.booksonic-https.tls.certresolver=myresolver
       - traefik.http.routers.booksonic-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:

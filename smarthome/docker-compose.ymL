@@ -1,17 +1,88 @@
 ---
-version: "3.7"
+#Smarthome, security, and utility apps
+version: "3.8"
 networks:
   t2_proxy:
-    external: true
+    external: 
+  smarthome:
+    driver: macvlan
+    driver_opts:
+      parent: ${ETHERNET_PORT?ETHERNET_PORT Variable not set}
+    ipam:
+      config:
+        subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
+        gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
+        ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+  adguardhome-one:
+    image: adguard/adguardhome
+    container_name: adguardhome
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 784:784/udp
+      - 853:853/tcp
+      - 3000:3000/tcp
+      - 80:80/tcp
+      - 443:443/tcp
+    volumes:
+      - /var/data/adguardhome/work:/opt/adguardhome/work
+      - /var/data/adguardhome/config:/opt/adguardhome/conf
+    restart: unless-stopped
+    networks:
+      smarthome:
+        - ipv4_address: ${ADGUARDHOME_ONE_IP?ADGUARDHOME_ONE_IP Variable not set}
+      t2_proxy:
+  adguardhome-two:
+    image: adguard/adguardhome
+    container_name: adguardhome
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 784:784/udp
+      - 853:853/tcp
+      - 3000:3000/tcp
+      - 80:80/tcp
+      - 443:443/tcp
+    volumes:
+      - /var/data/adguardhome2/work :/opt/adguardhome/work
+      - /var/data/adguardhome2/config:/opt/adguardhome/conf
+    restart: unless-stopped
+    networks:
+      smarthome:
+        ipv4_address: ${ADGUARDHOME_TWO_IP?ADGUARDHOME__IP Variable not set}
+      t2_proxy:
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.adguardhome-one-https.loadbalancer.server.port=443
+      - traefik.http.routers.adguardhome-one-https.entrypoints=https
+      - traefik.http.routers.adguardhome-one-https.rule=Host(`${ADGUARDHOME_ONE_SUB?ADGUARDHOME_ONE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.adguardhome-one-https.tls=true
+      - traefik.http.routers.adguardhome-one-https.tls.certresolver=myresolver
+      - traefik.http.routers.adguardhome-one-https.middlewares=authelia@docker
+  adguardhome-sync:
+#https://github.com/bakito/adguardhome-sync
+#Synchronize AdGuardHome config to a replica instance.
+    image: lscr.io/linuxserver/adguardhome-sync
+    container_name: adguardhome-sync
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - CONFIGFILE=/config/adguardhome-sync.yaml #optional
+    volumes:
+      - /var/data/adguardhome-sync/config:/config
+    ports:
+      - 8080:8080
+    restart: unless-stopped
 services:
   grocy:
 #ERP beyond your fridge. grocy is a web-based self-hosted groceries & household management solution for your home.
     image: lscr.io/linuxserver/grocy
     container_name: grocy
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/grocy/config:/config
     restart: unless-stopped
@@ -24,10 +95,9 @@ services:
       - traefik.http.routers.grocy-https.tls.certresolver=myresolver
       - traefik.http.routers.grocy-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   magicmirror:
 #MagicMirror² is an open source modular smart mirror platform. With a growing list of installable modules, the MagicMirror² allows you to convert your hallway or bathroom mirror into your personal assistant.
-    container_name: magicmirror
     container_name: magicmirror
     image: bastilimbach/docker-magicmirror
     restart: unless-stopped
@@ -44,7 +114,7 @@ services:
       - traefik.http.routers.magicmirror-https.tls.certresolver=myresolver
       - traefik.http.routers.magicmirror-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   mealie:
 #Mealie is a self hosted recipe manager and meal planner with a RestAPI backend and a reactive frontend application built in Vue for a pleasant user experience
     container_name: mealie
@@ -53,7 +123,7 @@ services:
     environment:
       PUID: 0
       PGID: 0
-      TZ: Europe/London
+      TZ: ${TIMEZONE?TIMEZONE Variable not set}
       RECIPE_PUBLIC: 'true'
       RECIPE_SHOW_NUTRITION: 'true'
       RECIPE_SHOW_ASSETS: 'true'
@@ -71,7 +141,7 @@ services:
       - traefik.http.routers.mealie-https.tls.certresolver=myresolver
       - traefik.http.routers.mealie-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   metatube:
 #Python web ui to download videos from YouTube and add metadata on top of it
     restart: always
@@ -92,7 +162,7 @@ services:
         - traefik.http.routers.metatube-https.tls.certresolver=myresolver
         - traefik.http.routers.metatube-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   metube:
 #Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites 
     image: alexta69/metube
@@ -109,7 +179,7 @@ services:
         - traefik.http.routers.metatube-https.tls.certresolver=myresolver
         - traefik.http.routers.metatube-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   whoogle-search:
 #Self-hosted, ad-free, privacy-respecting metasearch engine. 
     image: benbusby/whoogle-search
@@ -126,7 +196,7 @@ services:
       - traefik.http.routers.whoogle-https.tls.certresolver=myresolver
       - traefik.http.routers.whoogle-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   youtubedl:
 #YoutubeDL-Material is a Material Design frontend for youtube-dl. It's coded using Angular 9 for the frontend, and Node.js on the backend.
     environment: 
@@ -149,4 +219,4 @@ services:
       - traefik.http.routers.youtubedl-https.tls.certresolver=myresolver
       - traefik.http.routers.youtubedl-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:

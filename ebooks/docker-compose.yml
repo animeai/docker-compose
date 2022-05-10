@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -9,9 +9,9 @@ services:
     image: lscr.io/linuxserver/calibre
     container_name: calibre
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
 #      - PASSWORD= #optional
 #      - CLI_ARGS= #optional
     volumes:
@@ -30,15 +30,15 @@ services:
       - traefik.http.routers.calibre-https.tls.certresolver=myresolver
       - traefik.http.routers.calibre-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   calibre-web:
 #Calibre-Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
     image: lscr.io/linuxserver/calibre-web
     container_name: calibre-web
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - DOCKER_MODS=linuxserver/calibre-web:calibre #optional
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
     volumes:
@@ -56,15 +56,15 @@ services:
       - traefik.http.routers.calibreweb-https.tls.certresolver=myresolver
       - traefik.http.routers.calibre-web-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   cops:
 #COPS links to your Calibre library database and allows downloading and emailing of books directly from a web browser and provides a OPDS feed to connect to your devices.
     image: lscr.io/linuxserver/cops
     container_name: cops
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/cops/config:/config
       - /mnt/ebooks:/books
@@ -78,7 +78,7 @@ services:
       - traefik.http.routers.cops-https.tls.certresolver=myresolver
       - traefik.http.routers.cops-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   komga:
 #Komga is a free and open source comics/mangas server. Chat on Discord. Features. Browse libraries, series and books via a responsive web UI 
     image: gotson/komga
@@ -98,15 +98,15 @@ services:
       - traefik.http.routers.komga-https.tls.certresolver=myresolver
       - traefik.http.routers.komga-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   lazylibrarian:
 #LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs. 
     image: lscr.io/linuxserver/lazylibrarian
     container_name: lazylibrarian
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - DOCKER_MODS=linuxserver/calibre-web:calibre|linuxserver/mods:lazylibrarian-ffmpeg #optional
     volumes:
       - /var/data/lazylibrarian/config:/config
@@ -123,15 +123,15 @@ services:
       - traefik.http.routers.lazylibrarian-https.tls.certresolver=myresolver
       - traefik.http.routers.lazylibrarian-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   ubooquity:
 #Ubooquity is a free home server for your comics and ebooks library · Read your ebooks and comics on your favorite device, wherever you go 
     image: lscr.io/linuxserver/ubooquity
     container_name: ubooquity
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/ubooquity/config:/config
       - /mnt/ebooks:/books
@@ -153,4 +153,4 @@ services:
       - traefik.http.routers.ubooquity-admin-https.tls.certresolver=myresolver
       - traefik.http.routers.ubooquity-admin-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:

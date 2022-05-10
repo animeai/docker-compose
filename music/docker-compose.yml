@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -9,10 +9,10 @@ services:
     image: lscr.io/linuxserver/airsonic-advanced
     container_name: airsonic-advanced
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
-      - CONTEXT_PATH=AIRSONIC_SUB?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set} #optional
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - CONTEXT_PATH=${AIRSONIC_SUB?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set} #optional
     volumes:
       - /var/data/airsonic/config:/config
       - /mnt/music:/music
@@ -28,7 +28,9 @@ services:
       - traefik.http.routers.airsonic-https.tls.certresolver=myresolver
       - traefik.http.routers.airsonic-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
+    devices:
+      - /dev/snd:/dev/snd
   beetsio:
 #beets.io based man-in-the-middle of your torrent client and music player
     image: sentriz/betanin
@@ -51,15 +53,15 @@ services:
         - traefik.http.routers.betanin-https.tls=true
         - traefik.http.routers.betanin-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   headphones:
 #Headphones is an automated music downloader for NZB and Torrent, written in Python. It supports SABnzbd, NZBget, Transmission, µTorrent and Blackhole.
     image: lscr.io/linuxserver/headphones
     container_name: headphones
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/headphones/config:/config
       - /mnt/downloads:/downloads
@@ -74,15 +76,15 @@ services:
       - traefik.http.routers.headphones-https.tls.certresolver=myresolver
       - traefik.http.routers.headphones-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   mstream:
 #mstream is a personal music streaming server. You can use mStream to stream your music from your home computer to any device, anywhere. 
     image: lscr.io/linuxserver/mstream
     container_name: mstream
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/mstream/config:/config
       - /mnt/music:/music
@@ -97,4 +99,4 @@ services:
       - traefik.http.routers.mstream-https.tls.certresolver=myresolver
       - traefik.http.routers.mstream-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:

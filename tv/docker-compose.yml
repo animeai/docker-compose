@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -9,9 +9,9 @@ services:
     image: lscr.io/linuxserver/bazarr
     container_name: bazarr
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/bazarr/config:/config
       - /mnt/movies:/movies
@@ -26,15 +26,15 @@ services:
       - traefik.http.routers.bazarr-https.tls.certresolver=myresolver
       - traefik.http.routers.bazarr-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   embystat:
 #EmbyStat is a personal web server that can calculate all kinds of statistics from your (local) Emby or Jellyfin server. Just install this on your server and let him calculate all kinds of fun stuff. This project is still in Alpha fase, but feel free to pull in on your computer and test it out yourself.
     image: lscr.io/linuxserver/embystat
     container_name: embystat
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/embystat/config:/config
     restart: unless-stopped
@@ -47,15 +47,15 @@ services:
       - traefik.http.routers.embystat-https.tls.certresolver=myresolver
       - traefik.http.routers.embystat-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   emby:
 #Bringing all of your home videos, music, and photos together into one place has never been easier
     image: lscr.io/linuxserver/emby
     container_name: emby
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/emby/config:/config
       - /mnt/tv:/data/tvshows
@@ -71,7 +71,7 @@ services:
       - traefik.http.routers.emby-https.tls.certresolver=myresolver
       - traefik.http.routers.emby-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   gaps:
 #Search your movies and find missing movies from MovieDB collections. 
     image: housewrecker/gaps:latest # housewrecker/gaps:arm-latest for pi
@@ -88,15 +88,15 @@ services:
       - traefik.http.routers.gitea-https.tls.certresolver=myresolver
       - traefik.http.routers.gitea-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   jellyfin:
 #Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached.
     image: lscr.io/linuxserver/jellyfin
     container_name: jellyfin
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SUB?JELLYFIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
     volumes:
       - /var/data/jellyfin/config:/config
@@ -115,7 +115,7 @@ services:
       - traefik.http.routers.jellyfin-https.tls.certresolver=myresolver
       - traefik.http.routers.jellyfin-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   moviematch:
 #MovieMatch connects to your Plex server and gets a list of movies (from any libraries marked as a movie library). As many people as you want connect to your MovieMatch server and get a list of shuffled movies. Swipe right to 👍, swipe left to 👎. If two (or more) people swipe right on the same movie, it'll show up in everyone's matches. The movies that the most people swiped right on will show up first.
    image: lukechannings/moviematch:latest
@@ -132,15 +132,15 @@ services:
       - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
       - traefik.http.routers.dashmachine-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   ombi:
 #Ombi is a self-hosted web application that automatically gives your shared Plex or Emby users the ability to request content by themselves!
     image: lscr.io/linuxserver/ombi
     container_name: ombi
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - BASE_URL=/ombi #optional
     volumes:
       - /var/data/ombi/config:/config
@@ -154,15 +154,15 @@ services:
       - traefik.http.routers.ombi-https.tls.certresolver=myresolver
       - traefik.http.routers.ombi-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   overseerr:
 #Overseerr is a request management and media discovery tool built to work with your existing Plex ecosystem.
     image: lscr.io/linuxserver/overseerr
     container_name: overseerr
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/overseerr/config:/config
     restart: unless-stopped
@@ -175,14 +175,14 @@ services:
       - traefik.http.routers.overseerr-https.tls.certresolver=myresolver
       - traefik.http.routers.overseerr-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   plex:
 #Plex gives you the power to add, access and share all the entertainment that matters to you, on almost any device.
     image: lscr.io/linuxserver/plex
     container_name: plex
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
       - VERSION=docker
 #      - PLEX_CLAIM=
     ports:
@@ -212,15 +212,15 @@ services:
       - traefik.http.routers.plex-https.tls.certresolver=myresolver
       - traefik.http.routers.plex-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   tautulli:
 #Tautulli is a 3rd party application that you can run alongside your Plex Media Server to monitor activity and track various statistics.
     image: lscr.io/linuxserver/tautulli
     container_name: tautulli
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/tautulli/config:/config
     restart: unless-stopped
@@ -233,4 +233,4 @@ services:
       - traefik.http.routers.tautulli-https.tls.certresolver=myresolver
       - traefik.http.routers.tautulli-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:

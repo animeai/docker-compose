@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -18,16 +18,16 @@ services:
       - /mnt/borgmatic/ssh:/root/.ssh                  # ssh key for remote repositories
       - /mnt/borgmatic/cache:/root/.cache/borg    # checksums used for deduplication
     environment:
-      - TZ=Europe/London
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - BORG_PASSPHRASE=${BORG_PASSPHRASE?BORG_PASSPHRASE Variable not set}
   duplicati:
 #Duplicati was designed for online backups from scratch. It is not only data efficient but also handles network issues nicely
     image: lscr.io/linuxserver/duplicati
     container_name: duplicati
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
 #      - CLI_ARGS= #optional
     volumes:
       - /var/data/duplicati/config:/config
@@ -43,15 +43,15 @@ services:
       - traefik.http.routers.duplicati-https.tls.certresolver=myresolver
       - traefik.http.routers.duplicati-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   nextcloud:
 #Nextcloud Hub is the first completely integrated on-premises content collaboration platform on the market, ready for a new generation of users 
     image: lscr.io/linuxserver/nextcloud
     container_name: nextcloud
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/nextcloud/config:/config
       - /mnt:/data
@@ -67,7 +67,7 @@ services:
       - traefik.http.routers.nextcloud-https.tls.certresolver=myresolver
       - traefik.http.routers.nextcloud-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   owncloud:
 #ownCloud, your collaboration tool · Filesharing, trusted by 200 million users worldwide · For organizations with high data governance requirements
     image: owncloud/server
@@ -101,7 +101,7 @@ services:
       - traefik.http.routers.owncloud-https.tls.certresolver=myresolver
       - traefik.http.routers.owncloud-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
     depends_on:
       - owncloud-mariadb
       - owncloud-redis
@@ -141,9 +141,9 @@ services:
     image: lscr.io/linuxserver/rsnapshot
     container_name: rsnapshot
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/rsnapshot/config:/config
       - /mnt/snapshots:/.snapshots #optional

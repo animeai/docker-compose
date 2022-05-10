@@ -1,5 +1,5 @@
 ---
-version: "3.7"
+version: "3.8"
 networks:
   t2_proxy:
     external: true
@@ -20,7 +20,7 @@ services:
       - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
       - traefik.http.routers.dashmachine-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   flame:
 #Flame is self-hosted startpage for your server. Its design is inspired (heavily) by SUI. Flame is very easy to setup and use. With built-in editor
     image: pawelmalak/flame
@@ -40,15 +40,15 @@ services:
       - traefik.http.routers.flame-https.tls.certresolver=myresolver
       - traefik.http.routers.flame-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   heimdall:
 #Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way. Simplicity is the key
     image: lscr.io/linuxserver/heimdall
     container_name: heimdall
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/heimdall/config:/config
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
       - traefik.http.routers.heimdall-https.tls.certresolver=myresolver
       - traefik.http.routers.heimdall-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   homer:
 #Homer is a full static html/js dashboard, generated from the source in /src using webpack
     image: b4bz/homer
@@ -81,16 +81,16 @@ services:
       - traefik.http.routers.homer-https.tls.certresolver=myresolver
       - traefik.http.routers.homer-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
 
   htpcmanager:
 #Htpcmanager is a front end for many htpc related applications.
     image: lscr.io/linuxserver/htpcmanager
     container_name: htpcmanager
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/htpcmanager/config:/config
     restart: unless-stopped
@@ -103,7 +103,7 @@ services:
       - traefik.http.routers.htpcmanager-https.tls.certresolver=myresolver
       - traefik.http.routers.htpcmanager-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   linkding:
 #linkding is a simple bookmark service that you can host yourself. It's designed be to be minimal, fast and easy to set up using Docker
     image: sissbruecker/linkding:latest
@@ -120,15 +120,15 @@ services:
       - traefik.http.routers.linkding-https.tls.certresolver=myresolver
       - traefik.http.routers.linkding-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   muximux:
 #​Muximux is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
     image: lscr.io/linuxserver/muximux
     container_name: muximux
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/muximux/config:/config
     restart: unless-stopped
@@ -141,14 +141,14 @@ services:
       - traefik.http.routers.muximux-https.tls.certresolver=myresolver
       - traefik.http.routers.muximux-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   organizr:
 #Organizr allows you to setup "Tabs" that will be loaded all in one webpage. You can then work on your server with ease.
     image: organizr/organizr
     container_name: organizr
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
       - fpm="false"
       - branch="v2-master"
     volumes:
@@ -163,7 +163,7 @@ services:
       - traefik.http.routers.organizr-https.tls.certresolver=myresolver
       - traefik.http.routers.organizr-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
   snippitbox:
 #Snippet Box is a simple self-hosted app for organizing your code snippets. It allows you to easily create, edit, browse and manage your snippets 
     image: pawelmalak/snippet-box
@@ -180,4 +180,4 @@ services:
       - traefik.http.routers.snippitbox-https.tls.certresolver=myresolver
       - traefik.http.routers.snippitbox-https.middlewares=authelia@docker
     networks:
-      - t2_proxy
+      t2_proxy:
