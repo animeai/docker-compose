@@ -1,9 +1,9 @@
 ---
-#Smarthome, security, and utility apps
 version: "3.8"
 networks:
   t2_proxy:
-    external: 
+    external:
+services:
   smarthome:
     driver: macvlan
     driver_opts:
@@ -74,7 +74,6 @@ networks:
     ports:
       - 8080:8080
     restart: unless-stopped
-services:
   grocy:
 #ERP beyond your fridge. grocy is a web-based self-hosted groceries & household management solution for your home.
     image: lscr.io/linuxserver/grocy
