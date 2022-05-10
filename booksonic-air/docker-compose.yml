@@ -1,30 +1,11 @@
 ---
+#Booksonic Air - A server for streaming your audiobooks, successor to the original Booksonic server. Based on Airsonic. 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
-  audiobookshelf:
-#Audiobookshelf is a self-hosted audiobook server for managing and playing your audiobooks
-    image: advplyr/audiobookshelf
-    container_name: audiobookshelf
-    restart: unless-stopped
-    volumes:
-      - /var/data/audiobookshelf/config:/config
-      - /var/data/audiobookshelf/metadata:/metadata
-      - /mnt/audiobooks:/audiobooks
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.audiobookshelf-https.loadbalancer.server.port=80
-      - traefik.http.routers.audiobookshelf-https.entrypoints=https
-      - traefik.http.routers.audiobookshelf-https.rule=Host(`${AUDIOBOOKSHELF_SUB?AUDIOBOOKSHELF_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.audiobookshelf-https.tls=true
-      - traefik.http.routers.audiobookshelf-https.tls.certresolver=myresolver
-      - traefik.http.routers.audiobookshelf-https.middlewares=authelia@docker
-    networks:
-      t2_proxy:
   booksonic-air:
-#Booksonic Air - A server for streaming your audiobooks, successor to the original Booksonic server. Based on Airsonic. 
     image: lscr.io/linuxserver/booksonic-air
     container_name: booksonic-air
     environment:
@@ -36,7 +17,7 @@ services:
       - /var/data/booksonic/config:/config
       - /mnt/audiobooks:/audiobooks
       - /mnt/podcasts:/podcasts
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.booksonic-https.loadbalancer.server.port=4040

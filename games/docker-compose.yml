@@ -16,7 +16,7 @@ services:
     volumes:
       - /var/data/emulatorjs/config:/config
       - /mnt/emulation:/data
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.emulatorjs-backend-https.loadbalancer.server.port=3000
@@ -44,7 +44,7 @@ services:
       - AdvertiseOnline=false
       - Password=${OPENRA_PASS?OPENRA_PASS Variable not set}
       - EnableSingleplayer=${OPENRA_SINGLE?OPENRA_SINGLE Variable not set}
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.openra-https.loadbalancer.server.port=1234 
@@ -59,7 +59,7 @@ services:
 #Infinite Mario in HTML5 JavaScript - using Canvas and Audio elements
     image: pengbai/docker-supermario
     container_name: supermario
-    restart: unless-stopped    
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}    
     labels:
       - traefik.enable=true
       - traefik.http.services.supermario-https.loadbalancer.server.port=8080 

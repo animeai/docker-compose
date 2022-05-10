@@ -34,7 +34,7 @@ services:
       - DB_TYPE=sqlite 
     volumes:
       - /var/data/librespeed/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.exportarr-https.loadbalancer.server.port=80 
@@ -55,7 +55,7 @@ services:
       PUGI: 0
     volumes:
       - /var/data/monitorr/app:/app
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.monitorr-https.loadbalancer.server.port=80
@@ -82,7 +82,7 @@ services:
     ports:
       - 3000:3000
       - 69:69/udp
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.netbootxyz-https.loadbalancer.server.port=80
@@ -213,7 +213,7 @@ services:
   portus-clair:
     image: quay.io/coreos/clair:v2.0.2
     container_name: portus-clair
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
       - /tmp:/tmp
       - /var/data/portus/clair/clair.yml:/clair.yml
@@ -271,7 +271,7 @@ services:
     container_name: taisun
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.taisun-https.loadbalancer.server.port=3000
@@ -286,7 +286,7 @@ services:
 #Is a self-hosted monitoring tool like "Uptime Robot
     image: louislam/uptime-kuma
     container_name: uptimekuma
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
       - /var/data/uptime-kuma/data:/app/data
     labels:
@@ -320,4 +320,4 @@ services:
       - /lib/modules:/lib/modules
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

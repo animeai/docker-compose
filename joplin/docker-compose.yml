@@ -1,0 +1,46 @@
+---
+#Joplin is an excellent open source note taking application with plenty of features. You can take notes, make to-do list and sync your notes across devices
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  joplin:
+    image: joplin/server:latest
+    container_name: joplin
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      - APP_PORT=22300
+      - APP_BASE_URL=${JOPLIN_SUB?JOPLIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - DB_CLIENT=pg
+      - POSTGRES_PASSWORD=${JOPLINDB_PASS?JOPLINDB_PASS Variable not set}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_USER=${JOPLINDB_USER?JOPLINDB_USER Variable not set}
+      - POSTGRES_PORT=${JOPLINDB_PORT?JOPLINDB_PORT Variable not set}
+      - POSTGRES_HOST=joplindb
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.whiteboard-https.loadbalancer.server.port=22300 
+      - traefik.http.routers.whiteboard-https.entrypoints=https
+      - traefik.http.routers.whiteboard-https.rule=Host(`${JOPLIN_SUB?JOPLIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.whiteboard-https.tls=true
+      - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
+      - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
+    networks:
+      t2_proxy: 
+    depends_on:
+      joplin-db
+  joplin-db:
+#Database for joplin
+    image: postgres:13
+    container_name: joplin-db
+    hostname: joplin-db
+    volumes:
+      - /var/data/joplindb/db:/var/lib/postgresql/data
+    ports:
+      - "${JOPLINDB_PORT?JOPLINDB_PORT Variable not set}:5432"
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      - POSTGRES_PASSWORD=${JOPLINDB_PASS?JOPLINDB_PASS Variable not set}
+      - POSTGRES_USER=${JOPLINDB_USER?JOPLINDB_USER Variable not set}
+      - POSTGRES_DB=${JOPLINDB_DB?JOPLINDB_DB Variable not set}

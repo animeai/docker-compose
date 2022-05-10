@@ -19,7 +19,7 @@ services:
     ports:
       - ${DELUGE_PORT?DELUGE_PORT Variable not set}:6881
       - ${DELUGE_PORT?DELUGE_PORT Variable not set}:6881/udp
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.deluge-https.loadbalancer.server.port=8112
@@ -38,7 +38,7 @@ services:
       - /mnt/exatorrent:/exa/exadir
     ports:
       - ${EXATORRENT_PORT?EXATORRENT_PORT Variable not set}:42069
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.exatorrent-https.loadbalancer.server.port=5000 
@@ -61,7 +61,7 @@ services:
       TOKEN: ${EXPORTARR_TOKEN?EXPORTARR_TOKEN Variable not set}
       RADARR_URL: "http://${RADARR_SUB?RADARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}"
       RADARR_TOKEN: ${RADARR_TOKEN?RADARR_TOKEN Variable not set}
-    restart: unless-stopped    
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}    
     labels:
       - traefik.enable=true
       - traefik.http.services.exportarr-https.loadbalancer.server.port=3000 
@@ -83,7 +83,7 @@ services:
     volumes:
       - /var/data/jackett/config:/config
       - /mnt/downloads:/downloads
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.jackett-https.loadbalancer.server.port=9117
@@ -106,7 +106,7 @@ services:
       - /var/data/lidarr/config:/config
       - /mnt/music:/music 
       - /mnt/downloads:/downloads
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.lidarr-https.loadbalancer.server.port=8686
@@ -130,7 +130,7 @@ services:
       - /mnt/downloads:/downloads
       - /mnt/tv:/tv
       - /mnt/anime:/anime
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.medusa-https.loadbalancer.server.port=8081
@@ -153,7 +153,7 @@ services:
       - /mnt/comics:/comics
       - /mnt/manga:/manga
       - /mnt/downloads:/downloads
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.mylar-https.loadbalancer.server.port=8090
@@ -176,7 +176,7 @@ services:
       - /path/to/data:/assets
     ports:
       - 8080:8080
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
         - traefik.enable=true
         - traefik.http.services.podgrab-https.loadbalancer.server.port=8080
@@ -195,7 +195,7 @@ services:
     volumes:
       - /var/data/posterr/config:/usr/src/app/config
       - /var/data/posterr/custom:/usr/src/app/public/custom
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.dashmachine-https.loadbalancer.server.port=3000
@@ -216,7 +216,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/prowlarr/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.prowlarr-https.loadbalancer.server.port=9696
@@ -242,7 +242,7 @@ services:
     ports:
       - ${QBITTORRENT_PORT?QBITTORRENT_PORT Variable not set}:6881
       - ${QBITTORRENT_PORT?QBITTORRENT_PORT Variable not set}:6881/udp
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.qbittorrent-https.loadbalancer.server.port=8080
@@ -265,7 +265,7 @@ services:
       - /var/data/radarr/config:/config
       - /mnt/movies:/movies
       - /mnt/downloads:/downloads
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.radarr-https.loadbalancer.server.port=7878
@@ -288,7 +288,7 @@ services:
       - /var/data/readarr/config:/config
       - /mnt/books:/books 
       - /mnt/downloads:/downloads 
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.readarr-https.loadbalancer.server.port=8787
@@ -313,7 +313,7 @@ services:
       - 5000:5000
       - ${RUTORRENT_TCPPORT?RUTORRENT_TCPPORT Variable not set}:51413
       - ${RUTORRENT_UDPPORT?RUTORRENT_UDPPORT Variable not set}:6881/udp
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.rutorrent-https.loadbalancer.server.port=80
@@ -338,7 +338,7 @@ services:
       - /mnt/downloads:/downloads
       - /mnt/tv:/tv
       - /mnt/anime:/anime
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.sickchill-https.loadbalancer.server.port=8081
@@ -361,7 +361,7 @@ services:
       - /mnt/tv:/tv
       - /mnt/anime:/anime
       - /mnt/downloads:/downloads
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.sickgear-https.loadbalancer.server.port=8081
@@ -385,7 +385,7 @@ services:
       - /mnt/tv:/tv
       - /mnt/anime:/anime
       - /mnt/downloads:/downloads
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.sonarr-https.loadbalancer.server.port=8989
@@ -403,7 +403,7 @@ services:
     volumes:
       - /mnt/torrents:/data/htdocs/torrents
       - /var/data/torrentmonitor/db:/data/htdocs/db
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.torrentmonitor-https.loadbalancer.server.port=80
@@ -430,7 +430,7 @@ services:
     ports:
       - ${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}:${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}
       - ${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}:${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}/udp
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.transmission-https.loadbalancer.server.port=9091

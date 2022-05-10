@@ -16,7 +16,7 @@ services:
       - /var/data/bazarr/config:/config
       - /mnt/movies:/movies
       - /mnt/tv:/tv
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.bazarr-https.loadbalancer.server.port=6767
@@ -37,7 +37,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/embystat/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.embystat-https.loadbalancer.server.port=6555
@@ -61,7 +61,7 @@ services:
       - /mnt/tv:/data/tvshows
       - /mnt/movies:/data/movies
       - /mnt/anime:/data/anime
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.emby-https.loadbalancer.server.port=8096
@@ -78,7 +78,7 @@ services:
     container_name: gaps
     volumes:
       - /var/data/gaps/data:/gaps
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.gitea-https.loadbalancer.server.port=5000 
@@ -105,7 +105,7 @@ services:
       - /mnt/anime:/data/anime
     ports:
       - 7359:7359/udp
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.jellyfin-https.loadbalancer.server.port=8096
@@ -144,7 +144,7 @@ services:
       - BASE_URL=/ombi #optional
     volumes:
       - /var/data/ombi/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.ombi-https.loadbalancer.server.port=3579
@@ -165,7 +165,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/overseerr/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.overseerr-https.loadbalancer.server.port=5055
@@ -202,7 +202,7 @@ services:
       - /mnt/anime:/anime
       - /mnt/movies:/movies
       - /mnt/music:/music
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.plex-https.loadbalancer.server.port=32469
@@ -223,7 +223,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/tautulli/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.tautulli-https.loadbalancer.server.port=8181

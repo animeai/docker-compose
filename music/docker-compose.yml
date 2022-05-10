@@ -18,7 +18,7 @@ services:
       - /mnt/music:/music
       - /mnt/playlists:/playlists
       - /mnt/podcasts:/podcasts
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.airsonic-https.loadbalancer.server.port=4040
@@ -35,7 +35,7 @@ services:
 #beets.io based man-in-the-middle of your torrent client and music player
     image: sentriz/betanin
     container_name: beetzio
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     environment:
       - UID=0
       - GID=0
@@ -66,7 +66,7 @@ services:
       - /var/data/headphones/config:/config
       - /mnt/downloads:/downloads
       - /mnt/music:/music
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.headphones-https.loadbalancer.server.port=8181
@@ -89,7 +89,7 @@ services:
       - /var/data/mstream/config:/config
       - /mnt/music:/music
       - /mnt/audiobooks:/audiobooks
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.mstream-https.loadbalancer.server.port=3000

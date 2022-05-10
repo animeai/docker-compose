@@ -1,0 +1,54 @@
+---
+#Bookstack is a free and open source Wiki designed for creating beautiful documentation. Featuring a simple, but powerful WYSIWYG editor 
+#Includes app and MariaDB
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack
+    container_name: bookstack
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - APP_URL=https://${BOOKSTACK_SUB?BOOKSTACK_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - DB_HOST=bookstack-db
+      - DB_USER=bookstack
+      - DB_PASS=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT Variable not set}
+      - DB_DATABASE=bookstackapp
+    volumes:
+      - /var/data/bookstack/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.bookstack-https.loadbalancer.server.port=80
+      - traefik.http.routers.bookstack-https.entrypoints=https
+      - traefik.http.routers.bookstack-https.rule=Host(`${BOOKSTACK_SUB?BOOKSTACK_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.bookstack-https.tls=true
+      - traefik.http.routers.bookstack-https.tls.certresolver=myresolver
+      - traefik.http.routers.bookstack-https.middlewares=authelia@docker
+    depends_on:
+     - bookstack-db
+    networks:
+      t2_proxy:
+  bookstack-db:
+#Database for bookstack
+    image: lscr.io/linuxserver/mariadb
+    container_name: bookstack_db
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - MYSQL_DATABASE=bookstackapp
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=${BOOKSTACK_MYSQL?BOOKSTACK_MYSQL Variable not set}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT variable does not exist}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /var/data/bookstack/dbconfig:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

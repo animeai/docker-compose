@@ -1,0 +1,21 @@
+---
+version: "3.8"
+#rsnapshot is a filesystem snapshot utility based on rsync. rsnapshot makes it easy to make periodic snapshots of local machines, and remote machines
+networks:
+  t2_proxy:
+    external: true
+services:
+  rsnapshot:
+    image: lscr.io/linuxserver/rsnapshot
+    container_name: rsnapshot
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/rsnapshot/config:/config
+      - /mnt/snapshots:/.snapshots #optional
+      - /mnt/rsnapshot:/data #optional
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    networks:
+      - docker-only

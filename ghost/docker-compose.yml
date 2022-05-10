@@ -1,0 +1,49 @@
+---
+#Ghost is an open source, professional publishing platform built on a modern Node.js technology stack — designed for teams who need power, flexibility and performance.
+#Includes app and MySQL
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  ghost:
+    image: ghost:4-alpine
+    container_name: ghost
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    ports:
+      - 8080:2368
+    environment:
+      # see https://ghost.org/docs/config/#configuration-options
+      database__client: mysql
+      database__connection__host: ghost-db
+      database__connection__user: root
+      database__connection__password: ${GHOSTDB_PASS?GHOSTDB_PASS Variable not set}
+      database__connection__database: ghost
+      # this url value is just an example, and is likely wrong for your environment!
+      url: http://${GHOST_SUB?GHOST_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      # contrary to the default mentioned in the linked documentation, this image defaults to NODE_ENV=production (so development mode needs to be explicitly specified if desired)
+      #NODE_ENV: development
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.ghost-https.loadbalancer.server.port=22300 
+      - traefik.http.routers.ghost-https.entrypoints=https
+      - traefik.http.routers.ghost-https.rule=Host(`${GHOST_SUB?GHOST_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.ghost-https.tls=true
+      - traefik.http.routers.ghost-https.tls.certresolver=myresolver
+      - traefik.http.routers.ghost-https.middlewares=authelia@docker
+    depends_on:
+      - ghost-db
+    networks:
+      t2_proxy: 
+  ghost-db:
+    image: mysql:8.0
+    container_name: ghost-db
+    hostname: ghost-db
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${GHOSTDB_PASS?GHOSTDB_PASS Variable not set}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${GHOSTDB_PASS?GHOSTDB_PASS variable does not exist}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

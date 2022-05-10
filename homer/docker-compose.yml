@@ -1,0 +1,26 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  homer:
+#Homer is a full static html/js dashboard, generated from the source in /src using webpack
+    image: b4bz/homer
+    container_name: homer
+    volumes:
+      - /var/data/homer/assets:/www/assets
+    environment:
+      - UID=${PUID?PUID Variable not set}
+      - GID=${PGID?PGID Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.homer-https.loadbalancer.server.port=8080
+      - traefik.http.routers.homer-https.entrypoints=https
+      - traefik.http.routers.homer-https.rule=Host(`${HOMER_SUB?FLAME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.homer-https.tls=true
+      - traefik.http.routers.homer-https.tls.certresolver=myresolver
+      - traefik.http.routers.homer-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

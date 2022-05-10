@@ -27,7 +27,7 @@ services:
     volumes:
       - /var/data/adguardhome/work:/opt/adguardhome/work
       - /var/data/adguardhome/config:/opt/adguardhome/conf
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     networks:
       smarthome:
         - ipv4_address: ${ADGUARDHOME_ONE_IP?ADGUARDHOME_ONE_IP Variable not set}
@@ -46,7 +46,7 @@ services:
     volumes:
       - /var/data/adguardhome2/work :/opt/adguardhome/work
       - /var/data/adguardhome2/config:/opt/adguardhome/conf
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     networks:
       smarthome:
         ipv4_address: ${ADGUARDHOME_TWO_IP?ADGUARDHOME__IP Variable not set}
@@ -73,7 +73,7 @@ services:
       - /var/data/adguardhome-sync/config:/config
     ports:
       - 8080:8080
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
   grocy:
 #ERP beyond your fridge. grocy is a web-based self-hosted groceries & household management solution for your home.
     image: lscr.io/linuxserver/grocy
@@ -84,7 +84,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/grocy/config:/config
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.grocy-https.loadbalancer.server.port=80 
@@ -99,7 +99,7 @@ services:
 #MagicMirror² is an open source modular smart mirror platform. With a growing list of installable modules, the MagicMirror² allows you to convert your hallway or bathroom mirror into your personal assistant.
     container_name: magicmirror
     image: bastilimbach/docker-magicmirror
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/data/magic_mirror/config:/opt/magic_mirror/config
@@ -118,7 +118,7 @@ services:
 #Mealie is a self hosted recipe manager and meal planner with a RestAPI backend and a reactive frontend application built in Vue for a pleasant user experience
     container_name: mealie
     image: hkotel/mealie:latest
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     environment:
       PUID: 0
       PGID: 0
@@ -166,7 +166,7 @@ services:
 #Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites 
     image: alexta69/metube
     container_name: metube
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
       - /mnt/downloads:/downloads
     labels:
@@ -183,7 +183,7 @@ services:
 #Self-hosted, ad-free, privacy-respecting metasearch engine. 
     image: benbusby/whoogle-search
     container_name: whoogle-search
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     mem_limit: 512m
     mem_reservation: 128M
     labels:
@@ -208,7 +208,7 @@ services:
       - /var/data/youtubedl/users:/app/users
     image: tzahi12345/youtubedl-material:latest
     container_name: youtube-dl
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.youtubedl-https.loadbalancer.server.port=22300 

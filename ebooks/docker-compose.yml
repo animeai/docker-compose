@@ -20,7 +20,7 @@ services:
     ports:
       - 8080:8080
       - 8081:8081
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.calibre-https.loadbalancer.server.port=8081
@@ -46,7 +46,7 @@ services:
       - /mnt/ebooks:/books
     ports:
       - 8083:8083
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.calibreweb-https.loadbalancer.server.port=8083
@@ -68,7 +68,7 @@ services:
     volumes:
       - /var/data/cops/config:/config
       - /mnt/ebooks:/books
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.cops-https.loadbalancer.server.port=80
@@ -88,7 +88,7 @@ services:
       - /mnt/manga:/data/manga
       - /mnt/comics:/data/comics
       - /etc/timezone:/etc/timezone:ro
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.komga-https.loadbalancer.server.port=8080
@@ -113,7 +113,7 @@ services:
       - /mnt/downloads:/downloads
       - /mnt/books:/books
       - /mnt/audiobooks:/audiobooks
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.lazylibrarian-https.loadbalancer.server.port=5299
@@ -137,7 +137,7 @@ services:
       - /mnt/ebooks:/books
       - /mnt/comics:/comics
       - /mnt/raw:/files
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.ubooquity-https.loadbalancer.server.port=2202

@@ -1,0 +1,26 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  flame:
+#Flame is self-hosted startpage for your server. Its design is inspired (heavily) by SUI. Flame is very easy to setup and use. With built-in editor
+    image: pawelmalak/flame
+    container_name: flame
+    volumes:
+      - /var/data/flame/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock 
+    environment:
+      - PASSWORD=${FLAME_PASS?FLAME_PASS Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.flame-https.loadbalancer.server.port=5005
+      - traefik.http.routers.flame-https.entrypoints=https
+      - traefik.http.routers.flame-https.rule=Host(`${FLAME_SUB?FLAME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.flame-https.tls=true
+      - traefik.http.routers.flame-https.tls.certresolver=myresolver
+      - traefik.http.routers.flame-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

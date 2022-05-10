@@ -1,0 +1,34 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  drawio:
+#diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, etc
+    image: jgraph/drawio
+    container_name: drawio
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      PUBLIC_DNS: ${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      ORGANISATION_UNIT: ${DRAWIO_ORGNAME?DRAWIO_ORGNAME Variable not set}
+      ORGANISATION: ${DRAWIO_ORGNAME?DRAWIO_ORGNAME
+      CITY: ${DRAWIO_CITY?DRAWIO_CITY
+      STATE: ${DRAWIO_STATE?DRAWIO_STATE
+      COUNTRY_CODE: ${DRAWIO_COUNTRY?DRAWIO_COUNTRY
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}:8080 || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.drawio-https.loadbalancer.server.port=8443 #or 8080
+      - traefik.http.routers.drawio-https.entrypoints=https
+      - traefik.http.routers.drawio-https.rule=Host(`${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.drawio-https.tls=true
+      - traefik.http.routers.drawio-https.tls.certresolver=myresolver
+      - traefik.http.routers.drawio-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
