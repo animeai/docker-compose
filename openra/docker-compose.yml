@@ -1,11 +1,11 @@
 ---
+# OpenRA is an open source project that recreates and modernizes classic real time strategy games, like Red Alert, Command & Conquer, and Dune
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   openra:
-#OpenRA is an open source project that recreates and modernizes classic real time strategy games, like Red Alert, Command & Conquer, and Dune
     image: rmoriz/openra
     container_name: openra
     environment:

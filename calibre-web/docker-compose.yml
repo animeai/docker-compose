@@ -1,11 +1,11 @@
 ---
+# Calibre-Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   calibre-web:
-#Calibre-Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
     image: lscr.io/linuxserver/calibre-web
     container_name: calibre-web
     environment:

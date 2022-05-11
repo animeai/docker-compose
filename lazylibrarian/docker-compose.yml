@@ -1,11 +1,11 @@
 ---
+# LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs. 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   lazylibrarian:
-#LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs. 
     image: lscr.io/linuxserver/lazylibrarian
     container_name: lazylibrarian
     environment:

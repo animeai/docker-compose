@@ -1,11 +1,11 @@
 ---
+# Code-server is VS Code running on a remote server, accessible through the browser.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   code-server:
-#Code-server is VS Code running on a remote server, accessible through the browser.
     image: lscr.io/linuxserver/code-server
     container_name: code-server
     environment:

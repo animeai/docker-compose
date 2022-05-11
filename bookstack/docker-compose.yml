@@ -1,6 +1,6 @@
 ---
-#Bookstack is a free and open source Wiki designed for creating beautiful documentation. Featuring a simple, but powerful WYSIWYG editor 
-#Includes app and MariaDB
+# Bookstack is a free and open source Wiki designed for creating beautiful documentation. Featuring a simple, but powerful WYSIWYG editor 
+# Includes app and MariaDB
 version: "3.8"
 networks:
   t2_proxy:
@@ -29,11 +29,10 @@ services:
       - traefik.http.routers.bookstack-https.tls.certresolver=myresolver
       - traefik.http.routers.bookstack-https.middlewares=authelia@docker
     depends_on:
-     - bookstack-db
+      - bookstack-db
     networks:
       t2_proxy:
   bookstack-db:
-#Database for bookstack
     image: lscr.io/linuxserver/mariadb
     container_name: bookstack_db
     environment:

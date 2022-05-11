@@ -1,5 +1,5 @@
 ---
-#PrivateBin is a minimalist, open source online pastebin where the server has zero knowledge of pasted data. Data is encrypted and decrypted in the browser
+# PrivateBin is a minimalist, open source online pastebin where the server has zero knowledge of pasted data. Data is encrypted and decrypted in the browser
 version: "3.8"
 networks:
   t2_proxy:

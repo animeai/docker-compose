@@ -1,5 +1,5 @@
 ---
-#Duplicati was designed for online backups from scratch. It is not only data efficient but also handles network issues nicely
+# Duplicati was designed for online backups from scratch. It is not only data efficient but also handles network issues nicely
 version: "3.8"
 networks:
   t2_proxy:

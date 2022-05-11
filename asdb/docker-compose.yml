@@ -1,5 +1,5 @@
 ---
-#Set of ADS-B Scanning software. Requires an appropraite USB dongle and antenna
+# Set of ADS-B Scanning software. Requires an appropraite USB dongle and antenna
 version: "3.8"
 networks:
   t2_proxy:

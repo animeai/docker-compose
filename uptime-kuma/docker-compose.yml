@@ -1,11 +1,11 @@
 ---
+# Is a self-hosted monitoring tool like "Uptime Robot"
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   uptime-kuma:
-#Is a self-hosted monitoring tool like "Uptime Robot
     image: louislam/uptime-kuma
     container_name: uptimekuma
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

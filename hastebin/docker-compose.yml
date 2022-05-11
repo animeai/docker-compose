@@ -1,11 +1,11 @@
 ---
+# Hastebin is a simple pastebin, which can be installed on a protected network
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   hastebin:
-#Hastebin is a simple pastebin, which can be installed on a protected network
     image: rlister/hastebin
     container_name: hastebin
     environment:

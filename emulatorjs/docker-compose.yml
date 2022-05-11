@@ -1,11 +1,11 @@
 ---
+# Self-hosted Javascript emulation for various system.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   emulatorjs:
-#Self-hosted Javascript emulation for various system.
     image: lscr.io/linuxserver/emulatorjs
     container_name: emulatorjs
     environment:

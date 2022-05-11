@@ -1,11 +1,11 @@
 ---
+# With Taisun you can manage your server all from the convience of your web browser. With built in web based Linux desktops combined with our management application, your browser is your portal to accelerating server management and application development.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   taisun:
-#With Taisun you can manage your server all from the convience of your web browser. With built in web based Linux desktops combined with our management application, your browser is your portal to accelerating server management and application development.
     image: linuxserver/taisun
     container_name: taisun
     volumes:

@@ -1,5 +1,5 @@
 ---
-#Booksonic Air - A server for streaming your audiobooks, successor to the original Booksonic server. Based on Airsonic. 
+# Booksonic Air - A server for streaming your audiobooks, successor to the original Booksonic server. Based on Airsonic. 
 version: "3.8"
 networks:
   t2_proxy:

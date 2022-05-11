@@ -1,11 +1,11 @@
 ---
+# Komga is a free and open source comics/mangas server. Chat on Discord. Features. Browse libraries, series and books via a responsive web UI 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   komga:
-#Komga is a free and open source comics/mangas server. Chat on Discord. Features. Browse libraries, series and books via a responsive web UI 
     image: gotson/komga
     container_name: komga
     volumes:

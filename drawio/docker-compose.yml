@@ -1,11 +1,11 @@
 ---
+# diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, etc
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   drawio:
-#diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, etc
     image: jgraph/drawio
     container_name: drawio
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

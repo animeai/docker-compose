@@ -1,11 +1,11 @@
 ---
+# Portainer is a self-service container service delivery platform. It is the definitive container management GUI for Kubernetes, Docker and Swarm.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   portainer:
-#Portainer is a self-service container service delivery platform. It is the definitive container management GUI for Kubernetes, Docker and Swarm.
     image: portainer/portainer-ce:latest
     container_name: portainer
     command: -H tcp://tasks.agent:9001 --tlsskipverify

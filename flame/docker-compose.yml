@@ -1,11 +1,11 @@
 ---
+# Flame is self-hosted startpage for your server. Its design is inspired (heavily) by SUI. Flame is very easy to setup and use. With built-in editor
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   flame:
-#Flame is self-hosted startpage for your server. Its design is inspired (heavily) by SUI. Flame is very easy to setup and use. With built-in editor
     image: pawelmalak/flame
     container_name: flame
     volumes:

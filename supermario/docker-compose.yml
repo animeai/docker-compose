@@ -1,11 +1,11 @@
 ---
+# Infinite Mario in HTML5 JavaScript - using Canvas and Audio elements
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   supermario:
-#Infinite Mario in HTML5 JavaScript - using Canvas and Audio elements
     image: pengbai/docker-supermario
     container_name: supermario
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}    

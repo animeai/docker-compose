@@ -1,5 +1,5 @@
 ---
-#TODO: Environment
+#TODO: Environment and description
 version: "3.8"
 networks:
   t2_proxy:

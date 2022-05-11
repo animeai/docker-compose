@@ -1,11 +1,11 @@
 ---
+#Gitea - Git with a cup of tea · A painless self-hosted Git service. 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   gitea:
-#Gitea - Git with a cup of tea · A painless self-hosted Git service. 
     image: gitea/gitea:1.16.4
     container_name: gitea
     environment:

@@ -1,5 +1,5 @@
 ---
-#LanguageTool is an Open Source proofreading software for English, French, German, Polish, Russian, and more than 20 other languages. 
+# LanguageTool is an Open Source proofreading software for English, French, German, Polish, Russian, and more than 20 other languages. 
 version: "3.8"
 networks:
   t2_proxy:

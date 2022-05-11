@@ -1,5 +1,5 @@
 ---
-#Nextcloud Hub is the first completely integrated on-premises content collaboration platform on the market, ready for a new generation of users 
+# Nextcloud Hub is the first completely integrated on-premises content collaboration platform on the market, ready for a new generation of users 
 version: "3.8"
 networks:
   t2_proxy:

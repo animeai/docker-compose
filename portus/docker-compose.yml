@@ -1,6 +1,6 @@
 ---
-#Portus is a Self hosted registry
-#TODO: Set IP on the registry not the app? Test what works etc
+# Portus is a Self hosted registry
+# TODO: Set IP on the registry not the app? Test what works etc
 version: "3.8"
 networks:
   t2_proxy:
@@ -128,5 +128,5 @@ services:
 #        - traefik.http.routers.portus-registry-https.middlewares=authelia@docker
     networks:
       t2_proxy:
-  depends_on:
+    depends_on:
     - portus

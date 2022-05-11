@@ -1,11 +1,11 @@
 ---
+# Ubooquity is a free home server for your comics and ebooks library · Read your ebooks and comics on your favorite device, wherever you go 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   ubooquity:
-#Ubooquity is a free home server for your comics and ebooks library · Read your ebooks and comics on your favorite device, wherever you go 
     image: lscr.io/linuxserver/ubooquity
     container_name: ubooquity
     environment:

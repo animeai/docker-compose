@@ -1,6 +1,6 @@
 ---
-#ownCloud, your collaboration tool · Filesharing, trusted by 200 million users worldwide · For organizations with high data governance requirements
-#Includes: App, MariaDB, and Redis
+# ownCloud, your collaboration tool · Filesharing, trusted by 200 million users worldwide · For organizations with high data governance requirements
+# Includes: App, MariaDB, and Redis
 version: "3.8"
 networks:
   t2_proxy:

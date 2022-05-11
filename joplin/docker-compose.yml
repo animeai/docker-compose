@@ -1,5 +1,5 @@
 ---
-#Joplin is an excellent open source note taking application with plenty of features. You can take notes, make to-do list and sync your notes across devices
+# Joplin is an excellent open source note taking application with plenty of features. You can take notes, make to-do list and sync your notes across devices
 version: "3.8"
 networks:
   t2_proxy:
@@ -31,7 +31,6 @@ services:
     depends_on:
       joplin-db
   joplin-db:
-#Database for joplin
     image: postgres:13
     container_name: joplin-db
     hostname: joplin-db

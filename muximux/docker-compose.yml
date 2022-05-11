@@ -1,11 +1,11 @@
 ---
+# ​Muximux is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   muximux:
-#​Muximux is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
     image: lscr.io/linuxserver/muximux
     container_name: muximux
     environment:

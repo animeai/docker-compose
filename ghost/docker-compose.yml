@@ -1,6 +1,6 @@
 ---
-#Ghost is an open source, professional publishing platform built on a modern Node.js technology stack — designed for teams who need power, flexibility and performance.
-#Includes app and MySQL
+# Ghost is an open source, professional publishing platform built on a modern Node.js technology stack — designed for teams who need power, flexibility and performance.
+# Includes app and MySQL
 version: "3.8"
 networks:
   t2_proxy:

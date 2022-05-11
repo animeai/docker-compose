@@ -1,11 +1,11 @@
 ---
+# A little container based on b3vis's work to automate my Borgbackups using the excellent Borgmatic. It uses cron to run the backups at a time you can configure in data/borgmatic.d/crontab.txt.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   borgmatic:
-#A little container based on b3vis's work to automate my Borgbackups using the excellent Borgmatic. It uses cron to run the backups at a time you can configure in data/borgmatic.d/crontab.txt.
     image: modem7/borgmatic-docker
     container_name: borgmatic
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

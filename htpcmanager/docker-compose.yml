@@ -1,11 +1,11 @@
 ---
+# Htpcmanager is a front end for many htpc related applications.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   htpcmanager:
-#Htpcmanager is a front end for many htpc related applications.
     image: lscr.io/linuxserver/htpcmanager
     container_name: htpcmanager
     environment:

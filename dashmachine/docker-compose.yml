@@ -1,11 +1,11 @@
 ---
+# Another web application bookmark dashboard, with fun features.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   dashmachine:
-#Another web application bookmark dashboard, with fun features.
     image: rmountjoy/dashmachine:latest
     container_name: dashmachine
     volumes:

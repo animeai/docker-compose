@@ -1,11 +1,11 @@
 ---
+# Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way. Simplicity is the key
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   heimdall:
-#Heimdall is a way to organise all those links to your most used web sites and web applications in a simple way. Simplicity is the key
     image: lscr.io/linuxserver/heimdall
     container_name: heimdall
     environment:

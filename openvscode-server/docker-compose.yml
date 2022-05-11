@@ -1,11 +1,11 @@
 ---
+# Provides a version of VS Code that runs a server on a remote machine and allows access through a modern web browser
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   openvscode-server:
-#Provides a version of VS Code that runs a server on a remote machine and allows access through a modern web browser
     image: lscr.io/linuxserver/openvscode-server
     container_name: openvscode-server
     environment:

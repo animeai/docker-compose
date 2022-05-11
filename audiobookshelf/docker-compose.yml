@@ -1,5 +1,5 @@
 ---
-#Audiobookshelf is a self-hosted audiobook server for managing and playing your audiobooks
+# Audiobookshelf is a self-hosted audiobook server for managing and playing your audiobooks
 version: "3.8"
 networks:
   t2_proxy:

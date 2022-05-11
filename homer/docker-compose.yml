@@ -1,11 +1,11 @@
 ---
+# Homer is a full static html/js dashboard, generated from the source in /src using webpack
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   homer:
-#Homer is a full static html/js dashboard, generated from the source in /src using webpack
     image: b4bz/homer
     container_name: homer
     volumes:

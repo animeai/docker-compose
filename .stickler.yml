@@ -2,3 +2,4 @@ linters:
   shellcheck:
     shell: bash
   yamllint:
+    config: ./yamllint.conf

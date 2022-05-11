@@ -1,11 +1,11 @@
 ---
+# COPS links to your Calibre library database and allows downloading and emailing of books directly from a web browser and provides a OPDS feed to connect to your devices.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   cops:
-#COPS links to your Calibre library database and allows downloading and emailing of books directly from a web browser and provides a OPDS feed to connect to your devices.
     image: lscr.io/linuxserver/cops
     container_name: cops
     environment:

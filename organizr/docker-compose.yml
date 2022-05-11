@@ -1,11 +1,11 @@
 ---
+# Organizr allows you to setup "Tabs" that will be loaded all in one webpage. You can then work on your server with ease.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   organizr:
-#Organizr allows you to setup "Tabs" that will be loaded all in one webpage. You can then work on your server with ease.
     image: organizr/organizr
     container_name: organizr
     environment:

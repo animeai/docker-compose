@@ -1,11 +1,11 @@
 ---
+# Dozzle is a simple and responsive application that provides you with a web based interface to monitor your Docker container logs live. 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   dozzle:
-#Dozzle is a simple and responsive application that provides you with a web based interface to monitor your Docker container logs live. 
     image: amir20/dozzle:latest
     container_name: dozzle
     volumes:

@@ -1,11 +1,11 @@
 ---
+# Kanboard is a free and open source Kanban project management software. Kanban Board. Visualize your work; 
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   kanboard:
-#Kanboard is a free and open source Kanban project management software. Kanban Board. Visualize your work; 
     image: kanboard/kanboard:latest
     container_name: kanboard
     volumes:
@@ -28,7 +28,6 @@ services:
     depends_on:
       - kanboard-db
   kanboard-db:
-#Database for kanboard
     image: mariadb:latest
     container_name: kanboard-db
     hostname: kanboard-db
