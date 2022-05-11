@@ -12,7 +12,7 @@ services:
       - PUID=${PUID?PUID Variable not set}
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - BASE_URL=/ombi #optional
+      - BASE_URL=/ombi  # optional
     volumes:
       - /var/data/ombi/config:/config
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

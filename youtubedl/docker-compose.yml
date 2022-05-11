@@ -6,7 +6,7 @@ networks:
     external: true
 services:
   youtubedl:
-    environment: 
+    environment:
       ALLOW_CONFIG_MUTATIONS: 'true'
     volumes:
       - /var/data/youtubedl/appdata:/app/appdata
@@ -19,7 +19,7 @@ services:
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.youtubedl-https.loadbalancer.server.port=22300 
+      - traefik.http.services.youtubedl-https.loadbalancer.server.port=22300
       - traefik.http.routers.youtubedl-https.entrypoints=https
       - traefik.http.routers.youtubedl-https.rule=Host(`${WORDPRESS_SUB?WORDPRESS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.youtubedl-https.tls=true

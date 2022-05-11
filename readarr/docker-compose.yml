@@ -14,8 +14,8 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/readarr/config:/config
-      - /mnt/books:/books 
-      - /mnt/downloads:/downloads 
+      - /mnt/books:/books
+      - /mnt/downloads:/downloads
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

@@ -6,8 +6,8 @@ timestamp=$(date +%d-%m-%Y_%H-%M-%S)
 
 # File operations
 touch /root/vars.sh # make sure vars file exists
-touch /root/vars.$(timestamp).bak # make sure backup file exists 
-cp /root/vars.sh > /root/vars.$(timestamp).bak # backup current file
+touch "/root/vars.$(timestamp).bak" # make sure backup file exists 
+cp "/root/vars.sh" > "/root/vars.$(timestamp).bak" # backup current file
 echo "" > /root/vars.sh #  clear current file
 
 # Secret Data

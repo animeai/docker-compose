@@ -14,7 +14,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/lidarr/config:/config
-      - /mnt/music:/music 
+      - /mnt/music:/music
       - /mnt/downloads:/downloads
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:

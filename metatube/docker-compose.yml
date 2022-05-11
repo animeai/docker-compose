@@ -16,12 +16,12 @@ services:
       - /mnt/downloads:/downloads
       - /var/data/metatube/db:/database
     labels:
-        - traefik.enable=true
-        - traefik.http.services.metatube-https.loadbalancer.server.port=5000
-        - traefik.http.routers.metatube-https.entrypoints=https
-        - traefik.http.routers.metatube-https.rule=Host(`${METATUBE_SUB?METATUBE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-        - traefik.http.routers.metatube-https.tls=true
-        - traefik.http.routers.metatube-https.tls.certresolver=myresolver
-        - traefik.http.routers.metatube-https.middlewares=authelia@docker
+      - traefik.enable=true
+      - traefik.http.services.metatube-https.loadbalancer.server.port=5000
+      - traefik.http.routers.metatube-https.entrypoints=https
+      - traefik.http.routers.metatube-https.rule=Host(`${METATUBE_SUB?METATUBE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.metatube-https.tls=true
+      - traefik.http.routers.metatube-https.tls.certresolver=myresolver
+      - traefik.http.routers.metatube-https.middlewares=authelia@docker
     networks:
       t2_proxy:
