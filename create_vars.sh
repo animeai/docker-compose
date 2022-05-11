@@ -330,6 +330,7 @@ dir_array+=("/var/data/wordpress" "/var/data/wordpress/html" "/var/data/wordpres
 dir_array+=("/var/data/youtubedl" "/var/data/youtubedl/appdata" "/var/data/youtubedl/subscriptions" "/var/data/youtubedl/users" "/mnt/youtubedl" "/mnt/youtubedl/video" "/mnt/youtubedl/audio")
 dir_array+=("/var/data/adsb" "/var/data/adsb/piaware" "/var/data/adsb/piaware/cache" "/var/data/adsb/readsb" "/var/data/adsb/readsb/readsbpb_rrd" "/var/data/adsb/readsb/readsbpb_autogain" "/var/data/adsb/shared" "/var/data/adsb/shared/readsb" "/var/data/adsb/fr24" "/var/data/adsb/fr24/log" "/var/data/adsb/virtualradar" "/var/data/adsb/virtualradar/config" "/var/data/adsb/flightairmap" "/var/data/adsb/flightairmap/mysql")
 dir_array+=("/var/data/pihole-unbound" "/var/data/pihole-unbound/pihole1" "/var/data/pihole-unbound/pihole1/volume" "/var/data/pihole-unbound/pihole1/config" "/var/data/pihole-unbound/pihole1/config/hosts" "/var/data/pihole-unbound/pihole2" "/var/data/pihole-unbound/pihole2/volume" "/var/data/pihole-unbound/pihole2/config")
+dir_array+=("/var/data/dashmachine" "/var/data/dashmachine/data")
 
 for dir in ${dirarry[@]}
 do
@@ -365,12 +366,12 @@ then
 fi
 
 # create volume files
-for file in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/dashmachine /var/data/dashmachine/data /var/data/secrets/traefik_basic_auth.htpasswd 
+for files in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/secrets/traefik_basic_auth.htpasswd 
 do
-if [ ! -f "$file" ] 
-  touch $file
-  chmod 777 $file
-  chown root $file
+if [ ! -f "$files" ] 
+  touch $files
+  chmod 777 $files
+  chown root $files
 fi
 done
 
