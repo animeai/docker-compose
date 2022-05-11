@@ -328,7 +328,7 @@ dir_array+=("/var/data/uptime-kuma" "/var/data/uptime-kuma/data")
 dir_array+=("/var/data/wireguard" "/var/data/wireguard/config")
 dir_array+=("/var/data/wordpress" "/var/data/wordpress/html" "/var/data/wordpress/db")
 dir_array+=("/var/data/youtubedl" "/var/data/youtubedl/appdata" "/var/data/youtubedl/subscriptions" "/var/data/youtubedl/users" "/mnt/youtubedl" "/mnt/youtubedl/video" "/mnt/youtubedl/audio")
-dir_array+=("/var/data/adsb" ("/var/data/adsb/piaware" "/var/data/adsb/piaware/cache" "/var/data/adsb/readsb" "/var/data/adsb/readsb/readsbpb_rrd" "/var/data/adsb/readsb/readsbpb_autogain" "/var/data/adsb/shared" "/var/data/adsb/shared/readsb" "/var/data/adsb/fr24" "/var/data/adsb/fr24/log" "/var/data/adsb/virtualradar" "/var/data/adsb/virtualradar/config" "/var/data/adsb/flightairmap" "/var/data/adsb/flightairmap/mysql")
+dir_array+=("/var/data/adsb" "/var/data/adsb/piaware" "/var/data/adsb/piaware/cache" "/var/data/adsb/readsb" "/var/data/adsb/readsb/readsbpb_rrd" "/var/data/adsb/readsb/readsbpb_autogain" "/var/data/adsb/shared" "/var/data/adsb/shared/readsb" "/var/data/adsb/fr24" "/var/data/adsb/fr24/log" "/var/data/adsb/virtualradar" "/var/data/adsb/virtualradar/config" "/var/data/adsb/flightairmap" "/var/data/adsb/flightairmap/mysql")
 dir_array+=("/var/data/pihole-unbound" "/var/data/pihole-unbound/pihole1" "/var/data/pihole-unbound/pihole1/volume" "/var/data/pihole-unbound/pihole1/config" "/var/data/pihole-unbound/pihole1/config/hosts" "/var/data/pihole-unbound/pihole2" "/var/data/pihole-unbound/pihole2/volume" "/var/data/pihole-unbound/pihole2/config")
 
 for dir in ${dirarry[@]}
