@@ -1,0 +1,28 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  cops:
+#COPS links to your Calibre library database and allows downloading and emailing of books directly from a web browser and provides a OPDS feed to connect to your devices.
+    image: lscr.io/linuxserver/cops
+    container_name: cops
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/cops/config:/config
+      - /mnt/ebooks:/books
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.cops-https.loadbalancer.server.port=80
+      - traefik.http.routers.cops-https.entrypoints=https
+      - traefik.http.routers.cops-https.rule=Host(`${COPS_SUB?COPS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.cops-https.tls=true
+      - traefik.http.routers.cops-https.tls.certresolver=myresolver
+      - traefik.http.routers.cops-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

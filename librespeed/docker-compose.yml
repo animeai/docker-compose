@@ -1,0 +1,30 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  librespeed:
+#Librespeed is a very lightweight Speedtest implemented in Javascript, using XMLHttpRequest and Web Workers. No Flash, No Java, No Websocket,
+    image: lscr.io/linuxserver/librespeed
+    container_name: librespeed
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PASSWORD=${LIBRESPEED_PASS?LIBRESPEED_PASS Variable not set}
+      - CUSTOM_RESULTS=false
+      - DB_TYPE=sqlite 
+    volumes:
+      - /var/data/librespeed/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.exportarr-https.loadbalancer.server.port=80 
+      - traefik.http.routers.exportarr-https.entrypoints=https
+      - traefik.http.routers.exportarr-https.rule=Host(`${LIBRESPEED_SUB?LIBRESPEED_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.exportarr-https.tls=true
+      - traefik.http.routers.exportarr-https.tls.certresolver=myresolver
+      - traefik.http.routers.exportarr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

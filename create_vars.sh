@@ -27,9 +27,11 @@ echo "SUBNET_IP=192.168.1.1/24" >> /root/vars.sh
 echo "SUBNET_RANGE=192.168.1.192/28" >> /root/vars.sh  #192.168.1.192 to 192.168.1.206
 echo "ADGUARDHOME_ONE_IP=192.168.1.200" >> /root/vars.sh 
 echo "ADGUARDHOME_TWO_IP=192.168.1.201" >> /root/vars.sh 
+echo "NETBOOTXYZ_IP=192.168.1.199" >> /root/vars.sh 
 echo "PIHOLE_ONE_IP=192.168.1.202" >> /root/vars.sh 
 echo "PIHOLE_TWO_IP=192.168.1.203" >> /root/vars.sh 
 echo "PIHOLEUNBOUND_IP=192.168.1.204" >> /root/vars.sh 
+echo "PORTUS_IP=192.168.1.198" >> /root/vars.sh 
 
 #Shared Vars
 echo "TIMEZONE=Europe/London" >> /root/vars.sh 
@@ -157,6 +159,7 @@ echo "BOOKSTACK_SUB=bookstack" >> /root/vars.sh #Bookstack subdomain
 echo "CALIBREWEB_SUB=calibreweb" >> /root/vars.sh #Calibre Web subdomain
 echo "CALIBREDESK_SUB=calibredesk" >> /root/vars.sh #Calibre subdomain
 echo "CALIBRE_SUB=calibre" >> /root/vars.sh #Calibre subdomain
+echo "CALIBRE_SERVER_SUB=calibre-server" >> /root/vars.sh
 echo "CODESERVER_SUB=codeserver" >> /root/vars.sh #Codeserver subdomain
 echo "COPS_SUB=cops" >> /root/vars.sh #COPS subdomain
 echo "DASHMACHINE_SUB=dashmachine" >> /root/vars.sh #Dash Machine subdomain
@@ -326,6 +329,7 @@ dir_array+=("/var/data/wireguard" "/var/data/wireguard/config")
 dir_array+=("/var/data/wordpress" "/var/data/wordpress/html" "/var/data/wordpress/db")
 dir_array+=("/var/data/youtubedl" "/var/data/youtubedl/appdata" "/var/data/youtubedl/subscriptions" "/var/data/youtubedl/users" "/mnt/youtubedl" "/mnt/youtubedl/video" "/mnt/youtubedl/audio")
 dir_array+=("/var/data/adsb" ("/var/data/adsb/piaware" "/var/data/adsb/piaware/cache" "/var/data/adsb/readsb" "/var/data/adsb/readsb/readsbpb_rrd" "/var/data/adsb/readsb/readsbpb_autogain" "/var/data/adsb/shared" "/var/data/adsb/shared/readsb" "/var/data/adsb/fr24" "/var/data/adsb/fr24/log" "/var/data/adsb/virtualradar" "/var/data/adsb/virtualradar/config" "/var/data/adsb/flightairmap" "/var/data/adsb/flightairmap/mysql")
+dir_array+=("/var/data/pihole-unbound" "/var/data/pihole-unbound/pihole1" "/var/data/pihole-unbound/pihole1/volume" "/var/data/pihole-unbound/pihole1/config" "/var/data/pihole-unbound/pihole1/config/hosts" "/var/data/pihole-unbound/pihole2" "/var/data/pihole-unbound/pihole2/volume" "/var/data/pihole-unbound/pihole2/config")
 
 for dir in ${dirarry[@]}
 do
@@ -361,7 +365,7 @@ then
 fi
 
 #create volume files
-for $file in /var/data/files/traefik/traefik.log /var/data/dashmachine /var/data/dashmachine/data /var/data/secrets/traefik_basic_auth.htpasswd 
+for $file in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/dashmachine /var/data/dashmachine/data /var/data/secrets/traefik_basic_auth.htpasswd 
 do
 if [ ! -f "$file" ] 
   touch $file

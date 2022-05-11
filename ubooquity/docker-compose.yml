@@ -1,0 +1,36 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  ubooquity:
+#Ubooquity is a free home server for your comics and ebooks library · Read your ebooks and comics on your favorite device, wherever you go 
+    image: lscr.io/linuxserver/ubooquity
+    container_name: ubooquity
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/ubooquity/config:/config
+      - /mnt/ebooks:/books
+      - /mnt/comics:/comics
+      - /mnt/raw:/files
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.ubooquity-https.loadbalancer.server.port=2202
+      - traefik.http.routers.ubooquity-https.entrypoints=https
+      - traefik.http.routers.ubooquity-https.rule=Host(`${UBOOQUITY_SUB?UBOOQUITY_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.ubooquity-https.tls=true
+      - traefik.http.routers.ubooquity-https.tls.certresolver=myresolver
+      - traefik.http.routers.ubooquity-https.middlewares=authelia@docker
+      - traefik.http.services.ubooquity-admin-https.loadbalancer.server.port=2203
+      - traefik.http.routers.ubooquity-admin-https.entrypoints=https
+      - traefik.http.routers.ubooquity-admin-https.rule=Host(`${UBOOQUITY_ADMIN_SUB?UBOOQUITY_ADMIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.ubooquity-admin-https.tls=true
+      - traefik.http.routers.ubooquity-admin-https.tls.certresolver=myresolver
+      - traefik.http.routers.ubooquity-admin-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

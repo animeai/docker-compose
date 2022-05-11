@@ -1,0 +1,22 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  dozzle:
+#Dozzle is a simple and responsive application that provides you with a web based interface to monitor your Docker container logs live. 
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.dozzle-https.loadbalancer.server.port=8080
+      - traefik.http.routers.dozzle-https.entrypoints=https
+      - traefik.http.routers.dozzle-https.rule=Host(`${DOZZLE_SUB?DOZZLE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dozzle-https.tls=true
+      - traefik.http.routers.dozzle-https.tls.certresolver=myresolver
+      - traefik.http.routers.dozzle-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

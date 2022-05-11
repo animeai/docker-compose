@@ -1,0 +1,21 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  supermario:
+#Infinite Mario in HTML5 JavaScript - using Canvas and Audio elements
+    image: pengbai/docker-supermario
+    container_name: supermario
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}    
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.supermario-https.loadbalancer.server.port=8080 
+      - traefik.http.routers.supermario-https.entrypoints=https
+      - traefik.http.routers.supermario-https.rule=Host(`${SUPERMARIO_SUB?SUPERMARIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.supermario-https.tls=true
+      - traefik.http.routers.supermario-https.tls.certresolver=myresolver
+      - traefik.http.routers.supermario-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

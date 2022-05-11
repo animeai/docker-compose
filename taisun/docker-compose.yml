@@ -1,0 +1,23 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  taisun:
+#With Taisun you can manage your server all from the convience of your web browser. With built in web based Linux desktops combined with our management application, your browser is your portal to accelerating server management and application development.
+    image: linuxserver/taisun
+    container_name: taisun
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.taisun-https.loadbalancer.server.port=3000
+      - traefik.http.routers.taisun-https.entrypoints=https
+      - traefik.http.routers.taisun-https.rule=Host(`${TAISUN_SUB?TAISUN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.taisun-https.tls=true
+      - traefik.http.routers.taisun-https.tls.certresolver=myresolver
+      - traefik.http.routers.taisun-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
