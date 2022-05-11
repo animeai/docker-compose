@@ -364,7 +364,7 @@ then
  chown root /var/data/acceleratedtext/logback/transactor-logback.xml
 fi
 
-#create volume files
+# create volume files
 for file in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/dashmachine /var/data/dashmachine/data /var/data/secrets/traefik_basic_auth.htpasswd 
 do
 if [ ! -f "$file" ] 
@@ -374,7 +374,7 @@ if [ ! -f "$file" ]
 fi
 done
 
-#Set up Piaware
+# Set up Piaware
 if [ ! -f /etc/modprobe.d/blacklist-rtl2832.conf ]
 then 
 touch /etc/modprobe.d/blacklist-rtl2832.conf
