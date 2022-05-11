@@ -12,10 +12,10 @@ services:
     volumes:
       - /mnt/borgmatic/source:/mnt/source:ro           # backup source
       - /mnt/borgmatic/target:/mnt/borg-repository     # backup target
-      - /mnt/borgmatic/config:/etc/borgmatic.d/ # borgmatic config file(s) + crontab.txt
-      - /mnt/borgmatic/config2:/root/.config/borg  # config and keyfiles
+      - /mnt/borgmatic/config:/etc/borgmatic.d/        # borgmatic config file(s) + crontab.txt
+      - /mnt/borgmatic/config2:/root/.config/borg      # config and keyfiles
       - /mnt/borgmatic/ssh:/root/.ssh                  # ssh key for remote repositories
-      - /mnt/borgmatic/cache:/root/.cache/borg    # checksums used for deduplication
+      - /mnt/borgmatic/cache:/root/.cache/borg         # checksums used for deduplication
     environment:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - BORG_PASSPHRASE=${BORG_PASSPHRASE?BORG_PASSPHRASE Variable not set}

@@ -18,7 +18,7 @@ services:
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.openra-https.loadbalancer.server.port=1234 
+      - traefik.http.services.openra-https.loadbalancer.server.port=1234
       - traefik.http.routers.openra-https.entrypoints=https
       - traefik.http.routers.openra-https.rule=Host(`${OPENRA_SUB?OPENRA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.openra-https.tls=true

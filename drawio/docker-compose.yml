@@ -1,5 +1,6 @@
 ---
 # diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, etc
+# TODO: Check port 8443 or 8080?
 version: "3.8"
 networks:
   t2_proxy:
@@ -24,7 +25,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.http.services.drawio-https.loadbalancer.server.port=8443 #or 8080
+      - traefik.http.services.drawio-https.loadbalancer.server.port=8443  # or 8080
       - traefik.http.routers.drawio-https.entrypoints=https
       - traefik.http.routers.drawio-https.rule=Host(`${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.drawio-https.tls=true

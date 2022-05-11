@@ -1,5 +1,5 @@
 ---
-# LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs. 
+# LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs.
 version: "3.8"
 networks:
   t2_proxy:
@@ -12,7 +12,7 @@ services:
       - PUID=${PUID?PUID Variable not set}
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - DOCKER_MODS=linuxserver/calibre-web:calibre|linuxserver/mods:lazylibrarian-ffmpeg #optional
+      - DOCKER_MODS=linuxserver/calibre-web:calibre|linuxserver/mods:lazylibrarian-ffmpeg  # optional
     volumes:
       - /var/data/lazylibrarian/config:/config
       - /mnt/downloads:/downloads

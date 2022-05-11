@@ -16,8 +16,8 @@ services:
 #      - HASHED_PASSWORD= #optional
       - SUDO_PASSWORD=${CODE_SERVER_SUDO_PASS?CODE_SERVER_SUDO_PASS Variable not set}
 #      - SUDO_PASSWORD_HASH= #optional
-      - PROXY_DOMAIN=${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set} #optional
-      - DEFAULT_WORKSPACE=/config/workspace #optional
+      - PROXY_DOMAIN=${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}  # optional
+      - DEFAULT_WORKSPACE=/config/workspace  # optional
     volumes:
       - /var/data/codeserver/config:/config
       - /mnt/code:/code

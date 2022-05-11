@@ -13,7 +13,7 @@ services:
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.linkding-https.loadbalancer.server.port=80 
+      - traefik.http.services.linkding-https.loadbalancer.server.port=80
       - traefik.http.routers.linkding-https.entrypoints=https
       - traefik.http.routers.linkding-https.rule=Host(`${LINKDING_SUB?LINKDING_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.linkding-https.tls=true

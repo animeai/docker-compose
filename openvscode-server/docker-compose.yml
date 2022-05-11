@@ -14,7 +14,7 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - CONNECTION_TOKEN=${OPENVSCODE_SERVER_PASS?OPENVSCODE_SERVER_PASS Variable not set}
 #      - CONNECTION_SECRET= #optional path to internal file overrides CONNECTION_TOKEN
-      - SUDO_PASSWORD=${OPENVSCODE_SERVER_SUDO_PASS?OPENVSCODE_SERVER_SUDO_PASS Variable not set} #optional
+      - SUDO_PASSWORD=${OPENVSCODE_SERVER_SUDO_PASS?OPENVSCODE_SERVER_SUDO_PASS Variable not set}  # optional
 #      - SUDO_PASSWORD_HASH=${SUDO_PASSWORD_HASH?SUDO_PASSWORD_HASH Variable not set} #optional set sudo password via hash (takes priority over SUDO_PASSWORD var). Format is $type$salt$hashed
     volumes:
       - /var/data/vscode/config:/config
