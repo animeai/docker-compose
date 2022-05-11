@@ -390,7 +390,7 @@ fi
 
 #  Finish things off
 chmod 600 /root/vars.sh
-source /root/vars.sh # enable vars in bash
+source "/root/vars.sh" # enable vars in bash
 
 # Useful stuff for other scripts
 # cat /dev/urandom | tr -dc '0-9a-zA-Z!@# $%^&*_+-' | head -c 15 | docker secret create db_password - # Create random password and write to docker secret
