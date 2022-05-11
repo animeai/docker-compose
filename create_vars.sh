@@ -369,6 +369,7 @@ fi
 for files in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/secrets/traefik_basic_auth.htpasswd 
 do
 if [ ! -f "$files" ] 
+then
   touch $files
   chmod 777 $files
   chown root $files
