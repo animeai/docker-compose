@@ -1,0 +1,23 @@
+---
+# Search your movies and find missing movies from MovieDB collections.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  gaps:
+    image: housewrecker/gaps:latest  # housewrecker/gaps:arm-latest for pi
+    container_name: gaps
+    volumes:
+      - /var/data/gaps/data:/gaps
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.gitea-https.loadbalancer.server.port=5000 
+      - traefik.http.routers.gitea-https.entrypoints=https
+      - traefik.http.routers.gitea-https.rule=Host(`${GAPS_SUB?GAPS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.gitea-https.tls=true
+      - traefik.http.routers.gitea-https.tls.certresolver=myresolver
+      - traefik.http.routers.gitea-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

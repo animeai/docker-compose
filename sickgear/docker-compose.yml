@@ -1,0 +1,29 @@
+---
+# SickGear provides management of TV shows and/or Anime, it detects new episodes, links downloader apps, and more.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  sickgear:
+    image: lscr.io/linuxserver/sickgear
+    container_name: sickgear
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+    volumes:
+      - /var/data/sickgear/config:/config
+      - /mnt/tv:/tv
+      - /mnt/anime:/anime
+      - /mnt/downloads:/downloads
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.sickgear-https.loadbalancer.server.port=8081
+      - traefik.http.routers.sickgear-https.entrypoints=https
+      - traefik.http.routers.sickgear-https.rule=Host(`${SICKCHILL_SUB?SICKCHILL_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.sickgear-https.tls=true
+      - traefik.http.routers.sickgear-https.tls.certresolver=myresolver
+      - traefik.http.routers.sickgear-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -1,0 +1,31 @@
+---
+# Torrent client
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  rutorrent:
+    image: ghcr.io/linuxserver/rutorrent
+    container_name: rutorrent
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+    volumes:
+      - /var/data/rutorrent/config:/config
+      - /mnt/rutorrent:/downloads
+    ports:
+      - 5000:5000
+      - ${RUTORRENT_TCPPORT?RUTORRENT_TCPPORT Variable not set}:51413
+      - ${RUTORRENT_UDPPORT?RUTORRENT_UDPPORT Variable not set}:6881/udp
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.rutorrent-https.loadbalancer.server.port=80
+      - traefik.http.routers.rutorrent-https.entrypoints=https
+      - traefik.http.routers.rutorrent-https.rule=Host(`${RUTORRENT_SUB?RUTORRENT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.rutorrent-https.tls=true
+      - traefik.http.routers.rutorrent-https.tls.certresolver=myresolver
+      - traefik.http.routers.rutorrent-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

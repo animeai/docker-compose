@@ -1,0 +1,32 @@
+---
+# Torrent Client
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - WEBUI_PORT=8080
+    volumes:
+      - /var/data/qbittorrent/config:/config
+      - /mnt/downloads:/downloads
+    ports:
+      - ${QBITTORRENT_PORT?QBITTORRENT_PORT Variable not set}:6881
+      - ${QBITTORRENT_PORT?QBITTORRENT_PORT Variable not set}:6881/udp
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.qbittorrent-https.loadbalancer.server.port=8080
+      - traefik.http.routers.qbittorrent-https.entrypoints=https
+      - traefik.http.routers.qbittorrent-https.rule=Host(`${QBITTORRENT_SUB?QBITTORRENT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.qbittorrent-https.tls=true
+      - traefik.http.routers.qbittorrent-https.tls.certresolver=myresolver
+      - traefik.http.routers.qbittorrent-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

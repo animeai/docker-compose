@@ -1,0 +1,30 @@
+---
+# Medusa is an automatic Video Library Manager for TV Shows. It watches for new episodes of your favorite shows, and when they are posted it does its magic.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  medusa:
+    image: lscr.io/linuxserver/medusa
+    container_name: medusa
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/medusa/config:/config
+      - /mnt/downloads:/downloads
+      - /mnt/tv:/tv
+      - /mnt/anime:/anime
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.medusa-https.loadbalancer.server.port=8081
+      - traefik.http.routers.medusa-https.entrypoints=https
+      - traefik.http.routers.medusa-https.rule=Host(`${MEDUSA_SUB?MEDUSA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.medusa-https.tls=true
+      - traefik.http.routers.medusa-https.tls.certresolver=myresolver
+      - traefik.http.routers.medusa-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

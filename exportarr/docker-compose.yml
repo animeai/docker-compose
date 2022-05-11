@@ -1,0 +1,29 @@
+---
+# Allows you to share your Radarr lists with others, without having to give them your Radarr API key.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  exportarr:
+    image: petersem/exportarr
+    container_name: exportarr
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: development
+      TOKEN: ${EXPORTARR_TOKEN?EXPORTARR_TOKEN Variable not set}
+      RADARR_URL: "http://${RADARR_SUB?RADARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}"
+      RADARR_TOKEN: ${RADARR_TOKEN?RADARR_TOKEN Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.exportarr-https.loadbalancer.server.port=3000 
+      - traefik.http.routers.exportarr-https.entrypoints=https
+      - traefik.http.routers.exportarr-https.rule=Host(`${EXPORTARR_SUB?EXPORTARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.exportarr-https.tls=true
+      - traefik.http.routers.exportarr-https.tls.certresolver=myresolver
+      - traefik.http.routers.exportarr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

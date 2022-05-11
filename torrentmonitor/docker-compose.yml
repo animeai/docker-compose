@@ -1,0 +1,24 @@
+---
+# To test - english or russian?
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  torrentmonitor:
+    image: alfonder/torrentmonitor
+    container_name: torrentmonitor
+    volumes:
+      - /mnt/torrents:/data/htdocs/torrents
+      - /var/data/torrentmonitor/db:/data/htdocs/db
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.torrentmonitor-https.loadbalancer.server.port=80
+      - traefik.http.routers.torrentmonitor-https.entrypoints=https
+      - traefik.http.routers.torrentmonitor-https.rule=Host(`${TORRENTMONITOR_SUB?TORRENTMONITOR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.torrentmonitor-https.tls=true
+      - traefik.http.routers.torrentmonitor-https.tls.certresolver=myresolver
+      - traefik.http.routers.torrentmonitor-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

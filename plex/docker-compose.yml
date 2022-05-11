@@ -1,0 +1,43 @@
+---
+# Plex gives you the power to add, access and share all the entertainment that matters to you, on almost any device.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  plex:
+    image: lscr.io/linuxserver/plex
+    container_name: plex
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM?PLEX_CLAIM Variable not set}
+    ports:
+      - 32400:32400
+      - 1900:1900/udp
+      - 3005:3005
+      - 5353:5353/udp
+      - 8324:8324
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+      - 32469:32469 
+    volumes:
+      - /mnt/plex/config:/config
+      - /mnt/tv:/tv
+      - /mnt/anime:/anime
+      - /mnt/movies:/movies
+      - /mnt/music:/music
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.plex-https.loadbalancer.server.port=32400
+      - traefik.http.routers.plex-https.entrypoints=https
+      - traefik.http.routers.plex-https.rule=Host(`${PLEX_SUB?PLEX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.plex-https.tls=true
+      - traefik.http.routers.plex-https.tls.certresolver=myresolver
+      - traefik.http.routers.plex-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -1,0 +1,29 @@
+---
+# Lidarr is a music collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new albums from your favorite artists
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  lidarr:
+    image: lscr.io/linuxserver/lidarr
+    container_name: lidarr
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/lidarr/config:/config
+      - /mnt/music:/music 
+      - /mnt/downloads:/downloads
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.lidarr-https.loadbalancer.server.port=8686
+      - traefik.http.routers.lidarr-https.entrypoints=https
+      - traefik.http.routers.lidarr-https.rule=Host(`${LIDARR_SUB?LIDARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.lidarr-https.tls=true
+      - traefik.http.routers.lidarr-https.tls.certresolver=myresolver
+      - traefik.http.routers.lidarr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

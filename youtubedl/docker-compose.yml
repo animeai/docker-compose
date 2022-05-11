@@ -1,0 +1,29 @@
+---
+version: "3.8"
+# YoutubeDL-Material is a Material Design frontend for youtube-dl. It's coded using Angular 9 for the frontend, and Node.js on the backend.
+networks:
+  t2_proxy:
+    external: true
+services:
+  youtubedl:
+    environment: 
+      ALLOW_CONFIG_MUTATIONS: 'true'
+    volumes:
+      - /var/data/youtubedl/appdata:/app/appdata
+      - /mnt/youtubedl/audio:/app/audio
+      - /mnt/youtubedl/video:/app/video
+      - /var/data/youtubedl/subscriptions:/app/subscriptions
+      - /var/data/youtubedl/users:/app/users
+    image: tzahi12345/youtubedl-material:latest
+    container_name: youtube-dl
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.youtubedl-https.loadbalancer.server.port=22300 
+      - traefik.http.routers.youtubedl-https.entrypoints=https
+      - traefik.http.routers.youtubedl-https.rule=Host(`${WORDPRESS_SUB?WORDPRESS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.youtubedl-https.tls=true
+      - traefik.http.routers.youtubedl-https.tls.certresolver=myresolver
+      - traefik.http.routers.youtubedl-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

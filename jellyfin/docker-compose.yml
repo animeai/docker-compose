@@ -1,0 +1,33 @@
+---
+# Jellyfin is the volunteer-built media solution that puts you in control of your media. Stream to any device from your own server, with no strings attached.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SUB?JELLYFIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+    volumes:
+      - /var/data/jellyfin/config:/config
+      - /mnt/tv:/data/tvshows
+      - /mnt/movies:/data/movies
+      - /mnt/anime:/data/anime
+    ports:
+      - 7359:7359/udp
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.jellyfin-https.loadbalancer.server.port=8096
+      - traefik.http.routers.jellyfin-https.entrypoints=https
+      - traefik.http.routers.jellyfin-https.rule=Host(`${JELLYFIN_SUB?JELLYFIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.jellyfin-https.tls=true
+      - traefik.http.routers.jellyfin-https.tls.certresolver=myresolver
+      - traefik.http.routers.jellyfin-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

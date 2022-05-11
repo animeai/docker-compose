@@ -1,0 +1,27 @@
+---
+# Tautulli is a 3rd party application that you can run alongside your Plex Media Server to monitor activity and track various statistics.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  tautulli:
+    image: lscr.io/linuxserver/tautulli
+    container_name: tautulli
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/tautulli/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.tautulli-https.loadbalancer.server.port=8181
+      - traefik.http.routers.tautulli-https.entrypoints=https
+      - traefik.http.routers.tautulli-https.rule=Host(`${TAUTULLI_SUB?TAUTULLI_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.tautulli-https.tls=true
+      - traefik.http.routers.tautulli-https.tls.certresolver=myresolver
+      - traefik.http.routers.tautulli-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -1,0 +1,28 @@
+---
+# Jackett works as a proxy server: it translates queries from apps (Sonarr, Radarr, SickRage, CouchPotato, Mylar3, Lidarr, DuckieTV, qBittorrent, Nefarious etc.) into tracker-site-specific http queries, parses the html or json response, and then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  jackett:
+    image: lscr.io/linuxserver/jackett
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - AUTO_UPDATE=true
+    volumes:
+      - /var/data/jackett/config:/config
+      - /mnt/downloads:/downloads
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.jackett-https.loadbalancer.server.port=9117
+      - traefik.http.routers.jackett-https.entrypoints=https
+      - traefik.http.routers.jackett-https.rule=Host(`${JACKETT_SUB?JACKETT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.jackett-https.tls=true
+      - traefik.http.routers.jackett-https.tls.certresolver=myresolver
+      - traefik.http.routers.jackett-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
