@@ -1,0 +1,26 @@
+---
+version: "3.8"
+# Displays movies, shows, music poster for what is currently playing. Displays random (on-demand) titles from multiple Plex libraries. Displays custom pictures, background art, and themes Shows coming soon titles from Sonarr (or Season premieres). Shows coming soon titles from Radarr. Shows coming soon books from Readarr
+networks:
+  t2_proxy:
+    external: true
+services:
+  posterr:
+    image: petersem/posterr
+    environment:
+      TZ: ${TIMEZONE?TIMEZONE Variable not set}
+      BASEPATH: ""
+    volumes:
+      - /var/data/posterr/config:/usr/src/app/config
+      - /var/data/posterr/custom:/usr/src/app/public/custom
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.dashmachine-https.loadbalancer.server.port=3000
+      - traefik.http.routers.dashmachine-https.entrypoints=https
+      - traefik.http.routers.dashmachine-https.rule=Host(`${POSTERR_SUB?POSTERR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dashmachine-https.tls=true
+      - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
+      - traefik.http.routers.dashmachine-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

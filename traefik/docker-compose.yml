@@ -93,6 +93,6 @@ services:
         - traefik.http.routers.authelia.service=api@internal
     ports:
       - "9091:9091"
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     environment:
       - ${TIMEZONE?TIMEZONE Variable not set}

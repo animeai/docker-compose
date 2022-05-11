@@ -1,0 +1,46 @@
+---
+# Wordpress ready to go
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db
+      WORDPRESS_DB_USER: ${WORDPRESSDB_USER?WORDPRESSDB_USER Variable not set}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESSDB_PASS?WORDPRESSDB_PASS Variable not set}
+      WORDPRESS_DB_NAME: ${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS Variable not set}
+    volumes:
+      - /var/data/wordpress/html:/var/www/html
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.wordpress-https.loadbalancer.server.port=22300
+      - traefik.http.routers.wordpress-https.entrypoints=https
+      - traefik.http.routers.wordpress-https.rule=Host(`${WORDPRESS_SUB?WORDPRESS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.wordpress-https.tls=true
+      - traefik.http.routers.wordpress-https.tls.certresolver=myresolver
+      - traefik.http.routers.wordpress-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
+    depends_on:
+      - wordpress-db
+  wordpress-db:
+    image: mysql:5.7
+    container_name: wordpress-db
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      MYSQL_DATABASE: ${WORDPRESSDB_DB?WORDPRESSDB_DB Variable not set}
+      MYSQL_USER: ${WORDPRESSDB_USER?WORDPRESSDB_USER Variable not set}
+      MYSQL_PASSWORD: ${WORDPRESSDB_PASS?WORDPRESSDB_PASS Variable not set}
+      MYSQL_ROOT_PASSWORD: ${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS Variable not set}
+    volumes:
+      - /var/data/wordpress/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS variable does not exist}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -1,0 +1,33 @@
+---
+# Torrent client
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - TRANSMISSION_WEB_HOME=/combustion-release/  # optional
+    volumes:
+      - /var/data/transmission/config:/config
+      - /mnt/downloads:/downloads
+      - /var/data/transmission/watch:/watch
+    ports:
+      - ${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}:${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}
+      - ${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}:${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}/udp
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.transmission-https.loadbalancer.server.port=9091
+      - traefik.http.routers.transmission-https.entrypoints=https
+      - traefik.http.routers.transmission-https.rule=Host(`${TRANSMISSION_SUB?TRANSMISSION_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.transmission-https.tls=true
+      - traefik.http.routers.transmission-https.tls.certresolver=myresolver
+      - traefik.http.routers.transmission-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

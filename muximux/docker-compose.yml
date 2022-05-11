@@ -1,0 +1,27 @@
+---
+# ​Muximux is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  muximux:
+    image: lscr.io/linuxserver/muximux
+    container_name: muximux
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/muximux/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.muximux-https.loadbalancer.server.port=80
+      - traefik.http.routers.muximux-https.entrypoints=https
+      - traefik.http.routers.muximux-https.rule=Host(`${MUXIMUX_SUB?MUXIMUX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.muximux-https.tls=true
+      - traefik.http.routers.muximux-https.tls.certresolver=myresolver
+      - traefik.http.routers.muximux-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

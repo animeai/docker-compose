@@ -1,0 +1,23 @@
+---
+# Another web application bookmark dashboard, with fun features.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  dashmachine:
+    image: rmountjoy/dashmachine:latest
+    container_name: dashmachine
+    volumes:
+      - /var/data/dashmachine/data:/dashmachine/dashmachine/user_data
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.dashmachine-https.loadbalancer.server.port=5000
+      - traefik.http.routers.dashmachine-https.entrypoints=https
+      - traefik.http.routers.dashmachine-https.rule=Host(`${DASHMACHINE_SUB?DASHMACHINE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dashmachine-https.tls=true
+      - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
+      - traefik.http.routers.dashmachine-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -1,0 +1,28 @@
+---
+# Organizr allows you to setup "Tabs" that will be loaded all in one webpage. You can then work on your server with ease.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  organizr:
+    image: organizr/organizr
+    container_name: organizr
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - fpm="false"
+      - branch="v2-master"
+    volumes:
+      - /var/data/organizr/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.organizr-https.loadbalancer.server.port=80
+      - traefik.http.routers.organizr-https.entrypoints=https
+      - traefik.http.routers.organizr-https.rule=Host(`${ORGANIZR_SUB?ORGANIZR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.organizr-https.tls=true
+      - traefik.http.routers.organizr-https.tls.certresolver=myresolver
+      - traefik.http.routers.organizr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

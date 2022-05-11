@@ -1,0 +1,84 @@
+---
+# TODO: Environment and description
+version: "3.8"
+networks:
+  t2_proxy:
+    external:
+  pihole:
+    driver: macvlan
+    driver_opts:
+      parent: ${ETHERNET_PORT?ETHERNET_PORT Variable not set}
+    ipam:
+      config:
+        subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
+        gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
+        ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+services:
+  pihole-one:
+    container_name: pihole-one
+    image: pihole/pihole:latest
+    hostname: pihole-one
+    mac_address: ae:12:67:c4:92:ca
+#     cap_add: # Uncomment if you want to use Pi-Hole for DHCP
+#       - NET_ADMIN
+    ports:
+      - 443/tcp
+      - 53/tcp
+      - 53/udp
+#       - 67/udp # Uncomment if you want to use Pi-Hole for DHCP
+      - 80/tcp
+      - 22/tcp
+#    environment:
+#      - FTLCONF_REPLY_ADDR4=192.168.1.5
+#      - WEBPASSWORD=${WEBPASSWORD}
+#      - PIHOLE_DNS_=192.168.1.6;192.168.1.13
+    volumes:
+      - /var/data/pihole-unbound/pihole1/volume:/etc/pihole:rw
+      - /var/data/pihole-unbound/pihole1/config/hosts:/etc/hosts:ro
+      - /var/data/pihole-unbound/pihole1/config/resolv.conf:/etc/resolv.conf:ro
+      - /var/data/pihole-unbound/pihole1/config/dnsmasq.conf:/etc/dnsmasq.d/02-network.conf:ro
+      - /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf:/etc/pihole/pihole-FTL.conf:ro
+    networks:
+      pihole:
+        ipv4_address: ${PIHOLE_ONE_IP?PIHOLE_ONE_IP Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+  pihole-two:
+    container_name: pihole-two
+    image: pihole/pihole:latest
+    hostname: pihole-two
+    mac_address: e8:1e:01:83:3c:3d
+#     cap_add: # Uncomment if you want to use Pi-Hole for DHCP
+#       - NET_ADMIN
+    ports:
+      - 443/tcp
+      - 53/tcp
+      - 53/udp
+#       - 67/udp # Uncomment if you want to use Pi-Hole for DHCP
+      - 80/tcp
+      - 22/tcp
+#    environment:
+#      - FTLCONF_REPLY_ADDR4=192.168.1.5 #PIHOLEUNBOUND_IP?
+#      - WEBPASSWORD=${WEBPASSWORD}
+#      - PIHOLE_DNS_=192.168.1.6;192.168.1.13
+    volumes:
+      - /var/data/pihole-unbound/pihole2/volume:/etc/pihole:rw
+      - /var/data/pihole-unbound/pihole2/config/hosts:/etc/hosts:ro
+      - /var/data/pihole-unbound/pihole2/config/resolv.conf:/etc/resolv.conf:ro
+      - /var/data/pihole-unbound/pihole2/config/dnsmasq.conf:/etc/dnsmasq.d/02-network.conf:ro
+      - /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf:/etc/pihole/pihole-FTL.conf:ro
+    networks:
+      pihole:
+        ipv4_address: ${PIHOLE_TWO_IP?PIHOLE_TWO_IP Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+  pihole-unbound:
+    container_name: unbound
+    image: mvance/unbound:latest
+    hostname: syn-unbound
+    mac_address: 97:3b:2d:0b:84:d5
+    ports:
+      - 53/tcp
+      - 53/udp
+    networks:
+      pihole:
+        ipv4_address: ${PIHOLEUNBOUND_IP?PIHOLEUNBOUND_IP Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

@@ -1,0 +1,28 @@
+---
+# OpenRA is an open source project that recreates and modernizes classic real time strategy games, like Red Alert, Command & Conquer, and Dune
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  openra:
+    image: rmoriz/openra
+    container_name: openra
+    environment:
+      - Name=${OPENRA_SERVERNAME?OPENRA_SERVERNAME Variable not set}
+      - Mod=ra
+      - ListenPort=1234
+      - AdvertiseOnline=false
+      - Password=${OPENRA_PASS?OPENRA_PASS Variable not set}
+      - EnableSingleplayer=${OPENRA_SINGLE?OPENRA_SINGLE Variable not set}
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.openra-https.loadbalancer.server.port=1234
+      - traefik.http.routers.openra-https.entrypoints=https
+      - traefik.http.routers.openra-https.rule=Host(`${OPENRA_SUB?OPENRA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.openra-https.tls=true
+      - traefik.http.routers.openra-https.tls.certresolver=myresolver
+      - traefik.http.routers.openra-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

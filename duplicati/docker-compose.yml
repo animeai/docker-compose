@@ -1,0 +1,30 @@
+---
+# Duplicati was designed for online backups from scratch. It is not only data efficient but also handles network issues nicely
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  duplicati:
+    image: lscr.io/linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+#      - CLI_ARGS= #optional
+    volumes:
+      - /var/data/duplicati/config:/config
+      - /mnt/backups:/backups
+      - /mnt/duplicati/source:/source
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.duplicati-https.loadbalancer.server.port=8200
+      - traefik.http.routers.duplicati-https.entrypoints=https
+      - traefik.http.routers.duplicati-https.rule=Host(`${DUPLICATI_SUB?DUPLICATI_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.duplicati-https.tls=true
+      - traefik.http.routers.duplicati-https.tls.certresolver=myresolver
+      - traefik.http.routers.duplicati-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

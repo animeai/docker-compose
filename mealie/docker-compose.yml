@@ -1,0 +1,33 @@
+---
+# Mealie is a self hosted recipe manager and meal planner with a RestAPI backend and a reactive frontend application built in Vue for a pleasant user experience.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  mealie:
+    container_name: mealie
+    image: hkotel/mealie:latest
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      PUID: 0
+      PGID: 0
+      TZ: ${TIMEZONE?TIMEZONE Variable not set}
+      RECIPE_PUBLIC: 'true'
+      RECIPE_SHOW_NUTRITION: 'true'
+      RECIPE_SHOW_ASSETS: 'true'
+      RECIPE_LANDSCAPE_VIEW: 'true'
+      RECIPE_DISABLE_COMMENTS: 'false'
+      RECIPE_DISABLE_AMOUNT: 'false'
+    volumes:
+      - /var/data/mealie/data:/app/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.mealie-https.loadbalancer.server.port=80
+      - traefik.http.routers.mealie-https.entrypoints=https
+      - traefik.http.routers.mealie-https.rule=Host(`${MEALIE_SUB?MEALIE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.mealie-https.tls=true
+      - traefik.http.routers.mealie-https.tls.certresolver=myresolver
+      - traefik.http.routers.mealie-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

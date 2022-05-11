@@ -1,0 +1,31 @@
+---
+# ProjectSend is a self-hosted application (you can install it easily on your own VPS or shared web hosting account) that lets you upload files and assign them to specific clients that you create yourself! Secure, private and easy. No more depending on external services or e-mail to send those files!
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  projectsend:
+    image: lscr.io/linuxserver/projectsend
+    container_name: projectsend
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - MAX_UPLOAD=${PROJECTSEND_MAX_UPLOAD?PROJECTSEND_MAX_UPLOAD Variable not set}
+    volumes:
+      - /var/data/projectsend/config:/config
+      - /mnt/projectsend/data:/data
+    ports:
+      - 80:80
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.projectsend-https.loadbalancer.server.port=5055
+      - traefik.http.routers.projectsend-https.entrypoints=https
+      - traefik.http.routers.projectsend-https.rule=Host(`${PROJECTSEND_PERSONAL_SUB?PROJECTSEND_PERSONAL_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.projectsend-https.tls=true
+      - traefik.http.routers.projectsend-https.tls.certresolver=myresolver
+      - traefik.http.routers.projectsend-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

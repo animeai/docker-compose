@@ -1,0 +1,32 @@
+---
+# Calibre-Web is a web app providing a clean interface for browsing, reading and downloading eBooks using an existing Calibre database.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web
+    container_name: calibre-web
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - DOCKER_MODS=linuxserver/calibre-web:calibre  # optional
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=1  # optional
+    volumes:
+      - /var/data/calibreweb/config:/config
+      - /mnt/ebooks:/books
+    ports:
+      - 8083:8083
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.calibreweb-https.loadbalancer.server.port=8083
+      - traefik.http.routers.calibreweb-https.entrypoints=https
+      - traefik.http.routers.calibreweb-https.rule=Host(`${CALIBREWEB_SUB?CALIBREWEB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.calibreweb-https.tls=true
+      - traefik.http.routers.calibreweb-https.tls.certresolver=myresolver
+      - traefik.http.routers.calibre-web-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

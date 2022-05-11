@@ -1,0 +1,27 @@
+---
+version: "3.8"
+# EmbyStat is a personal web server that can calculate all kinds of statistics from your (local) Emby or Jellyfin server. Just install this on your server and let him calculate all kinds of fun stuff. This project is still in Alpha fase, but feel free to pull in on your computer and test it out yourself.
+networks:
+  t2_proxy:
+    external: true
+services:
+  embystat:
+    image: lscr.io/linuxserver/embystat
+    container_name: embystat
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/embystat/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.embystat-https.loadbalancer.server.port=6555
+      - traefik.http.routers.embystat-https.entrypoints=https
+      - traefik.http.routers.embystat-https.rule=Host(`${EMBYSTAT_SUB?EMBYSTAT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.embystat-https.tls=true
+      - traefik.http.routers.embystat-https.tls.certresolver=myresolver
+      - traefik.http.routers.embystat-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

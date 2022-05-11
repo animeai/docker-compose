@@ -1,0 +1,25 @@
+---
+# MagicMirror² is an open source modular smart mirror platform. With a growing list of installable modules, the MagicMirror² allows you to convert your hallway or bathroom mirror into your personal assistant.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  magicmirror:
+    container_name: magicmirror
+    image: bastilimbach/docker-magicmirror
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/data/magic_mirror/config:/opt/magic_mirror/config
+      - /var/data/magic_mirror/modules:/opt/magic_mirror/modules
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.magicmirror-https.loadbalancer.server.port=8080
+      - traefik.http.routers.magicmirror-https.entrypoints=https
+      - traefik.http.routers.magicmirror-https.rule=Host(`${MAGICMIRROR_SUB?RUTORRENT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.magicmirror-https.tls=true
+      - traefik.http.routers.magicmirror-https.tls.certresolver=myresolver
+      - traefik.http.routers.magicmirror-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

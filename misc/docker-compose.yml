@@ -15,12 +15,12 @@ services:
       - /var/data/apprise-api/config:/config
     ports:
       - 8000:8000
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
   beehive:
 #Beehive is an event and agent system, which allows you to create your own agents that perform automated tasks triggered by events and filters. It is modular, flexible and really easy to extend for anyone. It has modules (we call them Hives), so it can interface with, talk to, or retrieve information from Twitter, Tumblr, Email, IRC, Jabber, RSS, Jenkins, Hue - to name just a few. 
     image: fribbledom/beehive
     container_name: beehive
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
       - /var/data/beehive/conf:/conf
     labels:
@@ -39,7 +39,7 @@ services:
     container_name: huginn
     volumes:
       - /var/data/huginn/mysql:/var/lib/mysql
-    restart: unless-stopped
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.huginn-https.loadbalancer.server.port=3000

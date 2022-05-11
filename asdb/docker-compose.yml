@@ -1,4 +1,5 @@
 ---
+# Set of ADS-B Scanning software. Requires an appropraite USB dongle and antenna
 version: "3.8"
 networks:
   t2_proxy:
@@ -15,10 +16,10 @@ services:
       - LAT=${LAT?LAT Variable not set}
       - LONG=${LONG?LONG Variable not set}
       - ALT=${ALT?ALT Variable not set}
-      - SITENAME=${ASDBEXCHANGE_SITENAME?ASDBEXCHANGE_SITENAME Variable not set}
-      - UUID=${ASDBEXCHANGE_UUID?ASDBEXCHANGE_UUID Variable not set}
+      - SITENAME=${ADSBEXCHANGE_SITENAME?ADSBEXCHANGE_SITENAME Variable not set}
+      - UUID=${ADSBEXCHANGE_UUID?ADSBEXCHANGE_UUID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - REDUCE_INTERVAL=${ASDBEXCHANGE_REDUCE_INTERVAL?ASDBEXCHANGE_REDUCE_INTERVAL Variable not set}
+      - REDUCE_INTERVAL=${ADSBEXCHANGE_REDUCE_INTERVAL?ADSBEXCHANGE_REDUCE_INTERVAL Variable not set}
     tmpfs:
       - /run:exec,size=64M,${PUID?PUID Variable not set},${PGID?PGID Variable not set}
       - /var/log
@@ -30,7 +31,7 @@ services:
     environment:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - SBSHOST=readsb
-      - CLIENTKEY=${ASDBHUB_CLIENTKEY?ASDBHUB_CLIENTKEY Variable not set}
+      - CLIENTKEY=${ADSBHUB_CLIENTKEY?ADSBHUB_CLIENTKEY Variable not set}
   flightairmap:
     image: mikenye/flightairmap:latest
     tty: true
@@ -54,12 +55,12 @@ services:
       - FAM_FLIGHTAWAREPASSWORD=${FLIGHTAIRMAP_PASS?FLIGHTAIRMAP_PASS Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.proxyflightairmap.loadbalancer.server.port=80
+      - traefik.http.services.flightairmap.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.proxyflightairmap-https.rule=Host(`${FLIGHTAIRMAP_SUB?FLIGHTAIRMAP_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.proxyflightairmap-https.entrypoints=https
-      - traefik.http.routers.proxyflightairmap-https.tls=true
-      - traefik.http.routers.proxyflightairmap-https.tls.certresolver=myresolver
+      - traefik.http.routers.flightairmap-https.rule=Host(`${FLIGHTAIRMAP_SUB?FLIGHTAIRMAP_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.flightairmap-https.entrypoints=https
+      - traefik.http.routers.flightairmap-https.tls=true
+      - traefik.http.routers.flightairmap-https.tls.certresolver=myresolver
   flightairmap-db:
     image: mariadb
     command: --default-authentication-plugin=mysql_native_password
@@ -73,7 +74,7 @@ services:
       - MYSQL_USER=flightairmap
       - MYSQL_PASSWORD=${FLIGHTAIRMAP_MYSQL_PASS?FLIGHTAIRMAP_MYSQL_PASS Variable not set}
     volumes:
-      - /var/data/asdb/flightairmap/mysql:/var/lib/mysql
+      - /var/data/adsb/flightairmap/mysql:/var/lib/mysql
   flight-radar-24:
     image: mikenye/fr24feed:latest
     tty: true
@@ -90,15 +91,15 @@ services:
       - FEEDER_LAT=${LAT?LAT Variable not set}
       - FEEDER_LONG=${LAT?LAT Variable not set}
     volumes:
-      - /var/data/asdb/fr24/log:/var/log
+      - /var/data/adsb/fr24/log:/var/log
     labels:
       - traefik.enable=true
-      - traefik.http.services.proxyfr24.loadbalancer.server.port=8754
+      - traefik.http.services.fr24.loadbalancer.server.port=8754
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.proxyfr24-https.rule=(`${FR24_SUB?FR24_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.proxyfr24-https.entrypoints=https
-      - traefik.http.routers.proxyfr24-https.tls=true
-      - traefik.http.routers.proxyfr24-https.tls.certresolver=myresolver
+      - traefik.http.routers.fr24-https.rule=(`${FR24_SUB?FR24_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.fr24-https.entrypoints=https
+      - traefik.http.routers.fr24-https.tls=true
+      - traefik.http.routers.fr24-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   graphs1090:
@@ -115,12 +116,12 @@ services:
       - t2_proxy
     labels:
       - traefik.enable=true
-      - traefik.http.services.proxygraphs.loadbalancer.server.port=80
+      - traefik.http.services.graphs.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.proxygraphs-https.rule=Host(`${GRAPHS1090_SUB?GRAPHS1090_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.proxygraphs-https.entrypoints=https
-      - traefik.http.routers.proxygraphs-https.tls=true
-      - traefik.http.routers.proxygraphs-https.tls.certresolver=myresolver
+      - traefik.http.routers.graphs-https.rule=Host(`${GRAPHS1090_SUB?GRAPHS1090_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.graphs-https.entrypoints=https
+      - traefik.http.routers.graphs-https.tls=true
+      - traefik.http.routers.graphs-https.tls.certresolver=myresolver
   opensky:
     image: mikenye/opensky-network:latest
     tty: true
@@ -182,17 +183,17 @@ services:
       - READSB_BEAST_MODEAC=${READSB_BEAST_MODEAC?READSB_BEAST_MODEAC Variable not set}
       - READSB_FORWARD_MLAT=${READSB_FORWARD_MLAT?READSB_FORWARD_MLAT Variable not set}
     volumes:
-      - /var/data/asdb/readsb/readsbpb_rrd:/run/collectd
-      - /var/data/asdb/readsb/readsbpb_autogain:/run/autogain
-      - /var/data/asdb/shared/readsb:/run/readsb
+      - /var/data/adsb/readsb/readsbpb_rrd:/run/collectd
+      - /var/data/adsb/readsb/readsbpb_autogain:/run/autogain
+      - /var/data/adsb/shared/readsb:/run/readsb
     labels:
       - traefik.enable=true
-      - traefik.http.services.proxyreadsb.loadbalancer.server.port=8080
+      - traefik.http.services.readsb.loadbalancer.server.port=8080
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.proxyreadsb-https.rule=Host${READSB_SUB?READSB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.proxyreadsb-https.entrypoints=https
-      - traefik.http.routers.proxyreadsb-https.tls=true
-      - traefik.http.routers.proxyreadsb-https.tls.certresolver=myresolver
+      - traefik.http.routers.readsb-https.rule=Host${READSB_SUB?READSB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.readsb-https.entrypoints=https
+      - traefik.http.routers.readsb-https.tls=true
+      - traefik.http.routers.readsb-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   planefinder:
@@ -212,12 +213,12 @@ services:
       - /var/log/pfclient
     labels:
       - traefik.enable=true
-      - traefik.http.services.proxyplanefinder.loadbalancer.server.port=30053
+      - traefik.http.services.planefinder.loadbalancer.server.port=30053
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.proxyplanefinder-https.rule=Host(`${PLANEFINDER_SUB?PLANEFINDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.proxyplanefinder-https.entrypoints=https
-      - traefik.http.routers.proxyplanefinder-https.tls=true
-      - traefik.http.routers.proxyplanefinder-https.tls.certresolver=myresolver
+      - traefik.http.routers.planefinder-https.rule=Host(`${PLANEFINDER_SUB?PLANEFINDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.planefinder-https.entrypoints=https
+      - traefik.http.routers.planefinder-https.tls=true
+      - traefik.http.routers.planefinder-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   piaware:
@@ -239,7 +240,7 @@ services:
       - BEASTPORT=30005
       - VERBOSE_LOGGING=${PIAWARE_VERBOSE_LOGGING?PIAWARE_VERBOSE_LOGGING Variable not set}
     volumes:
-      - /var/data/asdb/piaware/cache:/var/cache/piaware
+      - /var/data/adsb/piaware/cache:/var/cache/piaware
     tmpfs:
       - /run:exec,size=256M
       - /var/log
@@ -271,12 +272,12 @@ services:
       - /var/log
     labels:
       - traefik.enable=true
-      - traefik.http.services.proxytar1090.loadbalancer.server.port=80
+      - traefik.http.services.tar1090.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.proxytar1090-https.rule=Host(`${TAR1090_SUB?TAR1090_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.proxytar1090-https.entrypoints=https
-      - traefik.http.routers.proxytar1090-https.tls=true
-      - traefik.http.routers.proxytar1090-https.tls.certresolver=myresolver
+      - traefik.http.routers.tar1090-https.rule=Host(`${TAR1090_SUB?TAR1090_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.tar1090-https.entrypoints=https
+      - traefik.http.routers.tar1090-https.tls=true
+      - traefik.http.routers.tar1090-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   virtualradarserver:
@@ -286,7 +287,7 @@ services:
     hostname: virtualradarserver
     restart: always
     volumes:
-      - /var/data/asdb/virtualradar/config:/config
+      - /var/data/adsb/virtualradar/config:/config
     environment:
       - USERNAME=${VIRTUALRADARSERVER_USERNAME?VIRTUALRADARSERVER_USERNAME Variable not set}`)
       - PASSWORD=${VIRTUALRADARSERVER_PASS?VIRTUALRADARSERVER_PASS Variable not set}`)

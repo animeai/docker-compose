@@ -1,0 +1,35 @@
+---
+# Code-server is VS Code running on a remote server, accessible through the browser.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server
+    container_name: code-server
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PASSWORD=${CODE_SERVER_PASS?CODE_SERVER_PASS Variable not set}
+#      - HASHED_PASSWORD= #optional
+      - SUDO_PASSWORD=${CODE_SERVER_SUDO_PASS?CODE_SERVER_SUDO_PASS Variable not set}
+#      - SUDO_PASSWORD_HASH= #optional
+      - PROXY_DOMAIN=${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}  # optional
+      - DEFAULT_WORKSPACE=/config/workspace  # optional
+    volumes:
+      - /var/data/codeserver/config:/config
+      - /mnt/code:/code
+      - /mnt/home:/mnt/home
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.codeserver-https.loadbalancer.server.port=8443
+      - traefik.http.routers.codeserver-https.entrypoints=https
+      - traefik.http.routers.codeserver-https.rule=Host(`${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.codeserver-https.tls=true
+      - traefik.http.routers.codeserver-https.tls.certresolver=myresolver
+      - traefik.http.routers.codeserver-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

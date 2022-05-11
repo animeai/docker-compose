@@ -1,0 +1,23 @@
+---
+# Web GUI for youtube-dl (using the yt-dlp fork) with playlist support. Allows you to download videos from YouTube and dozens of other sites.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  metube:
+    image: alexta69/metube
+    container_name: metube
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    volumes:
+      - /mnt/downloads:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.metatube-https.loadbalancer.server.port=8081
+      - traefik.http.routers.metatube-https.entrypoints=https
+      - traefik.http.routers.metatube-https.rule=Host(`${METUBE_SUB?METUBE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.metatube-https.tls=true
+      - traefik.http.routers.metatube-https.tls.certresolver=myresolver
+      - traefik.http.routers.metatube-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

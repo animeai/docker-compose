@@ -1,0 +1,26 @@
+---
+# Portainer is a self-service container service delivery platform. It is the definitive container management GUI for Kubernetes, Docker and Swarm.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - /var/data/portainer/data:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.portainer-https.loadbalancer.server.port=9443
+      - traefik.http.routers.portainer-https.entrypoints=https
+      - traefik.http.routers.portainer-https.rule=Host(`${PORTAINER_SUB?PORTAINER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.portainer-https.tls=true
+      - traefik.http.routers.portainer-https.tls.certresolver=myresolver
+      - traefik.http.routers.portainer-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -1,0 +1,31 @@
+---
+# LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian
+    container_name: lazylibrarian
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - DOCKER_MODS=linuxserver/calibre-web:calibre|linuxserver/mods:lazylibrarian-ffmpeg  # optional
+    volumes:
+      - /var/data/lazylibrarian/config:/config
+      - /mnt/downloads:/downloads
+      - /mnt/books:/books
+      - /mnt/audiobooks:/audiobooks
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.lazylibrarian-https.loadbalancer.server.port=5299
+      - traefik.http.routers.lazylibrarian-https.entrypoints=https
+      - traefik.http.routers.lazylibrarian-https.rule=Host(`${LAZYLIBRARIAN_SUB?LAZYLIBRARIAN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.lazylibrarian-https.tls=true
+      - traefik.http.routers.lazylibrarian-https.tls.certresolver=myresolver
+      - traefik.http.routers.lazylibrarian-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

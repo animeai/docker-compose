@@ -1,0 +1,32 @@
+---
+# Torrent Client
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  deluge:
+    image: lscr.io/linuxserver/deluge
+    container_name: deluge
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - DELUGE_LOGLEVEL=error  # optional
+    volumes:
+      - /var/data/deluge/config:/config
+      - /mnt/downloads:/downloads
+    ports:
+      - ${DELUGE_PORT?DELUGE_PORT Variable not set}:6881
+      - ${DELUGE_PORT?DELUGE_PORT Variable not set}:6881/udp
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.deluge-https.loadbalancer.server.port=8112
+      - traefik.http.routers.deluge-https.entrypoints=https
+      - traefik.http.routers.deluge-https.rule=Host(`${DELUGE_SUB?DELUGE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.deluge-https.tls=true
+      - traefik.http.routers.deluge-https.tls.certresolver=myresolver
+      - traefik.http.routers.deluge-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

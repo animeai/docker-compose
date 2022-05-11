@@ -1,0 +1,23 @@
+---
+# PrivateBin is a minimalist, open source online pastebin where the server has zero knowledge of pasted data. Data is encrypted and decrypted in the browser
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  privatebin:
+    image: privatebin/nginx-fpm-alpine
+    container_name: privatebin
+    volumes:
+      - /var/data/privatebin/data:/srv/data
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.privatebin-https.loadbalancer.server.port=8080
+      - traefik.http.routers.privatebin-https.entrypoints=https
+      - traefik.http.routers.privatebin-https.rule=Host(`${PRIVATEBIN_SUB?PRIVATEBIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.privatebin-https.tls=true
+      - traefik.http.routers.privatebin-https.tls.certresolver=myresolver
+      - traefik.http.routers.privatebin-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

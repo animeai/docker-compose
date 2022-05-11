@@ -1,0 +1,32 @@
+---
+# Hastebin is a simple pastebin, which can be installed on a protected network
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  hastebin:
+    image: rlister/hastebin
+    container_name: hastebin
+    environment:
+      STORAGE_TYPE: redis
+      STORAGE_HOST: hastebin-redis
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.privatebin-https.loadbalancer.server.port=7777
+      - traefik.http.routers.privatebin-https.entrypoints=https
+      - traefik.http.routers.privatebin-https.rule=Host(`${HASTEBIN_SUB?HASTEBIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.privatebin-https.tls=true
+      - traefik.http.routers.privatebin-https.tls.certresolver=myresolver
+      - traefik.http.routers.privatebin-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
+    depends_on:
+      - hastebin-redis
+  hastebin-redis:
+    image: redis
+    container_name: hostbin-redis
+    hostname: hostbin-redis
+    volumes:
+      - /var/data/hastebin/db:/data

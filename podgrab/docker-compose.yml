@@ -1,0 +1,29 @@
+---
+# A self-hosted podcast manager/downloader/archiver tool to download podcast episodes as soon as they become live with an integrated player.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  podgrab:
+    image: akhilrex/podgrab
+    container_name: podgrab
+    environment:
+      - CHECK_FREQUENCY=240
+#      - PASSWORD=password     ## Uncomment to enable basic authentication, username = podgrab
+    volumes:
+      - /var/data/podgrab/config:/config
+      - /path/to/data:/assets
+    ports:
+      - 8080:8080
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.podgrab-https.loadbalancer.server.port=8080
+      - traefik.http.routers.podgrab-https.entrypoints=https
+      - traefik.http.routers.podgrab-https.rule=Host(`${PODGRAB_SUB?PODGRAB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.podgrab-https.tls=true
+      - traefik.http.routers.podgrab-https.tls.certresolver=myresolver
+      - traefik.http.routers.podgrab-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

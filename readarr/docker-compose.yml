@@ -1,0 +1,29 @@
+---
+# Readarr is a ebook collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new books from your favorite authors.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/readarr/config:/config
+      - /mnt/books:/books
+      - /mnt/downloads:/downloads
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.readarr-https.loadbalancer.server.port=8787
+      - traefik.http.routers.readarr-https.entrypoints=https
+      - traefik.http.routers.readarr-https.rule=Host(`${READARR_SUB?READARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.readarr-https.tls=true
+      - traefik.http.routers.readarr-https.tls.certresolver=myresolver
+      - traefik.http.routers.readarr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

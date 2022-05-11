@@ -1,0 +1,29 @@
+---
+# Mylar3 is an automated Comic Book downloader (cbr/cbz) for use with NZB and torrents written in python. It supports SABnzbd, NZBGET, and many torrent clients.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  mylar3:
+    image: lscr.io/linuxserver/mylar3
+    container_name: mylar3
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+    volumes:
+      - /var/data/mylar/config:/config
+      - /mnt/comics:/comics
+      - /mnt/manga:/manga
+      - /mnt/downloads:/downloads
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.mylar-https.loadbalancer.server.port=8090
+      - traefik.http.routers.mylar-https.entrypoints=https
+      - traefik.http.routers.mylar-https.rule=Host(`${MYLAR_SUB?MYLAR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.mylar-https.tls=true
+      - traefik.http.routers.mylar-https.tls.certresolver=myresolver
+      - traefik.http.routers.mylar-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

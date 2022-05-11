@@ -1,0 +1,27 @@
+---
+# Prowlarr is an indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. It integrates seamlessly with Lidarr, Mylar3, Radarr, Readarr, and Sonarr offering complete management of your indexers with no per app Indexer setup required (we do it all).
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/prowlarr/config:/config
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.prowlarr-https.loadbalancer.server.port=9696
+      - traefik.http.routers.prowlarr-https.entrypoints=https
+      - traefik.http.routers.prowlarr-https.rule=Host(`${PROWLARR_SUB?PROWLARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.prowlarr-https.tls=true
+      - traefik.http.routers.prowlarr-https.tls.certresolver=myresolver
+      - traefik.http.routers.prowlarr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

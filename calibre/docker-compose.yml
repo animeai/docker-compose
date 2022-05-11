@@ -1,0 +1,36 @@
+---
+# calibre: The one stop solution for all your e-book needs. Comprehensive e-book software.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  calibre:
+    image: lscr.io/linuxserver/calibre
+    container_name: calibre
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+#      - PASSWORD= #optional
+#      - CLI_ARGS= #optional
+    volumes:
+      - /var/data/calibre/config:/config
+      - /mnt/ebooks:/ebooks
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.calibre-https.loadbalancer.server.port=8080
+      - traefik.http.routers.calibre-https.entrypoints=https
+      - traefik.http.routers.calibre-https.rule=Host(`${CALIBRE_SUB?CALIBRE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.calibre-https.tls=true
+      - traefik.http.routers.calibre-https.tls.certresolver=myresolver
+      - traefik.http.routers.calibre-https.middlewares=authelia@docker
+      - traefik.http.services.calibre-server-https.loadbalancer.server.port=8081
+      - traefik.http.routers.calibre-server-https.entrypoints=https
+      - traefik.http.routers.calibre-server-https.rule=Host(`${CALIBRE_SERVER_SUB?CALIBRE_SERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.calibre-server-https.tls=true
+      - traefik.http.routers.calibre-server-https.tls.certresolver=myresolver
+      - traefik.http.routers.calibre-server-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

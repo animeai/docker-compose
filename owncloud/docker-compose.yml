@@ -1,0 +1,75 @@
+---
+# ownCloud, your collaboration tool · Filesharing, trusted by 200 million users worldwide · For organizations with high data governance requirements
+# Includes: App, MariaDB, and Redis
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  owncloud:
+    image: owncloud/server
+    container_name: owncloud
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      - OWNCLOUD_DOMAIN=${OWNCLOUD_SUB?OWNCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=owncloud
+      - OWNCLOUD_DB_USERNAME=${OWNCLOUD_MYSQL_USERNAME?OWNCLOUD_MYSQL_USERNAME variable does not exist}
+      - OWNCLOUD_DB_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD?OWNCLOUD_MYSQL_PASSWORD variable does not exist}
+      - OWNCLOUD_DB_HOST=owncloud-mariadb
+      - OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME?OWNCLOUD_ADMIN_USERNAME variable does not exist}
+      - OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD?OWNCLOUD_ADMIN_PASSWORD variable does not exist}
+      - OWNCLOUD_MYSQL_UTF8MB4=true
+      - OWNCLOUD_REDIS_ENABLED=true
+      - OWNCLOUD_REDIS_HOST=owncloud-redis
+    healthcheck:
+      test: ["CMD", "/usr/bin/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - /mnt/owncloud:/mnt/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.owncloud-https.loadbalancer.server.port=8080
+      - traefik.http.routers.owncloud-https.entrypoints=https
+      - traefik.http.routers.owncloud-https.rule=Host(`${OWNCLOUD_SUB?OWNCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.owncloud-https.tls=true
+      - traefik.http.routers.owncloud-https.tls.certresolver=myresolver
+      - traefik.http.routers.owncloud-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
+    depends_on:
+      - owncloud-mariadb
+      - owncloud-redis
+  owncloud-mariadb:
+    image: mariadb:10.5
+    container_name: owncloud-mariadb
+    hostname: owncloud-mariadb
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    environment:
+      - MYSQL_ROOT_PASSWORD=${OWNCLOUD_ROOT_PASSWORD?OWNCLOUD_ROOT_PASSWORD variable does not exist}
+      - MYSQL_USER=${OWNCLOUD_MYSQL_USERNAME?OWNCLOUD_MYSQL_USERNAME variable does not exist}
+      - MYSQL_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD?OWNCLOUD_MYSQL_PASSWORD variable does not exist}
+      - MYSQL_DATABASE=owncloud
+    command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${OWNCLOUD_ROOT_PASSWORD?OWNCLOUD_ROOT_PASSWORD variable does not exist}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /var/data/owncloud/mysql:/var/lib/mysql
+  owncloud-redis:
+    image: redis:6
+    container_name: owncloud-redis
+    hostname: owncloud-redis
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    command: ["--databases", "1"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /var/data/owncloud/redis:/data

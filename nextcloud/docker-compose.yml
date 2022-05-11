@@ -1,0 +1,28 @@
+---
+# Nextcloud Hub is the first completely integrated on-premises content collaboration platform on the market, ready for a new generation of users
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud
+    container_name: nextcloud
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/nextcloud/config:/config
+      - /mnt/nextcloud:/data
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.nextcloud-https.loadbalancer.server.port=443
+      - traefik.http.routers.nextcloud-https.entrypoints=https
+      - traefik.http.routers.nextcloud-https.rule=Host(`${NEXTCLOUD_SUB?NEXTCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.nextcloud-https.tls=true
+      - traefik.http.routers.nextcloud-https.tls.certresolver=myresolver
+      - traefik.http.routers.nextcloud-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -1,0 +1,29 @@
+---
+# Bazarr is a companion application to Sonarr and Radarr that manages and downloads subtitles based on your requirements.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/bazarr/config:/config
+      - /mnt/movies:/movies
+      - /mnt/tv:/tv
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.bazarr-https.loadbalancer.server.port=6767
+      - traefik.http.routers.bazarr-https.entrypoints=https
+      - traefik.http.routers.bazarr-https.rule=Host(`${BAZ?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.bazarr-https.tls=true
+      - traefik.http.routers.bazarr-https.tls.certresolver=myresolver
+      - traefik.http.routers.bazarr-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

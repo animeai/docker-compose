@@ -1,0 +1,30 @@
+---
+# Bringing all of your home videos, music, and photos together into one place has never been easier
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  emby:
+    image: lscr.io/linuxserver/emby
+    container_name: emby
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - /var/data/emby/config:/config
+      - /mnt/tv:/data/tvshows
+      - /mnt/movies:/data/movies
+      - /mnt/anime:/data/anime
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.emby-https.loadbalancer.server.port=8096
+      - traefik.http.routers.emby-https.entrypoints=https
+      - traefik.http.routers.emby-https.rule=Host(`${EMBY_SUB?EMBY_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.emby-https.tls=true
+      - traefik.http.routers.emby-https.tls.certresolver=myresolver
+      - traefik.http.routers.emby-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

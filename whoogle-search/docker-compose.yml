@@ -1,0 +1,23 @@
+---
+# Self-hosted, ad-free, privacy-respecting metasearch engine.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  whoogle-search:
+    image: benbusby/whoogle-search
+    container_name: whoogle-search
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    mem_limit: 512m
+    mem_reservation: 128M
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.whoogle-https.loadbalancer.server.port=5000
+      - traefik.http.routers.whoogle-https.entrypoints=https
+      - traefik.http.routers.whoogle-https.rule=Host(`${WHOOGLE_SUB?WHOOGLE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.whoogle-https.tls=true
+      - traefik.http.routers.whoogle-https.tls.certresolver=myresolver
+      - traefik.http.routers.whoogle-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
