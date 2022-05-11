@@ -1,5 +1,5 @@
 ---
-# Gitea - Git with a cup of tea · A painless self-hosted Git service. 
+# Gitea - Git with a cup of tea · A painless self-hosted Git service.
 version: "3.8"
 networks:
   t2_proxy:

@@ -14,8 +14,8 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
       - /var/data/rsnapshot/config:/config
-      - /mnt/snapshots:/.snapshots #optional
-      - /mnt/rsnapshot:/data #optional
+      - /mnt/snapshots:/.snapshots  # optional
+      - /mnt/rsnapshot:/data  # optional
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     networks:
       - docker-only

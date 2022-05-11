@@ -1,5 +1,5 @@
 ---
-# Snippet Box is a simple self-hosted app for organizing your code snippets. It allows you to easily create, edit, browse and manage your snippets 
+# Snippet Box is a simple self-hosted app for organizing your code snippets. It allows you to easily create, edit, browse and manage your snippets.
 version: "3.8"
 networks:
   t2_proxy:
@@ -13,7 +13,7 @@ services:
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.snippitbox-https.loadbalancer.server.port=5000 
+      - traefik.http.services.snippitbox-https.loadbalancer.server.port=5000
       - traefik.http.routers.snippitbox-https.entrypoints=https
       - traefik.http.routers.snippitbox-https.rule=Host(`${SNIPPITBOX_SUB?SNIPPITBOX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.snippitbox-https.tls=true

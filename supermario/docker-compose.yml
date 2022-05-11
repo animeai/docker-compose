@@ -8,10 +8,10 @@ services:
   supermario:
     image: pengbai/docker-supermario
     container_name: supermario
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}    
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.supermario-https.loadbalancer.server.port=8080 
+      - traefik.http.services.supermario-https.loadbalancer.server.port=8080
       - traefik.http.routers.supermario-https.entrypoints=https
       - traefik.http.routers.supermario-https.rule=Host(`${SUPERMARIO_SUB?SUPERMARIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.supermario-https.tls=true

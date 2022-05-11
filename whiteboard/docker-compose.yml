@@ -1,23 +1,23 @@
 ---
+# WBO is an online collaborative whiteboard that allows many users to draw simultaneously on a large virtual board. The board is updated in real time.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
 services:
   whiteboard:
-#WBO is an online collaborative whiteboard that allows many users to draw simultaneously on a large virtual board. The board is updated in real time
-    image: lovasoa/wbo:latest 
+    image: lovasoa/wbo:latest
     container_name: whiteboard
     volumes:
       - /var/data/whiteboard/data:/opt/app/server-data
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.whiteboard-https.loadbalancer.server.port=80 
+      - traefik.http.services.whiteboard-https.loadbalancer.server.port=80
       - traefik.http.routers.whiteboard-https.entrypoints=https
       - traefik.http.routers.whiteboard-https.rule=Host(`${HASTEBIN_SUB?HASTEBIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.whiteboard-https.tls=true
       - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
       - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
     networks:
-      t2_proxy:    
+      t2_proxy:

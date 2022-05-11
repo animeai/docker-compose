@@ -5,14 +5,14 @@ networks:
     external: true
 services:
   deluge:
-#Torrent Client
+# Torrent Client
     image: lscr.io/linuxserver/deluge
     container_name: deluge
     environment:
       - PUID=${PUID?PUID Variable not set}
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - DELUGE_LOGLEVEL=error #optional
+      - DELUGE_LOGLEVEL=error  # optional
     volumes:
       - /var/data/deluge/config:/config
       - /mnt/downloads:/downloads
@@ -31,7 +31,7 @@ services:
     networks:
       t2_proxy:
   exatorrent:
-#exatorrent is Elegant BitTorrent Client written in Go. · It is Simple, easy to use, yet feature rich.
+# exatorrent is Elegant BitTorrent Client written in Go. · It is Simple, easy to use, yet feature rich.
     image: ghcr.io/varbhat/exatorrent:latest
     container_name: exatorrent
     volumes:
@@ -73,7 +73,7 @@ services:
     networks:
       t2_proxy:
   jackett:
-#Jackett works as a proxy server: it translates queries from apps (Sonarr, Radarr, SickRage, CouchPotato, Mylar3, Lidarr, DuckieTV, qBittorrent, Nefarious etc.) into tracker-site-specific http queries, parses the html or json response, and then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.
+# Jackett works as a proxy server: it translates queries from apps (Sonarr, Radarr, SickRage, CouchPotato, Mylar3, Lidarr, DuckieTV, qBittorrent, Nefarious etc.) into tracker-site-specific http queries, parses the html or json response, and then sends results back to the requesting software. This allows for getting recent uploads (like RSS) and performing searches. Jackett is a single repository of maintained indexer scraping & translation logic - removing the burden from other apps.
     image: lscr.io/linuxserver/jackett
     environment:
       - PUID=${PUID?PUID Variable not set}
@@ -95,7 +95,7 @@ services:
     networks:
       t2_proxy:
   lidarr:
-#Lidarr is a music collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new albums from your favorite artists
+# Lidarr is a music collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new albums from your favorite artists
     image: lscr.io/linuxserver/lidarr
     container_name: lidarr
     environment:
@@ -118,7 +118,7 @@ services:
     networks:
       t2_proxy:
   medusa:
-#Medusa is an automatic Video Library Manager for TV Shows. It watches for new episodes of your favorite shows, and when they are posted it does its magic.
+# Medusa is an automatic Video Library Manager for TV Shows. It watches for new episodes of your favorite shows, and when they are posted it does its magic.
     image: lscr.io/linuxserver/medusa
     container_name: medusa
     environment:
@@ -142,7 +142,7 @@ services:
     networks:
       t2_proxy:
   mylar3:
-#Mylar3 is an automated Comic Book downloader (cbr/cbz) for use with NZB and torrents written in python. It supports SABnzbd, NZBGET, and many torrent clients 
+# Mylar3 is an automated Comic Book downloader (cbr/cbz) for use with NZB and torrents written in python. It supports SABnzbd, NZBGET, and many torrent clients 
     image: lscr.io/linuxserver/mylar3
     container_name: mylar3
     environment:
@@ -165,12 +165,12 @@ services:
     networks:
       t2_proxy:
   podgrab:
-#A self-hosted podcast manager/downloader/archiver tool to download podcast episodes as soon as they become live with an integrated player.
+# A self-hosted podcast manager/downloader/archiver tool to download podcast episodes as soon as they become live with an integrated player.
     image: akhilrex/podgrab
     container_name: podgrab
     environment:
       - CHECK_FREQUENCY=240
-      #- PASSWORD=password     ## Uncomment to enable basic authentication, username = podgrab
+#      - PASSWORD=password     ## Uncomment to enable basic authentication, username = podgrab
     volumes:
       - /var/data/podgrab/config:/config
       - /path/to/data:/assets
@@ -207,7 +207,7 @@ services:
     networks:
       t2_proxy:
   prowlarr:
-#Prowlarr is an indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. It integrates seamlessly with Lidarr, Mylar3, Radarr, Readarr, and Sonarr offering complete management of your indexers with no per app Indexer setup required (we do it all).
+# Prowlarr is an indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers. It integrates seamlessly with Lidarr, Mylar3, Radarr, Readarr, and Sonarr offering complete management of your indexers with no per app Indexer setup required (we do it all).
     image: lscr.io/linuxserver/prowlarr:develop
     container_name: prowlarr
     environment:
@@ -228,7 +228,7 @@ services:
     networks:
       t2_proxy:
   qbittorrent:
-#Torrent Client
+# Torrent Client
     image: lscr.io/linuxserver/qbittorrent
     container_name: qbittorrent
     environment:
@@ -254,7 +254,7 @@ services:
     networks:
       t2_proxy:
   radarr:
-#Radarr is a movie collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new movies and will interface with clients and indexers to grab, sort, and rename them. It can also be configured to automatically upgrade the quality of existing files in the library when a better quality format becomes available. Note that only one type of a given movie is supported. If you want both an 4k version and 1080p version of a given movie you will need multiple instances.
+# Radarr is a movie collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new movies and will interface with clients and indexers to grab, sort, and rename them. It can also be configured to automatically upgrade the quality of existing files in the library when a better quality format becomes available. Note that only one type of a given movie is supported. If you want both an 4k version and 1080p version of a given movie you will need multiple instances.
     image: lscr.io/linuxserver/radarr
     container_name: radarr
     environment:
@@ -277,7 +277,7 @@ services:
     networks:
       t2_proxy:
   readarr:
-#Readarr is a ebook collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new books from your favorite authors 
+# Readarr is a ebook collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new books from your favorite authors 
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
     environment:
@@ -300,7 +300,7 @@ services:
     networks:
       t2_proxy:
   rutorrent:
-#Torrent client
+# Torrent client
     image: ghcr.io/linuxserver/rutorrent
     container_name: rutorrent
     environment:
@@ -324,9 +324,8 @@ services:
       - traefik.http.routers.rutorrent-https.middlewares=authelia@docker
     networks:
       t2_proxy:
-
   sickchill:
-#Automatic Video Library Manager for TV Shows. It watches for new episodes of your favorite shows, and when they are posted it does its magic
+# Automatic Video Library Manager for TV Shows. It watches for new episodes of your favorite shows, and when they are posted it does its magic
     image: lscr.io/linuxserver/sickchill
     container_name: sickchill
     environment:
@@ -350,7 +349,7 @@ services:
     networks:
       t2_proxy:
   sickgear:
-#SickGear provides management of TV shows and/or Anime, it detects new episodes, links downloader apps, and more. 
+# SickGear provides management of TV shows and/or Anime, it detects new episodes, links downloader apps, and more. 
     image: lscr.io/linuxserver/sickgear
     container_name: sickgear
     environment:
@@ -373,7 +372,7 @@ services:
     networks:
       t2_proxy:
   sonarr:
-#Sonarr is a Personal Video Recorder for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.
+# Sonarr is a Personal Video Recorder for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort and rename them. It can also be configured to automatically upgrade the quality of files already downloaded when a better quality format becomes available.
     image: lscr.io/linuxserver/sonarr
     container_name: sonarr
     environment:
@@ -397,7 +396,7 @@ services:
     networks:
       t2_proxy:
   torrentmonitor:
-#To test - english or russian?
+# To test - english or russian?
     image: alfonder/torrentmonitor
     container_name: torrentmonitor
     volumes:
@@ -415,14 +414,14 @@ services:
     networks:
       t2_proxy:
   transmission:
-#Torrent client
+# Torrent client
     image: lscr.io/linuxserver/transmission
     container_name: transmission
     environment:
       - PUID=${PUID?PUID Variable not set}
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+      - TRANSMISSION_WEB_HOME=/combustion-release/  # optional
     volumes:
       - /var/data/transmission/config:/config
       - /mnt/downloads:/downloads
