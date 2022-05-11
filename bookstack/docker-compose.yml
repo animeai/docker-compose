@@ -1,5 +1,5 @@
 ---
-# Bookstack is a free and open source Wiki designed for creating beautiful documentation. Featuring a simple, but powerful WYSIWYG editor 
+# Bookstack is a free and open source Wiki designed for creating beautiful documentation. Featuring a simple, but powerful WYSIWYG editor
 # Includes app and MariaDB
 version: "3.8"
 networks:

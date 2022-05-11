@@ -34,9 +34,8 @@ services:
     depends_on:
       - gitea-db
     networks:
-      t2_proxy: 
+      t2_proxy:
   gitea-db:
-#Gitea database
     image: mysql:8
     container_name: gitea-db
     hostname: gitea-db

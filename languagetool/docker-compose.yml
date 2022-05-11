@@ -1,5 +1,5 @@
 ---
-# LanguageTool is an Open Source proofreading software for English, French, German, Polish, Russian, and more than 20 other languages. 
+# LanguageTool is an Open Source proofreading software for English, French, German, Polish, Russian, and more than 20 other languages.
 version: "3.8"
 networks:
   t2_proxy:
@@ -9,11 +9,11 @@ services:
     image: erikvl87/languagetool
     container_name: languagetool
     environment:
-        - langtool_languageModel=/ngrams  # OPTIONAL: Using ngrams data
-        - Java_Xms=512m  # OPTIONAL: Setting a minimal Java heap size of 512 mib
-        - Java_Xmx=1g  # OPTIONAL: Setting a maximum Java heap size of 1 Gib
+      - langtool_languageModel=/ngrams  # OPTIONAL: Using ngrams data
+      - Java_Xms=512m  # OPTIONAL: Setting a minimal Java heap size of 512 mib
+      - Java_Xmx=1g  # OPTIONAL: Setting a maximum Java heap size of 1 Gib
     volumes:
-        - /var/data/ngrams/data:/ngrams
+      - /var/data/ngrams/data:/ngrams
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

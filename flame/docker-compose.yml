@@ -10,7 +10,7 @@ services:
     container_name: flame
     volumes:
       - /var/data/flame/data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock 
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - PASSWORD=${FLAME_PASS?FLAME_PASS Variable not set}
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

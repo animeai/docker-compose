@@ -14,7 +14,7 @@ services:
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.privatebin-https.loadbalancer.server.port=7777 
+      - traefik.http.services.privatebin-https.loadbalancer.server.port=7777
       - traefik.http.routers.privatebin-https.entrypoints=https
       - traefik.http.routers.privatebin-https.rule=Host(`${HASTEBIN_SUB?HASTEBIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.privatebin-https.tls=true
@@ -25,7 +25,6 @@ services:
     depends_on:
       - hastebin-redis
   hastebin-redis:
-#hastebin database
     image: redis
     container_name: hostbin-redis
     hostname: hostbin-redis

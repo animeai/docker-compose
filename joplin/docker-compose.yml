@@ -20,14 +20,14 @@ services:
       - POSTGRES_HOST=joplindb
     labels:
       - traefik.enable=true
-      - traefik.http.services.whiteboard-https.loadbalancer.server.port=22300 
+      - traefik.http.services.whiteboard-https.loadbalancer.server.port=22300
       - traefik.http.routers.whiteboard-https.entrypoints=https
       - traefik.http.routers.whiteboard-https.rule=Host(`${JOPLIN_SUB?JOPLIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.whiteboard-https.tls=true
       - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
       - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
     networks:
-      t2_proxy: 
+      t2_proxy:
     depends_on:
       joplin-db
   joplin-db:

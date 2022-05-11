@@ -22,10 +22,10 @@ services:
       # this url value is just an example, and is likely wrong for your environment!
       url: http://${GHOST_SUB?GHOST_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
       # contrary to the default mentioned in the linked documentation, this image defaults to NODE_ENV=production (so development mode needs to be explicitly specified if desired)
-      #NODE_ENV: development
+      # NODE_ENV: development
     labels:
       - traefik.enable=true
-      - traefik.http.services.ghost-https.loadbalancer.server.port=22300 
+      - traefik.http.services.ghost-https.loadbalancer.server.port=22300
       - traefik.http.routers.ghost-https.entrypoints=https
       - traefik.http.routers.ghost-https.rule=Host(`${GHOST_SUB?GHOST_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.ghost-https.tls=true
@@ -34,7 +34,7 @@ services:
     depends_on:
       - ghost-db
     networks:
-      t2_proxy: 
+      t2_proxy:
   ghost-db:
     image: mysql:8.0
     container_name: ghost-db

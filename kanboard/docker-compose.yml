@@ -1,5 +1,5 @@
 ---
-# Kanboard is a free and open source Kanban project management software. Kanban Board. Visualize your work; 
+# Kanboard is a free and open source Kanban project management software. Kanban Board. Visualize your work.
 version: "3.8"
 networks:
   t2_proxy:
@@ -14,10 +14,10 @@ services:
       - /var/data/kanboard/ssl:/etc/nginx/ssl
     environment:
       DATABASE_URL: mysql://${KANBOARDDB_USER?KANBOARDDB_USER Variable not set}:${KANBOARDDB_PASS?KANBOARDDB_PASS Variable not set}@kanboard-db/${KANBOARDDB_DB?KANBOARDDB_DB Variable not set}
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}    
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
-      - traefik.http.services.kanboard-https.loadbalancer.server.port=80 
+      - traefik.http.services.kanboard-https.loadbalancer.server.port=80
       - traefik.http.routers.exkanboardportarr-https.entrypoints=https
       - traefik.http.routers.kanboard-https.rule=Host(`${KANBOARD_SUB?KANBOARD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.kanboard-https.tls=true
@@ -38,7 +38,7 @@ services:
       MYSQL_USER: ${KANBOARDDB_USER?KANBOARDDB_USER Variable not set}
       MYSQL_PASSWORD: ${KANBOARDDB_PASS?KANBOARDDB_PASS Variable not set}
     volumes:
-    - /var/data/kanboard/db:/var/lib/mysql
+      - /var/data/kanboard/db:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${KANBOARDDB_ROOT?KANBOARDDB_ROOT variable does not exist}"]
       interval: 10s
