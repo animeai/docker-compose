@@ -4,12 +4,19 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  homer-assets:
+  homer-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   homer:
     image: b4bz/homer
     container_name: homer
     volumes:
-      - /var/data/homer/assets:/www/assets
+      - homer-assets:/www/assets
+      - homer-log:/var/log
     environment:
       - UID=${PUID?PUID Variable not set}
       - GID=${PGID?PGID Variable not set}

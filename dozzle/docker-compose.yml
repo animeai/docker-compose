@@ -4,12 +4,18 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  dozzle-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   dozzle:
     image: amir20/dozzle:latest
     container_name: dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - dozzle-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.dozzle-https.loadbalancer.server.port=8080

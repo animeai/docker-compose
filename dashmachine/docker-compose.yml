@@ -4,12 +4,19 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  dashmachine-config:
+  dashmachine-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   dashmachine:
     image: rmountjoy/dashmachine:latest
     container_name: dashmachine
     volumes:
-      - /var/data/dashmachine/data:/dashmachine/dashmachine/user_data
+      - dashmachine-data:/dashmachine/dashmachine/user_data
+      - dashmachine-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

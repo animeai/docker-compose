@@ -1,15 +1,22 @@
 ---
 # exatorrent is Elegant BitTorrent Client written in Go. · It is Simple, easy to use, yet feature rich.
+# To Do: check dir structure and map downloads and config seperately.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  exatorrent-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   exatorrent:
     image: ghcr.io/varbhat/exatorrent:latest
     container_name: exatorrent
     volumes:
       - /mnt/exatorrent:/exa/exadir
+      - exatorrent-log:/var/log
     ports:
       - ${EXATORRENT_PORT?EXATORRENT_PORT Variable not set}:42069
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

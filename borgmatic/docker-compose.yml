@@ -4,6 +4,15 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  borgmatic-config:
+  borgmatic-config2:
+  borgmatic-ssh:
+  borgmatic-cache:
+  borgmatic-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   borgmatic:
     image: modem7/borgmatic-docker
@@ -12,10 +21,11 @@ services:
     volumes:
       - /mnt/borgmatic/source:/mnt/source:ro           # backup source
       - /mnt/borgmatic/target:/mnt/borg-repository     # backup target
-      - /mnt/borgmatic/config:/etc/borgmatic.d/        # borgmatic config file(s) + crontab.txt
-      - /mnt/borgmatic/config2:/root/.config/borg      # config and keyfiles
-      - /mnt/borgmatic/ssh:/root/.ssh                  # ssh key for remote repositories
-      - /mnt/borgmatic/cache:/root/.cache/borg         # checksums used for deduplication
+      - borgmatic-config:/etc/borgmatic.d/        # borgmatic config file(s) + crontab.txt
+      - borgmatic-config2:/root/.config/borg      # config and keyfiles
+      - borgmatic-ssh:/root/.ssh                  # ssh key for remote repositories
+      - borgmatic-cache:/root/.cache/borg         # checksums used for deduplication
+      - borgmatic-log:/var/log
     environment:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - BORG_PASSPHRASE=${BORG_PASSPHRASE?BORG_PASSPHRASE Variable not set}

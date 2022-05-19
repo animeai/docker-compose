@@ -4,6 +4,11 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  exportarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   exportarr:
     image: petersem/exportarr
@@ -17,6 +22,8 @@ services:
       RADARR_URL: "http://${RADARR_SUB?RADARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}"
       RADARR_TOKEN: ${RADARR_TOKEN?RADARR_TOKEN Variable not set}
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    volumes:
+      - exportarr-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.exportarr-https.loadbalancer.server.port=3000

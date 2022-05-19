@@ -4,6 +4,18 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  gitea-data:
+  gitea-db-data:
+  gitea-db-config:
+  gitea-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  gitea-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   gitea:
     image: gitea/gitea:1.16.4
@@ -18,7 +30,8 @@ services:
       - GITEA__database__PASSWD=${GITEADB_PASS?GITEADB_PASS Variable not set}
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
-      - /var/data/gitea/data:/data
+      - gitea-data:/data
+      - gitea-log:/var/log
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
@@ -46,7 +59,9 @@ services:
       - MYSQL_PASSWORD=${GITEADB_PASS?GITEADB_PASS Variable not set}
       - MYSQL_DATABASE=${GITEADB_DB?GITEADB_DB Variable not set}
     volumes:
-      - /var/data/gitea/mysql:/var/lib/mysql
+      - gitea-db-data:/var/lib/mysql
+      - gitea-db-log:/var/log
+      - gitea-db-config:/etc/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${GITEADB_ROOTPASS?GITEADB_ROOTPASS variable does not exist}"]
       interval: 10s

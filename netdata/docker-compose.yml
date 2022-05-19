@@ -1,0 +1,38 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+services:
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    hostname: sub.domain.com # set to fqdn of host
+    ports:
+      - 19999:19999
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.netdata-https.loadbalancer.server.port=19999
+      - traefik.http.routers.netdata-https.entrypoints=https
+      - traefik.http.routers.netdata-https.rule=Host(`${NETDATA_SUB?NETDATA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.netdata-https.tls=true
+      - traefik.http.routers.netdata-https.tls.certresolver=myresolver
+      - traefik.http.routers.netdata-https.middlewares=authelia@docker
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:

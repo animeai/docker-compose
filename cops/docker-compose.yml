@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  cops-config:
+  cops-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   cops:
     image: lscr.io/linuxserver/cops
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/cops/config:/config
+      - cops-config:/config
+      - cops-log:/var/log
       - /mnt/ebooks:/books
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:

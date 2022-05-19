@@ -5,6 +5,24 @@ version: "3.8"
 networks:
   t2_proxy:
     external:
+volumes:
+  adguardhome-one-work:
+  adguardhome-one-config:
+  adguardhome-one-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  adguardhome-two-work:
+  adguardhome-two-config:
+  adguardhome-two-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  adguardhome-sync-config:
+  adguardhome-sync-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   smarthome:
     driver: macvlan
@@ -27,8 +45,9 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - /var/data/adguardhome/work:/opt/adguardhome/work
-      - /var/data/adguardhome/config:/opt/adguardhome/conf
+      - adguardhome-one-work:/opt/adguardhome/work
+      - adguardhome-one-config:/opt/adguardhome/conf
+      - adguardhome-one-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     networks:
       smarthome:
@@ -46,8 +65,9 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - /var/data/adguardhome2/work :/opt/adguardhome/work
-      - /var/data/adguardhome2/config:/opt/adguardhome/conf
+      - adguardhome-two-work :/opt/adguardhome/work
+      - adguardhome-two-config:/opt/adguardhome/conf
+      - adguardhome-two-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     networks:
       smarthome:
@@ -70,7 +90,8 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - CONFIGFILE=/config/adguardhome-sync.yaml  # optional
     volumes:
-      - /var/data/adguardhome-sync/config:/config
+      - adguardhome-sync-config:/config
+      - adguardhome-sync-log:/var/log
     ports:
       - 8080:8080
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

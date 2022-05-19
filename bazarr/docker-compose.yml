@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  bazarr-config:
+  bazarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   bazarr:
     image: lscr.io/linuxserver/bazarr
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/bazarr/config:/config
+      - bazarr-config:/config
+      - bazarr-log:/var/log
       - /mnt/movies:/movies
       - /mnt/tv:/tv
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
@@ -21,7 +28,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.bazarr-https.loadbalancer.server.port=6767
       - traefik.http.routers.bazarr-https.entrypoints=https
-      - traefik.http.routers.bazarr-https.rule=Host(`${BAZ?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.bazarr-https.rule=Host(`${BAZARR_SUB?BAZARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.bazarr-https.tls=true
       - traefik.http.routers.bazarr-https.tls.certresolver=myresolver
       - traefik.http.routers.bazarr-https.middlewares=authelia@docker

@@ -5,6 +5,17 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  bookstack-config:
+  bookstack-db-config:
+  bookstack-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  bookstack-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   bookstack:
     image: lscr.io/linuxserver/bookstack
@@ -18,7 +29,8 @@ services:
       - DB_PASS=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT Variable not set}
       - DB_DATABASE=bookstackapp
     volumes:
-      - /var/data/bookstack/config:/config
+      - bookstack-config:/config
+      - bookstack-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
@@ -49,5 +61,6 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - /var/data/bookstack/dbconfig:/config
+      - bookstack-db-config:/config
+      - bookstack-db-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

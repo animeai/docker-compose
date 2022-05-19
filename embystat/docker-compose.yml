@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  embystat-config:
+  embystat-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   embystat:
     image: lscr.io/linuxserver/embystat
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/embystat/config:/config
+      - embystat-config:/config
+      - embystat-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

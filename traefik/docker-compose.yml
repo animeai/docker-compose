@@ -85,7 +85,7 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.services.transmission-https.loadbalancer.server.port=9091
+        - traefik.http.services.authelia.loadbalancer.server.port=9091
         - traefik.http.routers.authelia.rule=Host(`${AUTHELIA_SUB?AUTHELIA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
         - traefik.http.routers.authelia.entrypoints=https
         - traefik.http.routers.authelia.tls=true

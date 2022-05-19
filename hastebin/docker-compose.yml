@@ -4,6 +4,17 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  hastebin-redis-data:
+  hastebin-redis-config:
+  hastebin-redis-log: 
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  hastebin-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   hastebin:
     image: rlister/hastebin
@@ -20,6 +31,8 @@ services:
       - traefik.http.routers.privatebin-https.tls=true
       - traefik.http.routers.privatebin-https.tls.certresolver=myresolver
       - traefik.http.routers.privatebin-https.middlewares=authelia@docker
+    volumes:
+      - hastebin-log:/var/log
     networks:
       t2_proxy:
     depends_on:
@@ -29,4 +42,6 @@ services:
     container_name: hostbin-redis
     hostname: hostbin-redis
     volumes:
-      - /var/data/hastebin/db:/data
+      - hastebin-redis-data:/data
+      - hastebin-redis-config:/usr/local/etc/redis
+      - hastebin-redis-log:/var/log

@@ -1,9 +1,68 @@
 ---
 # Set of ADS-B Scanning software. Requires an appropraite USB dongle and antenna
+# Can the tmpfs run be removed? Can it be easily made a volume mount?
 version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  adsbexchange-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  adsbhub-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  flightairmap-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  flightairmap-db-mysql:
+  flightairmap-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  fr24-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  graphs1090-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  opensky-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  piaware-cache:
+  piaware-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  planefinder-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  radarbox-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  readsb-autogain:
+  readsb-collectd:
+  readsb-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  shared-readsb:
+  tar1090-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  virtualradarserver-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   adsbexchange:
     image: mikenye/adsbexchange:latest
@@ -22,7 +81,8 @@ services:
       - REDUCE_INTERVAL=${ADSBEXCHANGE_REDUCE_INTERVAL?ADSBEXCHANGE_REDUCE_INTERVAL Variable not set}
     tmpfs:
       - /run:exec,size=64M,${PUID?PUID Variable not set},${PGID?PGID Variable not set}
-      - /var/log
+    volumes:
+      - adsbexchange-log:/var/log
   adsbhub:
     image: mikenye/adsbhub:latest
     tty: true
@@ -32,6 +92,8 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - SBSHOST=readsb
       - CLIENTKEY=${ADSBHUB_CLIENTKEY?ADSBHUB_CLIENTKEY Variable not set}
+    volume:
+      - adsbhub-log:/var/log
   flightairmap:
     image: mikenye/flightairmap:latest
     tty: true
@@ -61,6 +123,8 @@ services:
       - traefik.http.routers.flightairmap-https.entrypoints=https
       - traefik.http.routers.flightairmap-https.tls=true
       - traefik.http.routers.flightairmap-https.tls.certresolver=myresolver
+    volumes:
+      - flightairmap-log:/var/log
   flightairmap-db:
     image: mariadb
     command: --default-authentication-plugin=mysql_native_password
@@ -74,8 +138,9 @@ services:
       - MYSQL_USER=flightairmap
       - MYSQL_PASSWORD=${FLIGHTAIRMAP_MYSQL_PASS?FLIGHTAIRMAP_MYSQL_PASS Variable not set}
     volumes:
-      - /var/data/adsb/flightairmap/mysql:/var/lib/mysql
-  flight-radar-24:
+      - flightairmap-db-mysql:/var/lib/mysql
+      - flightairmap-db-log:/var/log
+  flightradar-24:
     image: mikenye/fr24feed:latest
     tty: true
     container_name: fr24
@@ -91,7 +156,7 @@ services:
       - FEEDER_LAT=${LAT?LAT Variable not set}
       - FEEDER_LONG=${LAT?LAT Variable not set}
     volumes:
-      - /var/data/adsb/fr24/log:/var/log
+      - fr24-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.fr24.loadbalancer.server.port=8754
@@ -122,6 +187,8 @@ services:
       - traefik.http.routers.graphs-https.entrypoints=https
       - traefik.http.routers.graphs-https.tls=true
       - traefik.http.routers.graphs-https.tls.certresolver=myresolver
+    volumes:
+      - graphs1090-log:/var/log
   opensky:
     image: mikenye/opensky-network:latest
     tty: true
@@ -137,11 +204,71 @@ services:
       - OPENSKY_SERIAL=-${OPENSKY_SERIAL?OPENSKY_SERIAL Variable not set}
     tmpfs:
       - /run:exec,size=64M
-      - /var/log
+    volumes:
+      - opensky-log:/var/log
+  planefinder:
+    image: mikenye/planefinder:latest
+    tty: true
+    container_name: planefinder
+    hostname: planefinder
+    restart: always
+    environment:
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}`)
+      - BEASTHOST=readsb
+      - LAT=${LAT?LAT Variable not set}`)
+      - LONG=${LONG?LONG Variable not set}`)
+      - SHARECODE=${PLANEFINDER_SHARECODE?PLANEFINDER_SHARECODE Variable not set}`)
+    tmpfs:
+      - /run:exec,size=64M
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.planefinder.loadbalancer.server.port=30053
+      - traefik.docker.network=t2_proxy
+      - traefik.http.routers.planefinder-https.rule=Host(`${PLANEFINDER_SUB?PLANEFINDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.planefinder-https.entrypoints=https
+      - traefik.http.routers.planefinder-https.tls=true
+      - traefik.http.routers.planefinder-https.tls.certresolver=myresolver
+    volumes:
+      - planefinder-log:/var/log
+    networks:
+      t2_proxy:
+  piaware:
+    image: mikenye/piaware:latest
+    container_name: piaware
+    hostname: piaware
+    tty: true
+    environment:
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - LAT=${LAT?LAT Variable not set}
+      - LONG=${LONG?LONG Variable not set}
+      - FEEDER_ID=${PIAWARE_FEEDERID?PIAWARE_FEEDERID Variable not set}
+      - ALLOW_MLAT=${PIAWARE_ALLOW_MLAT?PIAWARE_ALLOW_MLAT Variable not set}
+      - MLAT_RESULTS=${PIAWARE_MLAT_RESULTS?PIAWARE_FEEDERID Variable not set}
+      - ALLOW_MODEAC=${PIAWARE_ALLOW_MODEAC?PIAWARE_ALLOW_MODEAC Variable not set}
+      - BINGMAPSAPIKEY=${TIMEZONE?TIMEZONE Variable not set}
+      - RECEIVER_TYPE=relay
+      - BEASTHOST=readsb
+      - BEASTPORT=30005
+      - VERBOSE_LOGGING=${PIAWARE_VERBOSE_LOGGING?PIAWARE_VERBOSE_LOGGING Variable not set}
+    volumes:
+      - piaware-cache:/var/cache/piaware
+      - piaware-log:/var/log
+    tmpfs:
+      - /run:exec,size=256M
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.piaware.loadbalancer.server.port=80
+      - traefik.docker.network=t2_proxy
+      - traefik.http.routers.piaware-https.rule=Host(`${PIAWARE_SUB?PIAWARE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.piaware-https.entrypoints=https
+      - traefik.http.routers.piaware-https.tls=true
+      - traefik.http.routers.piaware-https.tls.certresolver=myresolver
+    networks:
+      t2_proxy:
   radarbox:
     image: mikenye/radarbox:latest
     tty: true
-    container_name: rbfeeder
+    container_name: radarbox
     restart: always
     environment:
       - BEASTHOST=readsb
@@ -152,7 +279,8 @@ services:
       - SHARING_KEY=${RADARBOX_SHARING_KEY?RADARBOX_SHARING_KEY Variable not set}
     tmpfs:
       - /run:exec,size=64M
-      - /var/log
+    volumes:
+      - radarbox-log:/var/log
   readsb:
     image: mikenye/readsb-protobuf:latest
     tty: true
@@ -183,9 +311,10 @@ services:
       - READSB_BEAST_MODEAC=${READSB_BEAST_MODEAC?READSB_BEAST_MODEAC Variable not set}
       - READSB_FORWARD_MLAT=${READSB_FORWARD_MLAT?READSB_FORWARD_MLAT Variable not set}
     volumes:
-      - /var/data/adsb/readsb/readsbpb_rrd:/run/collectd
-      - /var/data/adsb/readsb/readsbpb_autogain:/run/autogain
-      - /var/data/adsb/shared/readsb:/run/readsb
+      - readsb-collectd_rrd:/run/collectd
+      - readsb-autogain:/run/autogain
+      - shared-readsb:/run/readsb
+      - readsb-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.readsb.loadbalancer.server.port=8080
@@ -194,64 +323,6 @@ services:
       - traefik.http.routers.readsb-https.entrypoints=https
       - traefik.http.routers.readsb-https.tls=true
       - traefik.http.routers.readsb-https.tls.certresolver=myresolver
-    networks:
-      t2_proxy:
-  planefinder:
-    image: mikenye/planefinder:latest
-    tty: true
-    container_name: planefinder
-    hostname: planefinder
-    restart: always
-    environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}`)
-      - BEASTHOST=readsb
-      - LAT=${LAT?LAT Variable not set}`)
-      - LONG=${LONG?LONG Variable not set}`)
-      - SHARECODE=${PLANEFINDER_SHARECODE?PLANEFINDER_SHARECODE Variable not set}`)
-    tmpfs:
-      - /run:exec,size=64M
-      - /var/log/pfclient
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.planefinder.loadbalancer.server.port=30053
-      - traefik.docker.network=t2_proxy
-      - traefik.http.routers.planefinder-https.rule=Host(`${PLANEFINDER_SUB?PLANEFINDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.planefinder-https.entrypoints=https
-      - traefik.http.routers.planefinder-https.tls=true
-      - traefik.http.routers.planefinder-https.tls.certresolver=myresolver
-    networks:
-      t2_proxy:
-  piaware:
-    image: mikenye/piaware:latest
-    container_name: piaware
-    hostname: piaware
-    tty: true
-    environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - LAT=${LAT?LAT Variable not set}
-      - LONG=${LONG?LONG Variable not set}
-      - FEEDER_ID=${PIAWARE_FEEDERID?PIAWARE_FEEDERID Variable not set}
-      - ALLOW_MLAT=${PIAWARE_ALLOW_MLAT?PIAWARE_ALLOW_MLAT Variable not set}
-      - MLAT_RESULTS=${PIAWARE_MLAT_RESULTS?PIAWARE_FEEDERID Variable not set}
-      - ALLOW_MODEAC=${PIAWARE_ALLOW_MODEAC?PIAWARE_ALLOW_MODEAC Variable not set}
-      - BINGMAPSAPIKEY=${TIMEZONE?TIMEZONE Variable not set}
-      - RECEIVER_TYPE=relay
-      - BEASTHOST=readsb
-      - BEASTPORT=30005
-      - VERBOSE_LOGGING=${PIAWARE_VERBOSE_LOGGING?PIAWARE_VERBOSE_LOGGING Variable not set}
-    volumes:
-      - /var/data/adsb/piaware/cache:/var/cache/piaware
-    tmpfs:
-      - /run:exec,size=256M
-      - /var/log
-    labels:
-      - traefik.enable=true
-      - traefik.http.services.piaware.loadbalancer.server.port=80
-      - traefik.docker.network=t2_proxy
-      - traefik.http.routers.piaware-https.rule=Host(`${PIAWARE_SUB?PIAWARE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-      - traefik.http.routers.piaware-https.entrypoints=https
-      - traefik.http.routers.piaware-https.tls=true
-      - traefik.http.routers.piaware-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   tar1090:
@@ -269,7 +340,8 @@ services:
       - TAR1090_DEFAULTCENTERLON=${LONG?LONG Variable not set}`)
     tmpfs:
       - /run:exec,size=64M
-      - /var/log
+    volumes:
+      - tar1090-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.tar1090.loadbalancer.server.port=80
@@ -287,7 +359,8 @@ services:
     hostname: virtualradarserver
     restart: always
     volumes:
-      - /var/data/adsb/virtualradar/config:/config
+      - virtualradarserver-config:/config
+      - virtualradarserver-log:/var/log
     environment:
       - USERNAME=${VIRTUALRADARSERVER_USERNAME?VIRTUALRADARSERVER_USERNAME Variable not set}`)
       - PASSWORD=${VIRTUALRADARSERVER_PASS?VIRTUALRADARSERVER_PASS Variable not set}`)

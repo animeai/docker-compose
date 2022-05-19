@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  calibre-config:
+  calibre-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   calibre:
     image: lscr.io/linuxserver/calibre
@@ -15,7 +21,8 @@ services:
 #      - PASSWORD= #optional
 #      - CLI_ARGS= #optional
     volumes:
-      - /var/data/calibre/config:/config
+      - calibre-config:/config
+      - calibre-log:/var/log
       - /mnt/ebooks:/ebooks
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:

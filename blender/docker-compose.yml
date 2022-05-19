@@ -1,0 +1,39 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  blender-config:
+  blender-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  blender:
+    image: lscr.io/linuxserver/blender:latest
+    container_name: blender
+#    security_opt:
+#      - seccomp:unconfined  # optional - may be necessary depending on docker storage setup
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - SUBFOLDER=/  # optional
+      - KEYBOARD=en-us-qwerty  # optional
+    volumes:
+      - blender-config:/config
+      - blender-log:/var/log
+    devices:
+      - /dev/dri:/dev/dri  # optional - for hardware acceleration (linux only)
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.blender-https.loadbalancer.server.port=3000
+      - traefik.http.routers.blender-https.entrypoints=https
+      - traefik.http.routers.blender-https.rule=Host(`${BLENDER_SUB?BLENDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.blender-https.tls=true
+      - traefik.http.routers.blender-https.tls.certresolver=myresolver
+      - traefik.http.routers.blender-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

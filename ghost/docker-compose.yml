@@ -5,13 +5,22 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  ghost-db-data:
+  ghost-db-config:
+  ghost-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  ghost-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   ghost:
     image: ghost:4-alpine
     container_name: ghost
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
-    ports:
-      - 8080:2368
     environment:
       # see https://ghost.org/docs/config/#configuration-options
       database__client: mysql
@@ -25,12 +34,14 @@ services:
       # NODE_ENV: development
     labels:
       - traefik.enable=true
-      - traefik.http.services.ghost-https.loadbalancer.server.port=22300
+      - traefik.http.services.ghost-https.loadbalancer.server.port=22300  # 2368?
       - traefik.http.routers.ghost-https.entrypoints=https
       - traefik.http.routers.ghost-https.rule=Host(`${GHOST_SUB?GHOST_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
       - traefik.http.routers.ghost-https.tls=true
       - traefik.http.routers.ghost-https.tls.certresolver=myresolver
       - traefik.http.routers.ghost-https.middlewares=authelia@docker
+    volumes:
+      - ghost-log:/var/log
     depends_on:
       - ghost-db
     networks:
@@ -47,3 +58,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - ghost-db-log:/var/log
+      - ghost-db-data:/var/lib/mysql
+      - ghost-db-config:/etc/mysql

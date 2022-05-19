@@ -4,14 +4,22 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  audiobookshelf-config:
+  audiobookshelf-metadata:
+  audiobookshelf-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   audiobookshelf:
     image: advplyr/audiobookshelf
     container_name: audiobookshelf
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
-      - /var/data/audiobookshelf/config:/config
-      - /var/data/audiobookshelf/metadata:/metadata
+      - audiobookshelf-config:/config
+      - audiobookshelf-metadata:/metadata
+      - audiobookshelf-log:/var/log
       - /mnt/audiobooks:/audiobooks
     labels:
       - traefik.enable=true

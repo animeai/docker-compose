@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  codeserver-config:
+  codeserver-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   code-server:
     image: lscr.io/linuxserver/code-server
@@ -19,7 +25,8 @@ services:
       - PROXY_DOMAIN=${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}  # optional
       - DEFAULT_WORKSPACE=/config/workspace  # optional
     volumes:
-      - /var/data/codeserver/config:/config
+      - codeserver-config:/config
+      - codeserver-log:/var/log
       - /mnt/code:/code
       - /mnt/home:/mnt/home
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

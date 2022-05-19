@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  calibreweb-config:
+  calibreweb-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   calibre-web:
     image: lscr.io/linuxserver/calibre-web
@@ -15,10 +21,9 @@ services:
       - DOCKER_MODS=linuxserver/calibre-web:calibre  # optional
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1  # optional
     volumes:
-      - /var/data/calibreweb/config:/config
+      - calibreweb-config:/config
+      - calibreweb-log:/var/log
       - /mnt/ebooks:/books
-    ports:
-      - 8083:8083
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
