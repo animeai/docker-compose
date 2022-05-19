@@ -3,13 +3,15 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
 services:
   netdata:
     image: netdata/netdata
     container_name: netdata
-    hostname: sub.domain.com # set to fqdn of host
-    ports:
-      - 19999:19999
+    hostname: ${NETDATA_SUB?NETDATA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}  # set to fqdn of host
     restart: unless-stopped
     cap_add:
       - SYS_PTRACE
@@ -32,7 +34,3 @@ services:
       - traefik.http.routers.netdata-https.tls=true
       - traefik.http.routers.netdata-https.tls.certresolver=myresolver
       - traefik.http.routers.netdata-https.middlewares=authelia@docker
-volumes:
-  netdataconfig:
-  netdatalib:
-  netdatacache:

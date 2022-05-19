@@ -7,7 +7,7 @@ networks:
 volumes:
   hastebin-redis-data:
   hastebin-redis-config:
-  hastebin-redis-log: 
+  hastebin-redis-log:
     driver_opts:
       type: tmpfs
       device: tmpfs
