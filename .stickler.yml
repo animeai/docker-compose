@@ -1,5 +1,5 @@
 linters:
-  shellcheck:
-    shell: bash
+#  shellcheck:
+#    shell: bash
   yamllint:
     config: ./yamllint.conf
