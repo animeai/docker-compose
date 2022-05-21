@@ -1,0 +1,30 @@
+---
+# Beehive is an event and agent system, which allows you to create your own agents that perform automated tasks triggered by events and filters. It is modular, flexible and really easy to extend for anyone. It has modules (we call them Hives), so it can interface with, talk to, or retrieve information from Twitter, Tumblr, Email, IRC, Jabber, RSS, Jenkins, Hue - to name just a few.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  beehive-config:
+  beehive-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  beehive:
+    image: fribbledom/beehive
+    container_name: beehive
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    volumes:
+      - beehive-config:/conf
+      - beehive-log:/var/log
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.beehive-https.loadbalancer.server.port=8181
+      - traefik.http.routers.beehive-https.entrypoints=https
+      - traefik.http.routers.beehive-https.rule=Host(`${BEEHIVE_SUB?BEEHIVE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.beehive-https.tls=true
+      - traefik.http.routers.beehive-https.tls.certresolver=myresolver
+      - traefik.http.routers.beehive-https.middlewares=authelia@docker
+    networks:
+      t2_proxy: 

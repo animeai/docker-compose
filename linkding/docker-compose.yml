@@ -4,12 +4,19 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  linkding-data:
+  linkding-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   linkding:
     image: sissbruecker/linkding:latest
     container_name: linkding
     volumes:
-      - /var/data/linkding/data:/etc/linkding/data
+      - linkding-data:/etc/linkding/data
+      - linkding-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

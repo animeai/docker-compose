@@ -4,15 +4,22 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  komga-config:
+  komga-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   komga:
     image: gotson/komga
     container_name: komga
     volumes:
-      - /var/data/komga/config:/config
+      - komga-config:/config
       - /mnt/manga:/data/manga
       - /mnt/comics:/data/comics
       - /etc/timezone:/etc/timezone:ro
+      - komga-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

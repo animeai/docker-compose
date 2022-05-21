@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  mealie-data:
+  mealie-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   mealie:
     container_name: mealie
@@ -20,7 +26,8 @@ services:
       RECIPE_DISABLE_COMMENTS: 'false'
       RECIPE_DISABLE_AMOUNT: 'false'
     volumes:
-      - /var/data/mealie/data:/app/data
+      - mealie-data:/app/data
+      - mealie-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.mealie-https.loadbalancer.server.port=80

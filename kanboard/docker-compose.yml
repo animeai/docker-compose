@@ -4,14 +4,29 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  kanboard-app:
+  kanboard-plugins:
+  kanboard-ssl:
+  kanboard-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  kanboard-db-data:
+  kanboard-db-config:
+  kanboard-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   kanboard:
     image: kanboard/kanboard:latest
     container_name: kanboard
     volumes:
-      - /var/data/kanboard/app:/var/www/app/data
-      - /var/data/kanboard/plugins:/var/www/app/plugins
-      - /var/data/kanboard/ssl:/etc/nginx/ssl
+      - kanboard-app:/var/www/app/data
+      - kanboard-plugins:/var/www/app/plugins
+      - kanboard-ssl:/etc/nginx/ssl
+      - kanboard-log:/var/log
     environment:
       DATABASE_URL: mysql://${KANBOARDDB_USER?KANBOARDDB_USER Variable not set}:${KANBOARDDB_PASS?KANBOARDDB_PASS Variable not set}@kanboard-db/${KANBOARDDB_DB?KANBOARDDB_DB Variable not set}
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
@@ -38,7 +53,9 @@ services:
       MYSQL_USER: ${KANBOARDDB_USER?KANBOARDDB_USER Variable not set}
       MYSQL_PASSWORD: ${KANBOARDDB_PASS?KANBOARDDB_PASS Variable not set}
     volumes:
-      - /var/data/kanboard/db:/var/lib/mysql
+      - kanboard-db-data:/var/lib/mysql
+      - kanboard-db-log:/var/log
+      - kanboard-db-config:/etc/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${KANBOARDDB_ROOT?KANBOARDDB_ROOT variable does not exist}"]
       interval: 10s

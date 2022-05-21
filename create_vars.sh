@@ -107,6 +107,9 @@ echo "OWNCLOUD_ADMIN_USERNAME=admin" >> /root/vars.sh  # Set the owncloud userna
 echo "PROJECTSEND_MAX_UPLOAD=<5000>" >> /root/vars.sh 
 echo "WORDPRESSDB_DB=wordpress" >> /root/vars.sh  # Set the wordpress database name
 echo "WORDPRESSDB_USER=wordpress" >> /root/vars.sh  # Set the wordpress database user
+echo "LIBRESPEEDDB_DB=lazylibrarian"
+echo "LIBRESPEEDDB_USER=lazylibrarian"
+
 
 # Passwords
 echo "BOOKSTACK_MYSQL_ROOT=45678ultrasecure" >> /root/vars.sh  # Set the mysql root password for the bookstack database
@@ -133,6 +136,8 @@ echo "OWNCLOUD_MYSQL_PASSWORD=23456ultrasecure" >> /root/vars.sh  # Set the ownc
 echo "PORTUSDB_PASS=56789supersecure" >> /root/vars.sh 
 echo "PORTUS_PASS=67890supersecure" >> /root/vars.sh 
 echo "WORDPRESSDB_PASS=45678supersecure" >> /root/vars.sh  # Set the Wordpress database password
+echo "LIBRESPEEDDB_ROOT=84456supersecure"
+echo "LIBRESPEEDDB_PASS=654126ultrasecure"
 
 # Ports
 echo "ADGUARDHOMESYNC_PORT=52467" >> /root/vars.sh  # adguardhome-sync port (local network only)

@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  medusa-config:
+  medusa-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   medusa:
     image: lscr.io/linuxserver/medusa
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/medusa/config:/config
+      - medusa-config:/config
+      - medusa-log:/var/log
       - /mnt/downloads:/downloads
       - /mnt/tv:/tv
       - /mnt/anime:/anime
