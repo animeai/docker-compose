@@ -4,6 +4,18 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  wordpress-html:
+  wordpress-db-data:
+  wordpress-db-config:
+  wordpress-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  wordpress-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   wordpress:
     image: wordpress
@@ -15,7 +27,8 @@ services:
       WORDPRESS_DB_PASSWORD: ${WORDPRESSDB_PASS?WORDPRESSDB_PASS Variable not set}
       WORDPRESS_DB_NAME: ${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS Variable not set}
     volumes:
-      - /var/data/wordpress/html:/var/www/html
+      - wordpress-html:/var/www/html
+      - wordpress-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.wordpress-https.loadbalancer.server.port=22300
@@ -38,7 +51,9 @@ services:
       MYSQL_PASSWORD: ${WORDPRESSDB_PASS?WORDPRESSDB_PASS Variable not set}
       MYSQL_ROOT_PASSWORD: ${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS Variable not set}
     volumes:
-      - /var/data/wordpress/db:/var/lib/mysql
+      - wordpress-db-data:/var/lib/mysql
+      - wordpress-db-log:/var/log
+      - wordpress-db-config:/etc/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${WORDPRESSDB_ROOTPASS?WORDPRESSDB_ROOTPASS variable does not exist}"]
       interval: 10s

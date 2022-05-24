@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  ubooquity-config:
+  ubooquity-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   ubooquity:
     image: lscr.io/linuxserver/ubooquity
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/ubooquity/config:/config
+      - ubooquity-config:/config
+      - ubooquity-log:/var/log
       - /mnt/ebooks:/books
       - /mnt/comics:/comics
       - /mnt/raw:/files
