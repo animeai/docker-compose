@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  prowlarr-config:
+  prowlarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:develop
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/prowlarr/config:/config
+      - prowlarr-config:/config
+      - prowlarr-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

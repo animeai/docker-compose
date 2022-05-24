@@ -10,3 +10,18 @@ volumes:
       device: tmpfs
 services:
   replaceme:
+    image: replaceme
+    container_name: replaceme
+    environment:
+      - replacemt=replacemt
+    volumes:
+      - replaceme-log:/var/log
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.replaceme-https.loadbalancer.server.port=80  # Port the webapp runs on
+      - traefik.http.routers.replaceme-https.entrypoints=https
+      - traefik.http.routers.replaceme-https.rule=Host(`${REPLACEMESUB?REPLACEME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.replaceme-https.tls=true
+      - traefik.http.routers.replaceme-https.tls.certresolver=myresolver
+      - traefik.http.routers.replaceme-https.middlewares=authelia@docker  # If authelia authentication is required

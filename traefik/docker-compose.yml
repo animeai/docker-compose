@@ -1,33 +1,42 @@
 ---
+# Traefik and Authelia
+# TO DO: Check traefik.log file works?
 version: "3.8"
 networks:
   t2_proxy:
     external: true
-  
+volumes:
+  traefik-rules:
+  traefik-acme:
+  traefik-shared:
+  authelia-config:
+  traefik-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  authelia-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   app:
     image: traefik:latest
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.services.traefik-https.loadbalancer.server.port=443
-        - traefik.http.routers.traefik-https.entrypoints=https
-        - traefik.http.routers.traefik-https.rule=Host(`${TRAEFIK_SUB?Variable not set}.${DOMAIN?Variable not set}`)
-        - traefik.http.routers.traefik-https.tls=true
-        - traefik.http.routers.traefik-https.tls.certresolver=myresolver
-        - traefik.http.routers.traefik-https.service=api@internal
-        - traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://${AUTHELIA_SUB?AUTHELIA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
-        - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
-        - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email
-        - traefik.http.middlewares.authelia-basic.forwardauth.address=http://authelia:9091/api/verify?auth=basic
-        - traefik.http.middlewares.authelia-basic.forwardauth.trustForwardHeader=true
-        - traefik.http.middlewares.authelia-basic.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.traefik-https.loadbalancer.server.port=443
+      - traefik.http.routers.traefik-https.entrypoints=https
+      - traefik.http.routers.traefik-https.rule=Host(`${TRAEFIK_SUB?Variable not set}.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.traefik-https.tls=true
+      - traefik.http.routers.traefik-https.tls.certresolver=myresolver
+      - traefik.http.routers.traefik-https.service=api@internal
+      - traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://${AUTHELIA_SUB?AUTHELIA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true
+      - traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email
+      - traefik.http.middlewares.authelia-basic.forwardauth.address=http://authelia:9091/api/verify?auth=basic
+      - traefik.http.middlewares.authelia-basic.forwardauth.trustForwardHeader=true
+      - traefik.http.middlewares.authelia-basic.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email
 #        - traefik.http.middlewares.auth.basicauth.usersfile=${TRAEFIK_BASIC_AUTH?Variable not set}
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: on-failure
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     command:
       - --global.checkNewVersion=true
       - --global.sendAnonymousUsage=true
@@ -68,18 +77,20 @@ services:
       - "443:443"
       - "8181:8181"
     volumes:
-      - /var/data/files/traefik/rules:/rules 
+      - traefik-rules:/rules 
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/data/files/traefik/acme:/letsencrypt
-      - /var/data/files/traefik/traefik.log:/traefik.log 
-      - /var/data/files/shared:/shared
+      - traefik-acme:/letsencrypt
+      - traefik-log/traefik.log:/traefik.log 
+      - traefik-shared:/shared
+      - traefik-log:/var/log
     environment:
       - CF_API_EMAIL=${CLOUDFLARE_API_EMAIL?Variable not set}
       - CF_API_KEY=${CLOUDFLARE_API_KEY?Variable not set}
   authelia:
     image: authelia/authelia
     volumes:
-      - /var/data/authelia/config:/config
+      - authelia-config:/config
+      - authelia-log:/var/log
     networks:
       t2_proxy:
     deploy:

@@ -4,12 +4,18 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  taisun-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   taisun:
     image: linuxserver/taisun
     container_name: taisun
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - taisun-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

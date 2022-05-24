@@ -1,6 +1,6 @@
 ---
 # Portus is a Self hosted registry
-# TODO: Set IP on the registry not the app? Test what works etc
+# TODO: Set IP on the registry not the app? Test what works etc. Work out what to do with portus-clair.conf and portus.crt
 version: "3.8"
 networks:
   t2_proxy:
@@ -14,6 +14,32 @@ networks:
         subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
         gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
         ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+volumes:
+  portus-data:
+  portus-background:
+  portus-webpack:
+  portus-clair:
+  portus-registry:
+  portus-registry-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  portus-clair-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  portus-webpack-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  portus-background-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  portus-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   portus:
     build: .
@@ -42,7 +68,7 @@ services:
       - traefik.http.routers.portus-https.tls.certresolver=myresolver
 #      - traefik.http.routers.portus-https.middlewares=authelia@docker
     volumes:
-      - /var/data/portus/data:/srv/Portus
+      - portus-data:/srv/Portus
     depends_on:
       - portus-clair
       - portus-background
@@ -64,7 +90,8 @@ services:
       - PORTUS_DB_PASSWORD=${PORTUSDB_PASS?PORTUSDB_PASS Variable not set}
       - PORTUS_DB_POOL=5
     volumes:
-      - /var/data/portus/background:/srv/Portus
+      - portus-background:/srv/Portus
+      - portus-background-log:/var/log
     depends_on:
       - portus-clair
       - portus-db
@@ -74,13 +101,15 @@ services:
     command: bash /srv/Portus/examples/development/compose/bootstrap-webpack
     working_dir: /srv/Portus
     volumes:
-      - /var/data/portus/webpack:/srv/Portus
+      - portus-webpack:/srv/Portus
+      - portus-webpack-log:/var/log
   portus-clair:
     image: quay.io/coreos/clair:v2.0.2
     container_name: portus-clair
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     volumes:
-      - /tmp:/tmp
+      - portus-clair-tmp:/tmp
+      - portus-clair-log:/var/log
       - /var/data/portus/clair/clair.yml:/clair.yml
     command: [-config, /clair.yml]
   portus-db:
@@ -113,7 +142,8 @@ services:
           threshold: 5
           backoff: 1s
     volumes:
-      - /var/data/portus/registry:/registry_data
+      - portus-registry:/registry_data
+      - portus-registry-log:/var/log
       - /var/data/portus/certificate/portus.crt:/etc/docker/registry/portus.crt:ro
     ports:
       - 5000:5000

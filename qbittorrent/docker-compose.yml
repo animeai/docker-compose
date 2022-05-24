@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  qbittorrent-config:
+  qbittorrent-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent
@@ -14,7 +20,8 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - WEBUI_PORT=8080
     volumes:
-      - /var/data/qbittorrent/config:/config
+      - qbittorrent-config:/config
+      - qbittorrent-log:/var/log
       - /mnt/downloads:/downloads
     ports:
       - ${QBITTORRENT_PORT?QBITTORRENT_PORT Variable not set}:6881

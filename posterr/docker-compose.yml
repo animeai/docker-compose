@@ -4,6 +4,13 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  posterr-config:
+  posterr-custom:
+  posterr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   posterr:
     image: petersem/posterr
@@ -11,8 +18,9 @@ services:
       TZ: ${TIMEZONE?TIMEZONE Variable not set}
       BASEPATH: ""
     volumes:
-      - /var/data/posterr/config:/usr/src/app/config
-      - /var/data/posterr/custom:/usr/src/app/public/custom
+      - posterr-config:/usr/src/app/config
+      - posterr-custom:/usr/src/app/public/custom
+      - posterr-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

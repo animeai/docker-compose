@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  sonarr-config:
+  sonarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/sonarr/config:/config
+      - sonarr-config:/config
+      - sonarr-log:/var/log
       - /mnt/tv:/tv
       - /mnt/anime:/anime
       - /mnt/downloads:/downloads

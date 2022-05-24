@@ -4,12 +4,19 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  privatebin-data:
+  privatebin-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   privatebin:
     image: privatebin/nginx-fpm-alpine
     container_name: privatebin
     volumes:
-      - /var/data/privatebin/data:/srv/data
+      - privatebin-data:/srv/data
+      - privatebin-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

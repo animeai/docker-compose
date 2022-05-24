@@ -4,12 +4,19 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  snippitbox-data:
+  snippitbox-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   snippitbox:
     image: pawelmalak/snippet-box
     container_name: snippitbox
     volumes:
-      - /var/data/snippitbox/data:/app/data
+      - snippitbox-data:/app/data
+      - snippitbox-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
