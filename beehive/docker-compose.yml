@@ -27,4 +27,4 @@ services:
       - traefik.http.routers.beehive-https.tls.certresolver=myresolver
       - traefik.http.routers.beehive-https.middlewares=authelia@docker
     networks:
-      t2_proxy: 
+      t2_proxy:

@@ -27,11 +27,11 @@ services:
       - /mnt/music:/music
       - /mnt/downloads:/downloads
     labels:
-        - traefik.enable=true
-        - traefik.http.services.betanin-https.loadbalancer.server.port=9393
-        - traefik.http.routers.betanin-https.entrypoints=https
-        - traefik.http.routers.betanin-https.rule=Host(`${BETANIN_SUB?BETANIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
-        - traefik.http.routers.betanin-https.tls=true
-        - traefik.http.routers.betanin-https.middlewares=authelia@docker
+      - traefik.enable=true
+      - traefik.http.services.betanin-https.loadbalancer.server.port=9393
+      - traefik.http.routers.betanin-https.entrypoints=https
+      - traefik.http.routers.betanin-https.rule=Host(`${BETANIN_SUB?BETANIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.betanin-https.tls=true
+      - traefik.http.routers.betanin-https.middlewares=authelia@docker
     networks:
       t2_proxy:

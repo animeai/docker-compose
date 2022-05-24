@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  podgrab-config:
+  podgrab-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   podgrab:
     image: akhilrex/podgrab
@@ -12,7 +18,8 @@ services:
       - CHECK_FREQUENCY=240
 #      - PASSWORD=password     ## Uncomment to enable basic authentication, username = podgrab
     volumes:
-      - /var/data/podgrab/config:/config
+      - podgrab-config:/config
+      - podgrab-log:/var/log
       - /path/to/data:/assets
     ports:
       - 8080:8080
