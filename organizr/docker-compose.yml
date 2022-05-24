@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  organizr-config:
+  organizr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   organizr:
     image: organizr/organizr
@@ -14,7 +20,8 @@ services:
       - fpm="false"
       - branch="v2-master"
     volumes:
-      - /var/data/organizr/config:/config
+      - organizr-config:/config
+      - organizr-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

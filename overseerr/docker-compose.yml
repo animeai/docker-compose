@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  overseerr-config:
+  overseerr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   overseerr:
     image: lscr.io/linuxserver/overseerr
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/overseerr/config:/config
+      - overseerr-config:/config
+      - overseer-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

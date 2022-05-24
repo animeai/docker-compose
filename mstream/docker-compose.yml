@@ -1,0 +1,35 @@
+---
+# mstream is a personal music streaming server. You can use mStream to stream your music from your home computer to any device, anywhere.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  mstream-config:
+  mstream-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  mstream:
+    image: lscr.io/linuxserver/mstream
+    container_name: mstream
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - mstream-config:/config
+      - /mnt/music:/music
+      - /mnt/audiobooks:/audiobooks
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.mstream-https.loadbalancer.server.port=3000
+      - traefik.http.routers.mstream-https.entrypoints=https
+      - traefik.http.routers.mstream-https.rule=Host(`${MSTREAM_SUB?MSTREAM_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.mstream-https.tls=true
+      - traefik.http.routers.mstream-https.tls.certresolver=myresolver
+      - traefik.http.routers.mstream-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

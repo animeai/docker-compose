@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  nextcloud-config:
+  nextcloud-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   nextcloud:
     image: lscr.io/linuxserver/nextcloud
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/nextcloud/config:/config
+      - nextcloud-config:/config
+      - nextcloud-log:/var/log
       - /mnt/nextcloud:/data
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:

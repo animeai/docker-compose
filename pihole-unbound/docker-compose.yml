@@ -1,5 +1,5 @@
 ---
-# TODO: Environment and description
+# TODO: Environment and description. Test DNS
 version: "3.8"
 networks:
   t2_proxy:
@@ -13,6 +13,9 @@ networks:
         subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
         gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
         ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+volumes:
+  pihole1-data:
+  pihole2-data:
 services:
   pihole-one:
     container_name: pihole-one
@@ -31,9 +34,9 @@ services:
 #    environment:
 #      - FTLCONF_REPLY_ADDR4=192.168.1.5
 #      - WEBPASSWORD=${WEBPASSWORD}
-#      - PIHOLE_DNS_=192.168.1.6;192.168.1.13
+      - PIHOLE_DNS_=pihole-unbound
     volumes:
-      - /var/data/pihole-unbound/pihole1/volume:/etc/pihole:rw
+      - pihole1-data:/etc/pihole:rw
       - /var/data/pihole-unbound/pihole1/config/hosts:/etc/hosts:ro
       - /var/data/pihole-unbound/pihole1/config/resolv.conf:/etc/resolv.conf:ro
       - /var/data/pihole-unbound/pihole1/config/dnsmasq.conf:/etc/dnsmasq.d/02-network.conf:ro
@@ -59,9 +62,9 @@ services:
 #    environment:
 #      - FTLCONF_REPLY_ADDR4=192.168.1.5 #PIHOLEUNBOUND_IP?
 #      - WEBPASSWORD=${WEBPASSWORD}
-#      - PIHOLE_DNS_=192.168.1.6;192.168.1.13
+      - PIHOLE_DNS_=pihole-unbound
     volumes:
-      - /var/data/pihole-unbound/pihole2/volume:/etc/pihole:rw
+      - pihole2-data:/etc/pihole
       - /var/data/pihole-unbound/pihole2/config/hosts:/etc/hosts:ro
       - /var/data/pihole-unbound/pihole2/config/resolv.conf:/etc/resolv.conf:ro
       - /var/data/pihole-unbound/pihole2/config/dnsmasq.conf:/etc/dnsmasq.d/02-network.conf:ro
@@ -71,9 +74,9 @@ services:
         ipv4_address: ${PIHOLE_TWO_IP?PIHOLE_TWO_IP Variable not set}
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
   pihole-unbound:
-    container_name: unbound
+    container_name: pihole-unbound
     image: mvance/unbound:latest
-    hostname: syn-unbound
+    hostname: pihole-unbound
     mac_address: 97:3b:2d:0b:84:d5
     ports:
       - 53/tcp

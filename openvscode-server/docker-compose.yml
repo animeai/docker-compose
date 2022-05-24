@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  openvscode-config:
+  openvscode-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   openvscode-server:
     image: lscr.io/linuxserver/openvscode-server
@@ -17,7 +23,8 @@ services:
       - SUDO_PASSWORD=${OPENVSCODE_SERVER_SUDO_PASS?OPENVSCODE_SERVER_SUDO_PASS Variable not set}  # optional
 #      - SUDO_PASSWORD_HASH=${SUDO_PASSWORD_HASH?SUDO_PASSWORD_HASH Variable not set} #optional set sudo password via hash (takes priority over SUDO_PASSWORD var). Format is $type$salt$hashed
     volumes:
-      - /var/data/vscode/config:/config
+      - openvscode-config:/config
+      - openvscode-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

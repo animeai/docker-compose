@@ -5,6 +5,14 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  owncloud-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  owncloud-mariadb-data:
+  owncloud-mariadb-conf:
+  owncloud-mariadb-log:
 services:
   owncloud:
     image: owncloud/server
@@ -59,7 +67,9 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - /var/data/owncloud/mysql:/var/lib/mysql
+      - owncloud-mysql-data:/var/lib/mysql
+      - owncloud-mysql-config:/etc/mysql
+      - owncloud-mysql-log:/var/log
   owncloud-redis:
     image: redis:6
     container_name: owncloud-redis

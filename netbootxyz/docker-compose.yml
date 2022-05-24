@@ -13,6 +13,12 @@ networks:
         subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
         gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
         ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+volumes:
+  netbootxyz-config:
+  netbootxyz-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   netbootxyz:
     image: lscr.io/linuxserver/netbootxyz
@@ -25,7 +31,8 @@ services:
       - PORT_RANGE=30000:30010  # optional
       - SUBFOLDER=/  # optional
     volumes:
-      - /mnt/data/netbootxyz/config:/config
+      - netbootxyz-config:/config
+      - netbootxyz-log:/var/log
       - /mnt/iso:/assets  # optional
     ports:
       - 3000:3000

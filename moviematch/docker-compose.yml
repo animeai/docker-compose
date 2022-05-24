@@ -4,10 +4,17 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  moviematch-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   moviematch:
     image: lukechannings/moviematch:latest
     container_name: moviematch
+    volumes:
+      - moviematch-log:/var/log
     environment:
       - PLEX_URL: "${PLEX_SUB?PLEX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}"
       - PLEX_TOKEN: "PLEX_TOKEN?PLEX_TOKEN Variable not set}"

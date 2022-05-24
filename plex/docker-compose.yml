@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  plex-config:
+  plex-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   plex:
     image: lscr.io/linuxserver/plex
@@ -25,7 +31,8 @@ services:
       - 32414:32414/udp
       - 32469:32469
     volumes:
-      - /mnt/plex/config:/config
+      - plex-config:/config
+      - plex-log:/var/log
       - /mnt/tv:/tv
       - /mnt/anime:/anime
       - /mnt/movies:/movies

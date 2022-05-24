@@ -1,0 +1,36 @@
+---
+# Headphones is an automated music downloader for NZB and Torrent, written in Python. It supports SABnzbd, NZBget, Transmission, µTorrent and Blackhole.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  headphones-config:
+  headphones-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  headphones:
+    image: lscr.io/linuxserver/headphones
+    container_name: headphones
+    environment:
+      - PUID=${PUID?PUID Variable not set}
+      - PGID=${PGID?PGID Variable not set}
+      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+    volumes:
+      - headphones-config:/config
+      - headphones-log:/var/log
+      - /mnt/downloads:/downloads
+      - /mnt/music:/music
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.headphones-https.loadbalancer.server.port=8181
+      - traefik.http.routers.headphones-https.entrypoints=https
+      - traefik.http.routers.headphones-https.rule=Host(`${EMULATORJS_BACKEND_SUB?EMULATORJS_BACKEND_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.headphones-https.tls=true
+      - traefik.http.routers.headphones-https.tls.certresolver=myresolver
+      - traefik.http.routers.headphones-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
