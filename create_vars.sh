@@ -13,25 +13,25 @@
 
 # create volume directories
 
-if [ ! -f /var/data/acceleratedtext/logback/transactor-logback.xml ]
-then
- wget -m https://raw.githubusercontent.com/accelerated-text/accelerated-text/master/transactor-logback.xml -p /var/data/acceleratedtext/logback
- chmod 777 /var/data/acceleratedtext/logback/transactor-logback.xml
- chown root /var/data/acceleratedtext/logback/transactor-logback.xml
-fi
-# Get needed yml files
+# if [ ! -f /var/data/acceleratedtext/logback/transactor-logback.xml ]
+# then
+#  wget -m https://raw.githubusercontent.com/accelerated-text/accelerated-text/master/transactor-logback.xml -p /var/data/acceleratedtext/logback
+#  chmod 777 /var/data/acceleratedtext/logback/transactor-logback.xml
+#  chown root /var/data/acceleratedtext/logback/transactor-logback.xml
+# fi
+# # Get needed yml files
 
 
-# create volume files
-for files in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/secrets/traefik_basic_auth.htpasswd 
-do
-if [ ! -f "$files" ] 
-then
- touch $files
- chmod 777 $files
- chown root $files
-fi
-done
+# # create volume files
+# for files in /var/data/pihole-unbound/pihole2/config/hosts /var/data/pihole-unbound/pihole2/config/resolv.conf /var/data/pihole-unbound/pihole2/config/dnsmasq.conf /var/data/pihole-unbound/pihole2/config/pihole-FTL.conf /var/data/pihole-unbound/pihole1/config/hosts /var/data/pihole-unbound/pihole1/config/resolv.conf /var/data/pihole-unbound/pihole1/config/dnsmasq.conf /var/data/pihole-unbound/pihole1/config/pihole-FTL.conf /var/data/files/traefik/traefik.log /var/data/secrets/traefik_basic_auth.htpasswd 
+# do
+# if [ ! -f "$files" ] 
+# then
+#  touch $files
+#  chmod 777 $files
+#  chown root $files
+# fi
+# done
 
 
 # Useful stuff for other scripts
