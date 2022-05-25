@@ -35,6 +35,13 @@ SUBDOMAIN_TWO=$(sqlite $database "SELECT * FROM $app WHERE name = 'SUBDOMAIN_TWO
 IP_ONE=$(sqlite $database "SELECT * FROM $app WHERE name = 'IP_ONE'";)
 IP_TWO=$(sqlite $database "SELECT * FROM $app WHERE name = 'IP_TWO'";)
 
+# Final check
+if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n MAIN_SUBNET: $MAIN_SUBNET \n GATEWAY: $GATEWAY \n ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n IP_ONE: $IP_ONE \n IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n RESTART_POLICY: $RESTART_POLICY \n USERID: $USERID \n GROUPID: $GROUPID \n TIMEZONE: $TIMEZONE " 20 60 ; then
+ echo "Selected yes, continuing"
+else
+ fail "Selected no. Modify values in the database if required"
+fi
+
 # Archive old docker-compose-final.yml
 cp ./docker-compose-final.yml ./docker-compose-$timestamp.yml
 mv /etc/docker/compose/adguardhome/docker-compose.yml /etc/docker/compose/adguardhome/docker-compose-$timestamp.yml 
@@ -51,12 +58,15 @@ sed -i 's/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g' docker-compose-final.yml
 sed -i 's/IP_TWO/$IP_TWO/g' docker-compose-final.yml
 sed -i 's/DOMAIN/$DOMAIN/g' docker-compose-final.yml
 sed -i 's/RESTART_POLICY/$RESTART_POLICY/g' docker-compose-final.yml
+sed -i 's/USERID/$USERID/g' docker-compose-final.yml
+sed -i 's/GROUPID/$GROUPID/g' docker-compose-final.yml
+sed -i 's/TIMEZONE/$TIMEZONE/g' docker-compose-final.yml
 
 # Copy to final location
-cp docker-compose-final.yml /etc/docker/compose/adguardhome/docker-compose.yml
+cp ./docker-compose-final.yml /etc/docker/compose/adguardhome/docker-compose.yml
 
 if whiptail --title "Run now?" --yesno "Do you wish to start this service now?" 20 60 ; then
-  systemctl start docker-compose@adguardhome
+  systemctl start docker-compose@$app
 else
-    fail "Run manually with 'systemctl start docker-compose@adguardhome' when ready"   # Replace with what to do when "no" is selected.
+    fail "Run manually with 'systemctl start docker-compose@$app' when ready"   # Replace with what to do when "no" is selected.
 fi

@@ -37,45 +37,46 @@ SUBDOMAIN_ONE=$(whiptail --inputbox --title "Subdomain One" "Please set the firs
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
  if [ -z $SUBDOMAIN_ONE ]; then
- fail "Entry was blank - you must set a subdomain"
+  fail "Entry was blank - you must set a subdomain"
  fi
 else
-fail "User cancelled"
+ fail "User cancelled"
 fi
 SUBDOMAIN_TWO=$(whiptail --inputbox --title "Subdomain Two" "Please set the second subdomain to use for adguardhome" 20 60 "adguardhome2" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
  if [ -z $SUBDOMAIN_TWO ]; then
- fail "Entry was blank - you must set a subdomain"
+  fail "Entry was blank - you must set a subdomain"
  fi
 else
-fail "User cancelled"
+ fail "User cancelled"
 fi
 IP_ONE=$(whiptail --inputbox --title "IP for adguard home server 1" "Please set IP to use for adguardhome \nIt must be in the $ALLOCATE_SUBNET range" 20 60 "192.168.1.200" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
  if [ -z $IP_ONE ]; then
- fail "Entry was blank - you must set an IP"
+  fail "Entry was blank - you must set an IP"
  fi
 else
-fail "User cancelled"
+ fail "User cancelled"
 fi
 IP_TWO=$(whiptail --inputbox --title "IP for adguard home server 2" "Please set the second subdomain to use for adguardhome" 20 60 "adguardhome2" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
  if [ -z $IP_TWO ]; then
- fail "Entry was blank - you must set an IP"
+  fail "Entry was blank - you must set an IP"
  fi
 else
-fail "User cancelled"
+ fail "User cancelled"
 fi
 
 # Final check
 if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n MAIN_SUBNET: $MAIN_SUBNET \n GATEWAY: $GATEWAY \n ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n IP_ONE: $IP_ONE \n IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n RESTART_POLICY: $RESTART_POLICY \n USERID: $USERID \n GROUPID: $GROUPID \n TIMEZONE: $TIMEZONE " 20 60 ; then
- echo "Selected yes" # Replace with what to do when "yes" is selected.
+ echo "Selected yes, continuing"
 else
  fail "Selected no" # Replace with what to do when "no" is selected.
 fi
+
 # Set as installed
 sqlite $database "create table $app (name TEXT PRIMARY KEY, value TEXT, comment TEXT);"
 
@@ -87,7 +88,6 @@ sqlite $database "insert into $app (name,value,comment) values ('IP_TWO', '$IP_T
 
 # Replace the variables
 cp ./docker-compose.yml ./docker-compose-final.yml
-
 sed -i 's/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g' docker-compose-final.yml
 sed -i 's/MAIN_SUBNET/$MAIN_SUBNET/g' docker-compose-final.yml
 sed -i 's/GATEWAY/$GATEWAY/g' docker-compose-final.yml
@@ -101,11 +101,13 @@ sed -i 's/RESTART_POLICY/$RESTART_POLICY/g' docker-compose-final.yml
 sed -i 's/USERID/$USERID/g' docker-compose-final.yml
 sed -i 's/GROUPID/$GROUPID/g' docker-compose-final.yml
 sed -i 's/TIMEZONE/$TIMEZONE/g' docker-compose-final.yml
+
+# Copy to final location
 mkdir /etc/docker/compose/adguardhome
-cp docker-compose-final.yml /etc/docker/compose/adguardhome/docker-compose.yml
+cp ./docker-compose-final.yml /etc/docker/compose/adguardhome/docker-compose.yml
 
 if whiptail --title "Run now?" --yesno "Do you wish to start this service now?" 20 60 ; then
- systemctl start docker-compose@adguardhome
+ systemctl start docker-compose@$app
 else
- fail "Run manually with 'systemctl start docker-compose@adguardhome' when ready" # Replace with what to do when "no" is selected.
+ fail "Run manually with 'systemctl start docker-compose@$app' when ready" # Replace with what to do when "no" is selected.
 fi
