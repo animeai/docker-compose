@@ -12,34 +12,34 @@ function generate_password {
 
 # Set up passwords
 sqlite variables.db "create table passwords (name TEXT PRIMARY KEY, value TEXT, comment TEXT);"
-sqlite variables.db "insert into passwords (name,value,comment) values ('BOOKSTACK_MYSQL_ROOT', ''$(generate_password)', 'Bookstack mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('BOOKSTACK_MYSQL', ''$(generate_password)', 'Bookstack mySQL password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('BORG_PASSPHRASE', ''$(generate_password)', 'Borg passphrase');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('CODE_SERVER_PASS', ''$(generate_password)', 'Code Server password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('CODE_SERVER_SUDO_PASS', ''$(generate_password)', 'Code Server sudo password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('EXPORTARR_TOKEN', ''$(generate_password)', 'Exportarr token');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('FLAME_PASS', ''$(generate_password)', 'Flame password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('FLIGHTAIRMAP_INSTALL_PASS', ''$(generate_password)', 'Flight Air Map installation password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('FLIGHTAIRMAP_MYSQL_PASS', ''$(generate_password)', 'Flight Air Map mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('FLIGHTAIRMAP_MYSQL_ROOT', ''$(generate_password)', 'Flight Air Map mySQL password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('GHOSTDB_PASS', ''$(generate_password)', 'Ghost mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('GITEADB_PASS', ''$(generate_password)', 'Gitea mySQL  password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('GITEADB_ROOTPASS', ''$(generate_password)', Gitea mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('JOPLINDB_PASS', ''$(generate_password)', 'Joplin postgres password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('KANBOARDDB_PASS', ''$(generate_password)', 'Kanboard mySQL password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('KANBOARDDB_ROOT', ''$(generate_password)', 'Kanboard mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('OPENRA_PASS', ''$(generate_password)', 'OpenRA password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('OPENVSCODE_SERVER_PASS', ''$(generate_password)', 'Open VS Code Server password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('OPENVSCODE_SERVER_SUDO_PASS', ''$(generate_password)', 'Open VS Code Server sudo password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('OWNCLOUD_ADMIN_PASSWORD', ''$(generate_password)', 'Owncloud admin password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('OWNCLOUD_MYSQL_PASSWORD', ''$(generate_password)', 'Owncloud mySQL password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('OWNCLOUD_ROOT_PASSWORD', ''$(generate_password)', 'Owncloud mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('PORTUSDB_PASS', ''$(generate_password)', 'Portus mySQL  password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('PORTUS_PASS', ''$(generate_password)', 'Portus password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('WORDPRESSDB_PASS', ''$(generate_password)', 'Wordpress mySQL password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('WORDPRESSDB_ROOTPASS', ''$(generate_password)', 'Wordpress mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('LIBRESPEEDDB_ROOT', ''$(generate_password)', 'Librespeed mySQL root password');"
-sqlite variables.db "insert into passwords (name,value,comment) values ('LIBRESPEEDDB_PASS', ''$(generate_password)', 'Librespeed mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('BOOKSTACK_MYSQL_ROOT', '$(generate_password)', 'Bookstack mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('BOOKSTACK_MYSQL', '$(generate_password)', 'Bookstack mySQL password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('BORG_PASSPHRASE', '$(generate_password)', 'Borg passphrase');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('CODE_SERVER_PASS', '$(generate_password)', 'Code Server password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('CODE_SERVER_SUDO_PASS', '$(generate_password)', 'Code Server sudo password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('EXPORTARR_TOKEN', '$(generate_password)', 'Exportarr token');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('FLAME_PASS', '$(generate_password)', 'Flame password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('FLIGHTAIRMAP_INSTALL_PASS', '$(generate_password)', 'Flight Air Map installation password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('FLIGHTAIRMAP_MYSQL_PASS', '$(generate_password)', 'Flight Air Map mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('FLIGHTAIRMAP_MYSQL_ROOT', '$(generate_password)', 'Flight Air Map mySQL password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('GHOSTDB_PASS', '$(generate_password)', 'Ghost mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('GITEADB_PASS', '$(generate_password)', 'Gitea mySQL  password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('GITEADB_ROOTPASS', '$(generate_password)', Gitea mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('JOPLINDB_PASS', '$(generate_password)', 'Joplin postgres password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('KANBOARDDB_PASS', '$(generate_password)', 'Kanboard mySQL password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('KANBOARDDB_ROOT', '$(generate_password)', 'Kanboard mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('OPENRA_PASS', '$(generate_password)', 'OpenRA password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('OPENVSCODE_SERVER_PASS', '$(generate_password)', 'Open VS Code Server password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('OPENVSCODE_SERVER_SUDO_PASS', '$(generate_password)', 'Open VS Code Server sudo password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('OWNCLOUD_ADMIN_PASSWORD', '$(generate_password)', 'Owncloud admin password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('OWNCLOUD_MYSQL_PASSWORD', '$(generate_password)', 'Owncloud mySQL password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('OWNCLOUD_ROOT_PASSWORD', '$(generate_password)', 'Owncloud mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('PORTUSDB_PASS', '$(generate_password)', 'Portus mySQL  password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('PORTUS_PASS', '$(generate_password)', 'Portus password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('WORDPRESSDB_PASS', '$(generate_password)', 'Wordpress mySQL password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('WORDPRESSDB_ROOTPASS', '$(generate_password)', 'Wordpress mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('LIBRESPEEDDB_ROOT', '$(generate_password)', 'Librespeed mySQL root password');"
+sqlite variables.db "insert into passwords (name,value,comment) values ('LIBRESPEEDDB_PASS', '$(generate_password)', 'Librespeed mySQL root password');"
 
 # Set up ports
 sqlite variables.db "create table ports (name TEXT PRIMARY KEY, value TEXT UNIQUE, comment TEXT);"
@@ -264,14 +264,4 @@ sqlite variables.db "insert into subdomain (name,value,comment) values ('ADGUARD
 
 # Set up paths
 
-# dir_array+=("/mnt/audiobooks" "/mnt/books" "/mnt/backups" "/mnt/downloads" "/mnt/code" "/mnt/comics" "/mnt/ebooks" "/mnt/iso" "/mnt/manga" "/mnt/movies" "/mnt/movies/anime" "/mnt/movies/english" "/mnt/playlists" "/mnt/podcasts" "/mnt/raw" "/mnt/tv" "/mnt/tv/anime" "/mnt/tv/shows")
-# dir_array+=("/mnt/borgmatic/" "/mnt/borgmatic/target" "/mnt/borgmatic/config" "/mnt/borgmatic/config2" "/mnt/borgmatic/ssh" "/mnt/borgmatic/cache" "/mnt/borgmatic/source")
-# dir_array+=("/mnt/data/netbootxyz" "/mnt/data/netbootxyz/config")
-# dir_array+=("/mnt/emulation/" "/mnt/emulation/3do/" "/mnt/emulation/3do/roms" "/mnt/emulation/arcade" "/mnt/emulation/arcade/roms" "/mnt/emulation/atari2600/roms" "/mnt/emulation/atari7800" "/mnt/emulation/atari7800/roms" "/mnt/emulation/colecovision" "/mnt/emulation/colecovision/roms" "/mnt/emulation/doom" "/mnt/emulation/doom/roms" "/mnt/emulation/gb/" "/mnt/emulation/gb/roms" "/mnt/emulation/gba" "/mnt/emulation/gba/roms" "/mnt/emulation/gbc" "/mnt/emulation/gbc/roms" "/mnt/emulation/jaguar" "/mnt/emulation/jaguar/roms" "/mnt/emulation/lynx/" "/mnt/emulation/lynx/roms" "/mnt/emulation/msx" "/mnt/emulation/msx/roms" "/mnt/emulation/n64" "/mnt/emulation/n64/roms" "/mnt/emulation/nds" "/mnt/emulation/nds/roms" "/mnt/emulation/nes" "/mnt/emulation/nes/roms" "/mnt/emulation/ngp" "/mnt/emulation/ngp/roms" "/mnt/emulation/odyssey2" "/mnt/emulation/odyssey2/roms" "/mnt/emulation/pce" "/mnt/emulation/pce/roms" "/mnt/emulation/psx" "/mnt/emulation/psx/roms" "/mnt/emulation/sega32x" "/mnt/emulation/sega32x/roms" "/mnt/emulation/segaCD" "/mnt/emulation/segaCD/roms" "/mnt/emulation/segaGG" "/mnt/emulation/segaGG/roms" "/mnt/emulation/segaMD" "/mnt/emulation/segaMD/roms" "/mnt/emulation/segaMS" "/mnt/emulation/segaMS/roms" "/mnt/emulation/segaSaturn" "/mnt/emulation/segaSaturn/roms" "/mnt/emulation/segaSG" "/mnt/emulation/segaSG/roms" "/mnt/emulation/snes" "/mnt/emulation/snes/roms" "/mnt/emulation/vb" "/mnt/emulation/vb/roms" "/mnt/emulation/vectrex" "/mnt/emulation/vectrex/roms" "/mnt/emulation/ws" "/mnt/emulation/ws/roms")
-# dir_array+=("/mnt/exatorrent")
-# dir_array+=("/mnt/owncloud")
-# dir_array+=("/mnt/plex/" "/mnt/plex/config")
-# dir_array+=("/mnt/projectsend" "/mnt/projectsend/data" "/var/data/projectsend" "/var/data/projectsend/config")
-# dir_array+=("/mnt/duplicati" "/mnt/duplicati/source" "/var/data/duplicati" "/var/data/duplicati/config")
-# dir_array+=("/mnt/nextcloud" "/var/data/nextcloud" "/var/data/nextcloud/config")
-# dir_array+=("/mnt/rsnapshot" "/var/data/rsnapshot" "/mnt/snapshots" "/mnt/external" "/var/data/rsnapshot/config")
+

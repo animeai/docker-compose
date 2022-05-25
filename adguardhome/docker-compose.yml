@@ -27,7 +27,7 @@ services:
   smarthome:
     driver: macvlan
     driver_opts:
-      parent: ${ETHERNET_PORT?ETHERNET_PORT Variable not set}
+      parent: MAIN_NETWORK_ADAPTER
     ipam:
       config:
         subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
