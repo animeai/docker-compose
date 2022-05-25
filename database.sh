@@ -182,9 +182,6 @@ sqlite variables.db "insert into subdomain (name,value,comment) values ('ADGUARD
 
 # Static IPs and Network
 # "ETHERNET_PORT=eth0" >> /root/vars.sh 
-# "GATEWAY_IP=192.168.1.1" >> /root/vars.sh 
-# "SUBNET_IP=192.168.1.1/24" >> /root/vars.sh 
-# "SUBNET_RANGE=192.168.1.192/28" >> /root/vars.sh  # 192.168.1.192 to 192.168.1.206
 # "ADGUARDHOME_ONE_IP=192.168.1.200" >> /root/vars.sh 
 # "ADGUARDHOME_TWO_IP=192.168.1.201" >> /root/vars.sh 
 # "NETBOOTXYZ_IP=192.168.1.199" >> /root/vars.sh 

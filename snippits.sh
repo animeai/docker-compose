@@ -15,9 +15,17 @@ function fail {
 ### A2.
 # Generate a random 12 character password. Change "-c12" to create a longer or shorter random password. 
 # Example Usage: 
-#                  echo $generate_password
+#                  echo $(generate_password)
 function generate_password {
     </dev/urandom tr -dc _A-Z-a-z-0-9 | head -c12
+}
+
+### A3.
+# Generate a random 8 character text string. Change "-c12" to create a longer or shorter random password. 
+# Example Usage: 
+#                  echo $(generate_database_name)
+function generate_database_name {
+    </dev/urandom tr -dc _a-z | head -c8
 }
 
 ###   Section B.                      ###
@@ -51,6 +59,28 @@ sqlite DATABASE-NAME.db "create table TABLE-NAME (name TEXT PRIMARY KEY, value T
 #             COMMENT          : A description of the variable.
 sqlite DATABASE_NAME.db "insert into TABLE_NAME (name,value,comment) values ('VARIABLE_NAME', 'VALUE', 'COMMENT');"
 
+# D3.
+# Get data from settings
+MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
+GATEWAY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GATEWAY'";)
+MAIN_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_SUBNET'";)
+ALLOCATE_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'ALLOCATE_SUBNET'";)
+ANIME_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'ANIME_DIRECTORY'";)
+AUDIOBOOKS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'AUDIOBOOKS_DIRECTORY'";)
+BACKUPS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'BACKUPS_DIRECTORY'";)
+CODE_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'CODE_DIRECTORY'";)
+COMICS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'COMICS_DIRECTORY'";)
+DOWNLOADS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'DOWNLOADS_DIRECTORY'";)
+EBOOKS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'EBOOKS_DIRECTORY'";)
+EMULATION_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'EMULATION_DIRECTORY'";)
+HOME_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'HOME_DIRECTORY'";)
+ISO_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'ISO_DIRECTORY'";)
+MANGA_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MANGA_DIRECTORY'";)
+MOVIES_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MOVIES_DIRECTORY'";)
+PLAYLISTS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'PLAYLISTS_DIRECTORY'";)
+PODCASTS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'PODCASTS_DIRECTORY'";)
+RAW_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RAW_DIRECTORY'";)
+TORRENTWATCH_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TORRENTWATCH_DIRECTORY'";)
 
 ###   Section E.   ###
 # whiptail snippits  # 
@@ -81,7 +111,7 @@ fi
 VARIABLE=$(whiptail --inputbox --title "TITLE" " QUESTION \n INFORMATION: \n $OTHER_VARIABLE" 20 60 "DEFAULT_VALUE" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then    # Check for input or cancel.
-  if [ $VARIABLE = ""]; then    # Check if entry was blank.
+  if [ $VARIABLE = "" ]; then    # Check if entry was blank.
   fail "Entry was blank"        # Replace with what to do when the entry is blank.
   else
   echo "User entered $VARIABLE" # Replace with what to do with the variable, or omit.
@@ -89,3 +119,13 @@ if [ $exitstatus = 0 ]; then    # Check for input or cancel.
 else
 fail "User canceled."           # Replace with what to do when the user cancels.
 fi
+
+### Bash
+# Check if dir exists, if not create it, if it is a file throw an error
+for $dir in $1 $2 $3 $4
+if [[ ! -e $dir ]]; then
+    mkdir $dir
+elif [[ ! -d $dir ]]; then
+    fail "$dir already exists but is not a directory" 1>&2
+fi
+done
