@@ -71,7 +71,7 @@ fail "User cancelled"
 fi
 
 # Final check
-if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n  MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n  MAIN_SUBNET: $MAIN_SUBNET \n   GATEWAY: $GATEWAY \n  ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n  SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n  IP_ONE: $IP_ONE \n  IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n  RESTART_POLICY: $RESTART_POLICY " 20 60 ; then
+if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n  MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n  MAIN_SUBNET: $MAIN_SUBNET \n   GATEWAY: $GATEWAY \n  ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n  SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n  IP_ONE: $IP_ONE \n  IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n  RESTART_POLICY: $RESTART_POLICY \n  USERID: $USERID \n  GROUPID: $GROUPID \n  TIMEZONE: $TIMEZONE " 20 60 ; then
     echo "Selected yes"  # Replace with what to do when "yes" is selected.
 else
     fail "Selected no"   # Replace with what to do when "no" is selected.
@@ -98,7 +98,9 @@ sed -i 's/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g' docker-compose-final.yml
 sed -i 's/IP_TWO/$IP_TWO/g' docker-compose-final.yml
 sed -i 's/DOMAIN/$DOMAIN/g' docker-compose-final.yml
 sed -i 's/RESTART_POLICY/$RESTART_POLICY/g' docker-compose-final.yml
-
+sed -i 's/USERID/$USERID/g' docker-compose-final.yml
+sed -i 's/GROUPID/$GROUPID/g' docker-compose-final.yml
+sed -i 's/TIMEZONE/$TIMEZONE/g' docker-compose-final.yml
 mkdir /etc/docker/compose/adguardhome
 cp docker-compose-final.yml /etc/docker/compose/adguardhome/docker-compose.yml
 
