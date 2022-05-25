@@ -6,15 +6,11 @@ function fail {
 }
 
 # Check this hasn't been run before
-for files in ./variables.db
- do
- if [ ! -f "$files" ] 
+DATABASE="./variables.db"
+ if [ -f "$DATABASE" ] 
  then
-   break
- else
   fail "variables.db exists - this should only be run once! If you are trying to upgrade, use upgrade.sh to back up the existing database, create a new one with default values and then insert any stored values from the old database"
  fi
-done
 
 # Ensure whiptail is installed
 whiptail-install=$(dpkg -s ncurses-examples | grep Status)
