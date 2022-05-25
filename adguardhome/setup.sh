@@ -18,7 +18,7 @@ app=adguardhome
 
 # Check this has not been run before
 # sqlite variables.db "select * FROM passwords WHERE name = 'test');"
-if [ "$check" == *"adguardhome"* ]; then  # double []?
+if [[ "$check" == *"adguardhome"* ]]; then
  fail "adguardhome table in variables.db exists - this installer should only be run once."
 fi
 
@@ -70,6 +70,12 @@ else
 fail "User cancelled"
 fi
 
+# Final check
+if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n  MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n  MAIN_SUBNET: $MAIN_SUBNET \n   GATEWAY: $GATEWAY \n  ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n  SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n  IP_ONE: $IP_ONE \n  IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n  RESTART_POLICY: $RESTART_POLICY " 20 60 ; then
+    echo "Selected yes"  # Replace with what to do when "yes" is selected.
+else
+    fail "Selected no"   # Replace with what to do when "no" is selected.
+fi
 # Set as installed
 sqlite $database "create table $app (name TEXT PRIMARY KEY, value TEXT, comment TEXT);"
 
