@@ -36,7 +36,7 @@ fail "Error! This script should never be run alone"
 ###   Section C.                                     ###
 # Ensure all functions are used to pass linting tests. #
 ###                                                  ###
-echo $generate_password
+echo "$generate_password"
 
 ###   Section D.   ###
 # sqlite snippits    #
@@ -61,6 +61,8 @@ sqlite DATABASE_NAME.db "insert into TABLE_NAME (name,value,comment) values ('VA
 
 # D3.
 # Get data from settings
+$settings=settings
+$database=./variables.db
 MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
 GATEWAY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GATEWAY'";)
 MAIN_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_SUBNET'";)
@@ -81,6 +83,9 @@ PLAYLISTS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'PL
 PODCASTS_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'PODCASTS_DIRECTORY'";)
 RAW_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RAW_DIRECTORY'";)
 TORRENTWATCH_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TORRENTWATCH_DIRECTORY'";)
+
+#Pass linting
+echo $MAIN_NETWORK_ADAPTER $GATEWAY $MAIN_SUBNET $ALLOCATE_SUBNET $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY
 
 ###   Section E.   ###
 # whiptail snippits  # 
