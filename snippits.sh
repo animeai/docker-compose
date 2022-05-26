@@ -122,7 +122,8 @@ fi
 
 ### Bash
 # Check if dir exists, if not create it, if it is a file throw an error
-for $dir in $1 $2 $3 $4
+for dir in $1 $2 $3 $4
+do
 if [[ ! -e $dir ]]; then
     mkdir $dir
 elif [[ ! -d $dir ]]; then

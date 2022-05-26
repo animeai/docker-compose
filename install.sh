@@ -383,7 +383,7 @@ fail "User cancelled"
 fi
 
 # Get restart_policy
-RESTART_POLICY==$(whiptail --inputbox --title "Restart Policy" "Please set the default docker restart_policy" 20 60 "unless-stopped" 3>&1 1>&2 2>&3)
+RESTART_POLICY=$(whiptail --inputbox --title "Restart Policy" "Please set the default docker restart_policy" 20 60 "unless-stopped" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
   if [ -z "$RESTART_POLICY" ]; then
@@ -404,9 +404,9 @@ sqlite ../variables.db "insert into settings (name,value,comment) values ('RESTA
 # Make dirs
 for dir in $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY
 do
-if [[ ! -e $dir ]]; then
-    mkdir $dir
-elif [[ ! -d $dir ]]; then
+if [[ ! -e "$dir" ]]; then
+    mkdir "$dir"
+elif [[ ! -d "$dir" ]]; then
     fail "$dir already exists but is not a directory" 1>&2
 fi
 done

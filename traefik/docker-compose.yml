@@ -77,10 +77,10 @@ services:
       - "443:443"
       - "8181:8181"
     volumes:
-      - traefik-rules:/rules 
+      - traefik-rules:/rules
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik-acme:/letsencrypt
-      - traefik-log/traefik.log:/traefik.log 
+      - traefik-log/traefik.log:/traefik.log
       - traefik-shared:/shared
       - traefik-log:/var/log
     environment:
