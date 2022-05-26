@@ -36,7 +36,7 @@ fail "Error! This script should never be run alone"
 ###   Section C.                                     ###
 # Ensure all functions are used to pass linting tests. #
 ###                                                  ###
-echo "$generate_password"
+# echo $generate_password
 
 ###   Section D.   ###
 # sqlite snippits    #
@@ -85,7 +85,7 @@ RAW_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RAW_DIRE
 TORRENTWATCH_DIRECTORY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TORRENTWATCH_DIRECTORY'";)
 
 #Pass linting
-echo $MAIN_NETWORK_ADAPTER $GATEWAY $MAIN_SUBNET $ALLOCATE_SUBNET $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY
+echo "$MAIN_NETWORK_ADAPTER $GATEWAY $MAIN_SUBNET $ALLOCATE_SUBNET $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY"
 
 ###   Section E.   ###
 # whiptail snippits  # 
@@ -115,8 +115,8 @@ fi
 #             TITLE            : Title for the box.
 VARIABLE=$(whiptail --inputbox --title "TITLE" " QUESTION \n INFORMATION: \n $OTHER_VARIABLE" 20 60 "DEFAULT_VALUE" 3>&1 1>&2 2>&3)
 exitstatus=$?
-if [ $exitstatus = 0 ]; then    # Check for input or cancel.
-  if [ $VARIABLE = "" ]; then    # Check if entry was blank.
+if [ $exitstatus = "0" ]; then    # Check for input or cancel.
+  if [ -z "$VARIABLE" ]; then    # Check if entry was blank.
   fail "Entry was blank"        # Replace with what to do when the entry is blank.
   else
   echo "User entered $VARIABLE" # Replace with what to do with the variable, or omit.
@@ -129,9 +129,9 @@ fi
 # Check if dir exists, if not create it, if it is a file throw an error
 for dir in $1 $2 $3 $4
 do
-if [[ ! -e $dir ]]; then
-    mkdir $dir
-elif [[ ! -d $dir ]]; then
+if [[ ! -e "$dir" ]]; then
+    mkdir "$dir"
+elif [[ ! -d "$dir" ]]; then
     fail "$dir already exists but is not a directory" 1>&2
 fi
 done
