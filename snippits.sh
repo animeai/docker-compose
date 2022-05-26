@@ -61,8 +61,8 @@ sqlite DATABASE_NAME.db "insert into TABLE_NAME (name,value,comment) values ('VA
 
 # D3.
 # Get data from settings
-$settings=settings
-$database=./variables.db
+settings=settings
+database=./variables.db
 MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
 GATEWAY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GATEWAY'";)
 MAIN_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_SUBNET'";)
