@@ -42,30 +42,30 @@ else
 fi
 
 # Archive old docker-compose-final.yml
-cp ./docker-compose-final.yml ./docker-compose-$timestamp.yml
-mv /etc/docker/compose/adguardhome/docker-compose.yml /etc/docker/compose/adguardhome/docker-compose-$timestamp.yml 
+cp "./docker-compose-final.yml" "./docker-compose-$timestamp.yml"
+mv "/etc/docker/compose/adguardhome/docker-compose.yml" "/etc/docker/compose/adguardhome/docker-compose-$timestamp.yml" 
 
 # Replace values
-cp ./docker-compose.yml ./docker-compose-final.yml
-sed -i 's/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g' docker-compose-final.yml
-sed -i 's/MAIN_SUBNET/$MAIN_SUBNET/g' docker-compose-final.yml
-sed -i 's/GATEWAY/$GATEWAY/g' docker-compose-final.yml
-sed -i 's/ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g' docker-compose-final.yml
-sed -i 's/SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g' docker-compose-final.yml
-sed -i 's/IP_ONE/$IP_ONE/g' docker-compose-final.yml
-sed -i 's/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g' docker-compose-final.yml
-sed -i 's/IP_TWO/$IP_TWO/g' docker-compose-final.yml
-sed -i 's/DOMAIN/$DOMAIN/g' docker-compose-final.yml
-sed -i 's/RESTART_POLICY/$RESTART_POLICY/g' docker-compose-final.yml
-sed -i 's/USER_ID/$USER_ID/g' docker-compose-final.yml
-sed -i 's/GROUP_ID/$GROUP_ID/g' docker-compose-final.yml
-sed -i 's/TIMEZONE/$TIMEZONE/g' docker-compose-final.yml
+cp "./docker-compose.yml" "./docker-compose-final.yml"
+sed -i "s/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g" docker-compose-final.yml
+sed -i "s/MAIN_SUBNET/$MAIN_SUBNET/g" docker-compose-final.yml
+sed -i "s/GATEWAY/$GATEWAY/g" docker-compose-final.yml
+sed -i "s/ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g" docker-compose-final.yml
+sed -i "s/SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g" docker-compose-final.yml
+sed -i "s/IP_ONE/$IP_ONE/g" docker-compose-final.yml
+sed -i "s/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g" docker-compose-final.yml
+sed -i "s/IP_TWO/$IP_TWO/g" docker-compose-final.yml
+sed -i "s/DOMAIN/$DOMAIN/g" docker-compose-final.yml
+sed -i "s/RESTART_POLICY/$RESTART_POLICY/g" docker-compose-final.yml
+sed -i "s/USER_ID/$USER_ID/g" docker-compose-final.yml
+sed -i "s/GROUP_ID/$GROUP_ID/g" docker-compose-final.yml
+sed -i "s/TIMEZONE/$TIMEZONE/g" docker-compose-final.yml
 
 # Copy to final location
-cp ./docker-compose-final.yml /etc/docker/compose/adguardhome/docker-compose.yml
+cp "./docker-compose-final.yml" "/etc/docker/compose/adguardhome/docker-compose.yml"
 
 if whiptail --title "Run now?" --yesno "Do you wish to start this service now?" 20 60 ; then
-  systemctl start docker-compose@$app
+  systemctl start "docker-compose@$app"
 else
     fail "Run manually with 'systemctl start docker-compose@$app' when ready"   # Replace with what to do when "no" is selected.
 fi
