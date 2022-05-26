@@ -6,8 +6,7 @@ function fail {
 }
 
 # Check if we can run an update
-if [ ! -f <file> ]
-then
+if [[ ! -f <file> ]]; then
   fail "docker-compose-final.yml does not exist. Did you mean to run setup.sh?"
 fi
 
@@ -36,7 +35,7 @@ IP_ONE=$(sqlite $database "SELECT * FROM $app WHERE name = 'IP_ONE'";)
 IP_TWO=$(sqlite $database "SELECT * FROM $app WHERE name = 'IP_TWO'";)
 
 # Final check
-if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n MAIN_SUBNET: $MAIN_SUBNET \n GATEWAY: $GATEWAY \n ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n IP_ONE: $IP_ONE \n IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n RESTART_POLICY: $RESTART_POLICY \n USERID: $USERID \n GROUPID: $GROUPID \n TIMEZONE: $TIMEZONE " 20 60 ; then
+if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n MAIN_SUBNET: $MAIN_SUBNET \n GATEWAY: $GATEWAY \n ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n IP_ONE: $IP_ONE \n IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n RESTART_POLICY: $RESTART_POLICY \n USER_ID: $USER_ID \n GROUP_ID: $GROUP_ID \n TIMEZONE: $TIMEZONE " 20 60 ; then
  echo "Selected yes, continuing"
 else
  fail "Selected no. Modify values in the database if required"
@@ -58,8 +57,8 @@ sed -i 's/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g' docker-compose-final.yml
 sed -i 's/IP_TWO/$IP_TWO/g' docker-compose-final.yml
 sed -i 's/DOMAIN/$DOMAIN/g' docker-compose-final.yml
 sed -i 's/RESTART_POLICY/$RESTART_POLICY/g' docker-compose-final.yml
-sed -i 's/USERID/$USERID/g' docker-compose-final.yml
-sed -i 's/GROUPID/$GROUPID/g' docker-compose-final.yml
+sed -i 's/USER_ID/$USER_ID/g' docker-compose-final.yml
+sed -i 's/GROUP_ID/$GROUP_ID/g' docker-compose-final.yml
 sed -i 's/TIMEZONE/$TIMEZONE/g' docker-compose-final.yml
 
 # Copy to final location

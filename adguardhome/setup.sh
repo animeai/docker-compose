@@ -35,8 +35,8 @@ TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
 # Ask questions
 SUBDOMAIN_ONE=$(whiptail --inputbox --title "Subdomain One" "Please set the first subdomain to use for adguardhome" 20 60 "adguardhome" 3>&1 1>&2 2>&3)
 exitstatus=$?
-if [ $exitstatus = 0 ]; then
- if [ -z $SUBDOMAIN_ONE ]; then
+if [ $exitstatus = "0" ]; then
+ if [ -z "$SUBDOMAIN_ONE" ]; then
   fail "Entry was blank - you must set a subdomain"
  fi
 else
@@ -44,8 +44,8 @@ else
 fi
 SUBDOMAIN_TWO=$(whiptail --inputbox --title "Subdomain Two" "Please set the second subdomain to use for adguardhome" 20 60 "adguardhome2" 3>&1 1>&2 2>&3)
 exitstatus=$?
-if [ $exitstatus = 0 ]; then
- if [ -z $SUBDOMAIN_TWO ]; then
+if [ $exitstatus = "0" ]; then
+ if [ -z "$SUBDOMAIN_TWO" ]; then
   fail "Entry was blank - you must set a subdomain"
  fi
 else
@@ -53,8 +53,8 @@ else
 fi
 IP_ONE=$(whiptail --inputbox --title "IP for adguard home server 1" "Please set IP to use for adguardhome \nIt must be in the $ALLOCATE_SUBNET range" 20 60 "192.168.1.200" 3>&1 1>&2 2>&3)
 exitstatus=$?
-if [ $exitstatus = 0 ]; then
- if [ -z $IP_ONE ]; then
+if [ $exitstatus = "0" ]; then
+ if [ -z "$IP_ONE" ]; then
   fail "Entry was blank - you must set an IP"
  fi
 else
@@ -62,8 +62,8 @@ else
 fi
 IP_TWO=$(whiptail --inputbox --title "IP for adguard home server 2" "Please set the second subdomain to use for adguardhome" 20 60 "adguardhome2" 3>&1 1>&2 2>&3)
 exitstatus=$?
-if [ $exitstatus = 0 ]; then
- if [ -z $IP_TWO ]; then
+if [ $exitstatus = "0" ]; then
+ if [ -z "$IP_TWO" ]; then
   fail "Entry was blank - you must set an IP"
  fi
 else
@@ -88,19 +88,19 @@ sqlite $database "insert into $app (name,value,comment) values ('IP_TWO', '$IP_T
 
 # Replace the variables
 cp ./docker-compose.yml ./docker-compose-final.yml
-sed -i 's/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g' docker-compose-final.yml
-sed -i 's/MAIN_SUBNET/$MAIN_SUBNET/g' docker-compose-final.yml
-sed -i 's/GATEWAY/$GATEWAY/g' docker-compose-final.yml
-sed -i 's/ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g' docker-compose-final.yml
-sed -i 's/SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g' docker-compose-final.yml
-sed -i 's/IP_ONE/$IP_ONE/g' docker-compose-final.yml
-sed -i 's/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g' docker-compose-final.yml
-sed -i 's/IP_TWO/$IP_TWO/g' docker-compose-final.yml
-sed -i 's/DOMAIN/$DOMAIN/g' docker-compose-final.yml
-sed -i 's/RESTART_POLICY/$RESTART_POLICY/g' docker-compose-final.yml
-sed -i 's/USERID/$USERID/g' docker-compose-final.yml
-sed -i 's/GROUPID/$GROUPID/g' docker-compose-final.yml
-sed -i 's/TIMEZONE/$TIMEZONE/g' docker-compose-final.yml
+sed -i "s/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g" docker-compose-final.yml
+sed -i "s/MAIN_SUBNET/$MAIN_SUBNET/g" docker-compose-final.yml
+sed -i "s/GATEWAY/$GATEWAY/g" docker-compose-final.yml
+sed -i "s/ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g" docker-compose-final.yml
+sed -i "s/SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g" docker-compose-final.yml
+sed -i "s/IP_ONE/$IP_ONE/g" docker-compose-final.yml
+sed -i "s/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g" docker-compose-final.yml
+sed -i "s/IP_TWO/$IP_TWO/g" docker-compose-final.yml
+sed -i "s/DOMAIN/$DOMAIN/g" docker-compose-final.yml
+sed -i "s/RESTART_POLICY/$RESTART_POLICY/g" docker-compose-final.yml
+sed -i "s/USER_ID/$USER_ID/g" docker-compose-final.yml
+sed -i "s/GROUP_ID/$GROUP_ID/g" docker-compose-final.yml
+sed -i "s/TIMEZONE/$TIMEZONE/g" docker-compose-final.yml
 
 # Copy to final location
 mkdir /etc/docker/compose/adguardhome

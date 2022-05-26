@@ -366,7 +366,7 @@ fail "User cancelled"
 fi
 
 # Get domain
-DOMAIN==$(whiptail --inputbox --title "Domain" "Please set the default traefik domain \nexample.com" 20 60 "example.com" 3>&1 1>&2 2>&3)
+DOMAIN=$(whiptail --inputbox --title "Domain" "Please set the default traefik domain \nexample.com" 20 60 "example.com" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = 0 ]; then
   if [ -z $DOMAIN ]; then
@@ -396,7 +396,8 @@ sqlite ../variables.db "insert into settings (name,value,comment) values ('DOMAI
 sqlite ../variables.db "insert into settings (name,value,comment) values ('RESTART_POLICY', '$RESTART_POLICY', '');"
 
 # Make dirs
-for $dir in $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY
+for dir in $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY
+do
 if [[ ! -e $dir ]]; then
     mkdir $dir
 elif [[ ! -d $dir ]]; then
