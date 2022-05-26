@@ -6,7 +6,7 @@ function fail {
 }
 
 # Check if we can run an update
-if [[ ! -f <file> ]]; then
+if [ ! -f "docker-compose-final.yml" ]; then
   fail "docker-compose-final.yml does not exist. Did you mean to run setup.sh?"
 fi
 
