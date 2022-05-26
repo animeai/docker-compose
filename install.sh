@@ -42,8 +42,14 @@ chown "$USER":"docker" /etc/docker/compose -R
 # Install packages
 # Ensure net-tools is installed
 net_tools_install=$("dpkg -s net-tools | grep Status")
-
-apt install net-tools docker docker-compose -y
+if [[ $net_tools_install == *"installed"* ]]; then
+  echo "net-tools is installed, continuing"
+else
+  apt install net-tools -y
+fi
+curl -fsSL "https://get.docker.com" -o "./get-docker.sh"
+/bin/sh "get-docker.sh"
+apt install docker-compose -y
 
 # Find variables
 main_interface_detect=$(ip route get 8.8.8.8 | awk -- '{printf $5}')
