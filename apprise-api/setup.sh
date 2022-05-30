@@ -23,10 +23,10 @@ if [[ "$check" == *"$app"* ]]; then
 fi
 
 # Gather data from database
-USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
-TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
-RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
-getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
+USER_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'USER_ID'";)
+TIMEZONE=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'TIMEZONE'";)
+RESTART_POLICY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'RESTART_POLICY'";)
+getports=$(sqlite $database "SELECT 'port'' FROM $ports ORDER BY port ASC";)
 if [[ -z ${getports[*]} ]]; then
  fail "No ports mapped, set up traefik first!"
 fi

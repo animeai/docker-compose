@@ -15,6 +15,7 @@ database="../variables.db" # Set the database path
 settings="settings" # Set the main settings table
 check=$(sqlite $database "SELECT * FROM sqlite_master WHERE type = 'table'";)
 app=adguardhome
+ports="ports"
 
 # Check this has not been run before
 if [[ "$check" == *"$app"* ]]; then
@@ -22,17 +23,17 @@ if [[ "$check" == *"$app"* ]]; then
 fi
 
 # Gather data from database
-MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
-GATEWAY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GATEWAY'";)
-MAIN_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_SUBNET'";)
-ALLOCATE_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'ALLOCATE_SUBNET'";)
-CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT * FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
-USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
-GROUP_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GROUP_ID'";)
-TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
-RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
-getports=$(sqlite $database "SELECT 'ports' FROM $ports ORDER BY port ASC";)
-if [[ -z ${getports[@]} ]]; then
+MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
+GATEWAY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'GATEWAY'";)
+MAIN_SUBNET=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_SUBNET'";)
+ALLOCATE_SUBNET=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'ALLOCATE_SUBNET'";)
+CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
+USER_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'USER_ID'";)
+GROUP_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'GROUP_ID'";)
+TIMEZONE=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'TIMEZONE'";)
+RESTART_POLICY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'RESTART_POLICY'";)
+getports=$(sqlite $database "SELECT 'port' FROM $ports ORDER BY port ASC";)
+if [[ -z ${getports[*]} ]]; then
  fail "No ports mapped, set up traefik first!"
 fi
 

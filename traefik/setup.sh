@@ -24,10 +24,10 @@ if [[ "$check" == *"$app"* ]]; then
 fi
 
 # Gather data from database
-RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
-CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT * FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
-TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
-getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
+RESTART_POLICY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'RESTART_POLICY'";)
+CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
+TIMEZONE=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'TIMEZONE'";)
+getports=$(sqlite $database "SELECT 'port'' FROM $ports ORDER BY port ASC";)
 if [[ -n ${getports[*]} ]]; then
  fail "Ports already mapped! Traefik should be the first app to set up - Use update.sh to update your traefik install"
 fi
@@ -51,8 +51,8 @@ if [ $exitstatus = "0" ]; then
 else
  fail "User cancelled"
 fi
-getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
-if [[ -z ${getports[@]} ]]; then
+getports=$(sqlite $database "SELECT 'port' FROM $ports ORDER BY port ASC";)
+if [[ -z ${getports[*]} ]]; then
 getports="none"
 fi
 if [[ "${getports[*]}" =~ "80" ]]; then
