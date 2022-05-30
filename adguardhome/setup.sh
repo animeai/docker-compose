@@ -31,6 +31,10 @@ USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
 GROUP_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GROUP_ID'";)
 TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
 RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
+getports=$(sqlite $database "SELECT 'ports' FROM $ports ORDER BY port ASC";)
+if [[ -z ${getports[@]} ]]; then
+ fail "No ports mapped, set up traefik first!"
+fi
 
 # Ask questions
 SUBDOMAIN_ONE=$(whiptail --inputbox --title "Subdomain One" "Please set the first subdomain to use for adguardhome" 20 60 "adguardhome" 3>&1 1>&2 2>&3)

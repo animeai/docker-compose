@@ -28,7 +28,7 @@ RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART
 CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT * FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
 TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
 getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
-if [[ ! -z ${getports[@]} ]]; then
+if [[ -n ${getports[*]} ]]; then
  fail "Ports already mapped! Traefik should be the first app to set up - Use update.sh to update your traefik install"
 fi
 
@@ -61,7 +61,7 @@ fi
 if [[ "${getports[*]}" =~ "443" ]]; then
     fail "Port 443 is listed as used?!"
 fi
-TRAEFIK_PING_PORT=$(whiptail --inputbox --title "Ping Port" "Set the pingable port for Traefik \nCurrently used ports: \n${getports[@]}" 20 60 "8181" 3>&1 1>&2 2>&3)
+TRAEFIK_PING_PORT=$(whiptail --inputbox --title "Ping Port" "Set the pingable port for Traefik \nCurrently used ports: \n${getports[*]}" 20 60 "8181" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
   if [ -z "$TRAEFIK_PING_PORT" ]; then
@@ -74,7 +74,7 @@ if [ $exitstatus = "0" ]; then
 else
 echo "User cancelled"
 fi
-AUTHELIA_PORT=$(whiptail --inputbox --title "Authelia Port" "Set the internal port for Authelia \nCurrently used ports: \n${getports[@]} ( and the just set $TRAEFIK_PING_PORT)" 20 60 "8181" 3>&1 1>&2 2>&3)
+AUTHELIA_PORT=$(whiptail --inputbox --title "Authelia Port" "Set the internal port for Authelia \nCurrently used ports: \n${getports[*]} ( and the just set $TRAEFIK_PING_PORT)" 20 60 "8181" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
   if [ -z "$AUTHELIA_PORT" ]; then

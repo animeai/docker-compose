@@ -27,7 +27,7 @@ USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
 TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
 RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
 getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
-if [[ -z ${getports[@]} ]]; then
+if [[ -z ${getports[*]} ]]; then
  fail "No ports mapped, set up traefik first!"
 fi
 
