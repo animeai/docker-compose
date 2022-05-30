@@ -69,6 +69,7 @@ if [ $exitstatus = "0" ]; then
   else
     if [[ "${getports[*]}" =~ "$TRAEFIK_PING_PORT" ]]; then
     fail "Port already in use!"
+    fi
   fi
 else
 echo "User cancelled"

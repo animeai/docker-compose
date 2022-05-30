@@ -70,7 +70,7 @@ else
  fail "User cancelled"
 fi
 
-ADGUARDHOME_SYNC_PORT=$(whiptail --inputbox --title "Sync Port" "Set the port to use for Adguardhome Sync \nCurrently used ports: \n${getports[@]}" 20 60 "8080" 3>&1 1>&2 2>&3)
+ADGUARDHOME_SYNC_PORT=$(whiptail --inputbox --title "Sync Port" "Set the port to use for Adguardhome Sync \nCurrently used ports: \n${getports[*]}" 20 60 "8080" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
   if [ -z "$ADGUARDHOME_SYNC_PORT" ]; then

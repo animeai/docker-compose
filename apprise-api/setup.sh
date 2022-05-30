@@ -24,7 +24,6 @@ fi
 
 # Gather data from database
 USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
-DOMAIN=$(sqlite $database "SELECT * FROM $settings WHERE name = 'DOMAIN'";)
 TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
 RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
 getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
@@ -33,7 +32,7 @@ if [[ -z ${getports[@]} ]]; then
 fi
 
 # Ask questions
-APPRISE_API_PORT=$(whiptail --inputbox --title "API Port" "Set the port to call the Apprise API on \nCurrently used ports: \n${getports[@]}" 20 60 "8000" 3>&1 1>&2 2>&3)
+APPRISE_API_PORT=$(whiptail --inputbox --title "API Port" "Set the port to call the Apprise API on \nCurrently used ports: \n${getports[*]}" 20 60 "8000" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
   if [ -z "$APPRISE_API_PORT" ]; then
