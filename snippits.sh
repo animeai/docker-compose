@@ -137,6 +137,7 @@ fi
 done
 
 # Check if array contains a variable
+array=1 2 3
 if [[ " ${array[*]} " =~ " ${value} " ]]; then
    echo "contains value" # whatever you want to do when array contains value
 fi

@@ -81,6 +81,7 @@ if [ $exitstatus = "0" ]; then
   else
     if [[ "${getports[*]}" =~ "$AUTHELIA_PORT" ]]; then
     fail "Port already in use!"
+    fi
   fi
 else
 echo "User cancelled"

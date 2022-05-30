@@ -41,7 +41,7 @@ if [ $exitstatus = "0" ]; then
   else
     if [[ "${getports[*]}" =~ "$APPRISE_API_PORT" ]]; then
     fail "Port already in use!"
-    sqlite variables.db "insert into ports (port,name,comment) values ('$APPRISE_API_PORT', '$app', 'Apprise API port');" 
+    fi
   fi
 else
 echo "User cancelled"
@@ -58,7 +58,8 @@ fi
 sqlite $database "create table $app (name TEXT PRIMARY KEY, value TEXT, comment TEXT);"
 
 # As there is no custom data, insert placeholder into database (This only happens when the docker service is not a webapp)
-sqlite $database "insert into $app (name,value,comment) values ('NO_CUSTOM_VARIABLES', 'NO_CUSTOM_VARIABLES', 'There are no custom variables for this app');"
+sqlite $database "insert into $app (name,value,comment) values ('NO_CUSTOM_VARIABLES', 'NO_CUSTOM_VARIABLES', 'There are no custom variables for $app');"
+sqlite variables.db "insert into ports (port,name,comment) values ('$APPRISE_API_PORT', '$app', 'Apprise API port');" 
 
 # Replace the variables
 cp "./docker-compose.yml" "./docker-compose-final.yml"

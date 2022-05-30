@@ -78,6 +78,7 @@ if [ $exitstatus = "0" ]; then
   else
     if [[ "${getports[*]}" =~ "$ADGUARDHOME_SYNC_PORT" ]]; then
     fail "Port already in use!"
+    fi
   fi
 else
 echo "User cancelled"

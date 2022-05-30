@@ -23,15 +23,11 @@ if [[ "$check" == *"$app"* ]]; then
 fi
 
 # Gather data from database
-CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT * FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
-USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
-GROUP_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GROUP_ID'";)
-TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
-RESTART_POLICY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'RESTART_POLICY'";)
-getports=$(sqlite $database "SELECT * FROM $ports ORDER BY port ASC";)
-if [[ -z ${getports[@]} ]]; then
- fail "No ports mapped, set up traefik first!"
-fi
+CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
+USER_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'USER_ID'";)
+GROUP_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'GROUP_ID'";)
+TIMEZONE=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'TIMEZONE'";)
+RESTART_POLICY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'RESTART_POLICY'";)
 
 # Ask questions
 AIRSONIC_SUBDOMAIN=$(whiptail --inputbox --title "Airsonic Subdomain" "Please set the subdomain to use for Airsonic" 20 60 "airsonic" 3>&1 1>&2 2>&3)
