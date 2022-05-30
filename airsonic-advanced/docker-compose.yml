@@ -15,21 +15,21 @@ services:
     image: lscr.io/linuxserver/airsonic-advanced
     container_name: airsonic-advanced
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - CONTEXT_PATH=${AIRSONIC_SUB?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}  # optional
+      - PUID=USER_ID
+      - PGID=GROUP_ID
+      - TZ=TIMEZONE
+      - CONTEXT_PATH=AIRSONIC_SUBDOMAIN.CLOUDFLARE_DOMAIN  # optional
     volumes:
       - airsonic-advanced-config:/config
       - /mnt/music:/music
       - /mnt/playlists:/playlists
       - /mnt/podcasts:/podcasts
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: RESTART_POLICY
     labels:
       - traefik.enable=true
       - traefik.http.services.airsonic-https.loadbalancer.server.port=4040
       - traefik.http.routers.airsonic-https.entrypoints=https
-      - traefik.http.routers.airsonic-https.rule=Host(`${AIRSONIC_SUB?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.airsonic-https.rule=Host(`AIRSONIC_SUBDOMAIN.CLOUDFLARE_DOMAIN`)
       - traefik.http.routers.airsonic-https.tls=true
       - traefik.http.routers.airsonic-https.tls.certresolver=myresolver
       - traefik.http.routers.airsonic-https.middlewares=authelia@docker

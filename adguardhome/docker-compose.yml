@@ -36,6 +36,7 @@ services:
   adguardhome-one:
     image: adguard/adguardhome
     container_name: adguardhome-one
+    hostname: adguardhome
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -53,7 +54,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.adguardhome-one-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-one-https.entrypoints=https
-      - traefik.http.routers.adguardhome-one-https.rule=Host(`SUBDOMAIN_ONE.DOMAIN`)
+      - traefik.http.routers.adguardhome-one-https.rule=Host(`SUBDOMAIN_ONE.CLOUDFLARE_DOMAIN`)
       - traefik.http.routers.adguardhome-one-https.tls=true
       - traefik.http.routers.adguardhome-one-https.tls.certresolver=myresolver
     networks:
@@ -63,6 +64,7 @@ services:
   adguardhome-two:
     image: adguard/adguardhome
     container_name: adguardhome-two
+    hostname: adguardhome-two
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -84,7 +86,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.adguardhome-two-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-two-https.entrypoints=https
-      - traefik.http.routers.adguardhome-two-https.rule=Host(`SUBDOMAIN_TWO.DOMAIN`)
+      - traefik.http.routers.adguardhome-two-https.rule=Host(`SUBDOMAIN_TWO.CLOUDFLARE_DOMAIN`)
       - traefik.http.routers.adguardhome-two-https.tls=true
       - traefik.http.routers.adguardhome-two-https.tls.certresolver=myresolver
   adguardhome-sync:
@@ -94,10 +96,10 @@ services:
       - PUID=USER_ID
       - PGID=GROUP_ID
       - TZ=TIMEZONE
-      - CONFIGFILE=/config/adguardhome-sync.yaml  # optional
+      - CONFIGFILE=/config/adguardhome-sync.yaml
     volumes:
       - adguardhome-sync-config:/config
       - adguardhome-sync-log:/var/log
     ports:
-      - 8080:8080
+      - ADGUARDHOME_SYNC_PORT:8080
     restart: RESTART_POLICY

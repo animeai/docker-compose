@@ -14,12 +14,12 @@ services:
     image: lscr.io/linuxserver/apprise-api:latest
     container_name: apprise-api
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=USER_ID
+      - PGID=GROUP_ID
+      - TZ=TIMEZONE
     volumes:
       - apprise-api-config:/config
       - apprise-api-log:/var/log
     ports:
-      - 8000:8000
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - APPRISE_PORT:8000
+    restart: RESTART_POLICY

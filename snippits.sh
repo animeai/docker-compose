@@ -135,3 +135,12 @@ elif [[ ! -d "$dir" ]]; then
     fail "$dir already exists but is not a directory" 1>&2
 fi
 done
+
+# Check if array contains a variable
+if [[ " ${array[*]} " =~ " ${value} " ]]; then
+   echo "contains value" # whatever you want to do when array contains value
+fi
+
+if [[ ! " ${array[*]} " =~ " ${value} " ]]; then
+    echo "doesn't contain value" # whatever you want to do when array doesn't contain value
+fi

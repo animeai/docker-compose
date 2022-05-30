@@ -372,10 +372,10 @@ fail "User cancelled"
 fi
 
 # Get domain
-DOMAIN=$(whiptail --inputbox --title "Domain" "Please set the default traefik domain \nexample.com" 20 60 "example.com" 3>&1 1>&2 2>&3)
+CLOUDFLARE_DOMAIN=$(whiptail --inputbox --title "Domain" "Please set the default traefik domain \nexample.com" 20 60 "example.com" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
-  if [ -z "$DOMAIN" ]; then
+  if [ -z "$CLOUDFLARE_DOMAIN" ]; then
   fail "Entry was blank - please set your main network adapter"
   fi
 else
@@ -394,12 +394,15 @@ fail "User cancelled"
 fi
 
 # Insert data
-sqlite ../variables.db "insert into settings (name,value,comment) values ('MAIN_NETWORK_ADAPTER', '$MAIN_NETWORK_ADAPTER', 'The network adapter to use for private IPs with macvlan');"
-sqlite ../variables.db "insert into settings (name,value,comment) values ('GATEWAY', '$GATEWAY', '');"
-sqlite ../variables.db "insert into settings (name,value,comment) values ('MAIN_SUBNET', '$MAIN_SUBNET', '');"
-sqlite ../variables.db "insert into settings (name,value,comment) values ('ALLOCATE_SUBNET', '$ALLOCATE_SUBNET', '');"
-sqlite ../variables.db "insert into settings (name,value,comment) values ('DOMAIN', '$DOMAIN', '');"
-sqlite ../variables.db "insert into settings (name,value,comment) values ('RESTART_POLICY', '$RESTART_POLICY', '');"
+sqlite $database "insert into settings (name,value,comment) values ('MAIN_NETWORK_ADAPTER', '$MAIN_NETWORK_ADAPTER', 'The network adapter to use for private IPs with macvlan');"
+sqlite $database "insert into settings (name,value,comment) values ('GATEWAY', '$GATEWAY', '');"
+sqlite $database "insert into settings (name,value,comment) values ('MAIN_SUBNET', '$MAIN_SUBNET', '');"
+sqlite $database "insert into settings (name,value,comment) values ('ALLOCATE_SUBNET', '$ALLOCATE_SUBNET', '');"
+sqlite $database "insert into settings (name,value,comment) values ('CLOUDFLARE_DOMAIN', '$CLOUDFLARE_DOMAIN', '');"
+sqlite $database "insert into settings (name,value,comment) values ('RESTART_POLICY', '$RESTART_POLICY', '');"
+
+# Set up ports table
+sqlite $database "create table ports (port TEXT PRIMARY KEY, name TEXT, comment TEXT);"  # name = short name, i.e. "https"
 
 # Make dirs
 for dir in $ANIME_DIRECTORY $AUDIOBOOKS_DIRECTORY $BACKUPS_DIRECTORY $CODE_DIRECTORY $COMICS_DIRECTORY $DOWNLOADS_DIRECTORY $EBOOKS_DIRECTORY $EMULATION_DIRECTORY $HOME_DIRECTORY $ISO_DIRECTORY $MANGA_DIRECTORY $MOVIES_DIRECTORY $PLAYLISTS_DIRECTORY $PODCASTS_DIRECTORY $RAW_DIRECTORY $TORRENTWATCH_DIRECTORY

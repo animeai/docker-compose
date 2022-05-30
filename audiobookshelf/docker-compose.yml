@@ -15,17 +15,17 @@ services:
   audiobookshelf:
     image: advplyr/audiobookshelf
     container_name: audiobookshelf
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: RESTART_POLICY
     volumes:
       - audiobookshelf-config:/config
       - audiobookshelf-metadata:/metadata
       - audiobookshelf-log:/var/log
-      - /mnt/audiobooks:/audiobooks
+      - AUDIOBOOKS_DIRECTORY:/audiobooks
     labels:
       - traefik.enable=true
       - traefik.http.services.audiobookshelf-https.loadbalancer.server.port=80
       - traefik.http.routers.audiobookshelf-https.entrypoints=https
-      - traefik.http.routers.audiobookshelf-https.rule=Host(`${AUDIOBOOKSHELF_SUB?AUDIOBOOKSHELF_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.audiobookshelf-https.rule=Host(`AUDIOBOOKSHELF_SUBDOMAIN.CLOUDFLARE_DOMAIN`)
       - traefik.http.routers.audiobookshelf-https.tls=true
       - traefik.http.routers.audiobookshelf-https.tls.certresolver=myresolver
       - traefik.http.routers.audiobookshelf-https.middlewares=authelia@docker
