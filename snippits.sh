@@ -139,10 +139,10 @@ done
 # Check if array contains a variable
 array=(1 2 3)
 value=(4 5 6)
-if [[ " ${array[*]} " =~ " ${value} " ]]; then
+if [[ ${array[*]} =~ ${value} ]]; then
    echo "contains value" # whatever you want to do when array contains value
 fi
 
-if [[ ! " ${array[*]} " =~ " ${value} " ]]; then
+if [[ ! ${array[*]} =~ ${value} ]]; then
     echo "doesn't contain value" # whatever you want to do when array doesn't contain value
 fi

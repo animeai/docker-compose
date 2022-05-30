@@ -38,7 +38,7 @@ if [ $exitstatus = "0" ]; then
   if [ -z "$APPRISE_API_PORT" ]; then
     echo "Entry was blank - please set your storage folder. You cannot leave this blank!"
   else
-    if [[ "${getports[*]}" =~ "$APPRISE_API_PORT" ]]; then
+    if [[ ${getports[*]} =~ (?<![\w\d])$APPRISE_API_PORT(?![\w\d]) ]]; then
     fail "Port already in use!"
     fi
   fi

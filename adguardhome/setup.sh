@@ -81,7 +81,7 @@ if [ $exitstatus = "0" ]; then
   if [ -z "$ADGUARDHOME_SYNC_PORT" ]; then
     echo "Entry was blank - please set your storage folder. You cannot leave this blank!"
   else
-    if [[ "${getports[*]}" =~ "$ADGUARDHOME_SYNC_PORT" ]]; then
+    if [[ ${getports[*]} =~ (?<![\w\d])$ADGUARDHOME_SYNC_PORT(?![\w\d]) ]]; then
     fail "Port already in use!"
     fi
   fi

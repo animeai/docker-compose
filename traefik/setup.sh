@@ -55,10 +55,10 @@ getports=$(sqlite $database "SELECT 'port' FROM $ports ORDER BY port ASC";)
 if [[ -z ${getports[*]} ]]; then
 getports="none"
 fi
-if [[ "${getports[*]}" =~ "80" ]]; then
+if [[ ${getports[*]} =~ (?<![\w\d])80(?![\w\d]) ]]; then
     fail "Port 80 is listed as used?!"
 fi
-if [[ "${getports[*]}" =~ "443" ]]; then
+if [[ ${getports[*]} =~ (?<![\w\d])443(?![\w\d]) ]]; then
     fail "Port 443 is listed as used?!"
 fi
 TRAEFIK_PING_PORT=$(whiptail --inputbox --title "Ping Port" "Set the pingable port for Traefik \nCurrently used ports: \n${getports[*]}" 20 60 "8181" 3>&1 1>&2 2>&3)
@@ -67,7 +67,7 @@ if [ $exitstatus = "0" ]; then
   if [ -z "$TRAEFIK_PING_PORT" ]; then
     echo "Entry was blank - please set your storage folder. You cannot leave this blank!"
   else
-    if [[ "${getports[*]}" =~ "$TRAEFIK_PING_PORT" ]]; then
+    if [[ ${getports[*]} =~ (?<![\w\d])$TRAEFIK_PING_PORT(?![\w\d]) ]]; then
     fail "Port already in use!"
     fi
   fi
@@ -80,7 +80,7 @@ if [ $exitstatus = "0" ]; then
   if [ -z "$AUTHELIA_PORT" ]; then
     echo "Entry was blank - please set your storage folder. You cannot leave this blank!"
   else
-    if [[ "${getports[*]}" =~ "$AUTHELIA_PORT" ]]; then
+    if [[ ${getports[*]} =~ (?<![\w\d])$AUTHELIA_PORT(?![\w\d]) ]]; then
     fail "Port already in use!"
     fi
   fi
