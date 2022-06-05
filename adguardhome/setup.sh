@@ -16,6 +16,8 @@ settings="settings" # Set the main settings table
 check=$(sqlite $database "SELECT * FROM sqlite_master WHERE type = 'table'";)
 app=adguardhome
 ports="ports"
+env="./.env"
+env_final="./env.final"
 
 # Check this has not been run before
 if [[ "$check" == *"$app"* ]]; then
@@ -24,7 +26,7 @@ fi
 
 # Gather data from database
 MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
-GATEWAY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'GATEWAY'";)
+MAIN_GATEWAY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_GATEWAY'";)
 MAIN_SUBNET=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_SUBNET'";)
 ALLOCATE_SUBNET=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'ALLOCATE_SUBNET'";)
 CLOUDFLARE_DOMAIN=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'CLOUDFLARE_DOMAIN'";)
@@ -104,28 +106,32 @@ sqlite $database "insert into $app (name,value,comment) values ('SUBDOMAIN_ONE',
 sqlite $database "insert into $app (name,value,comment) values ('SUBDOMAIN_TWO', '$SUBDOMAIN_TWO', 'Subdomain for adguard-two');"
 sqlite $database "insert into $app (name,value,comment) values ('IP_ONE', '$IP_ONE', 'adguard-one internal IP');"
 sqlite $database "insert into $app (name,value,comment) values ('IP_TWO', '$IP_TWO', 'adguard-two internal IP');"
-sqlite $database "insert into ports (port,name,comment) values ('$ADGUARDHOME_SYNC_PORT', '$app', 'Adguardhome sync port');" 
+sqlite $database "insert into $ports (port,name,comment) values ('$ADGUARDHOME_SYNC_PORT', '$app', 'Adguardhome sync port');" 
 
 # Replace the variables
-cp "./docker-compose.yml" "./docker-compose-final.yml"
-sed -i "s/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g" docker-compose-final.yml
-sed -i "s/MAIN_SUBNET/$MAIN_SUBNET/g" docker-compose-final.yml
-sed -i "s/GATEWAY/$GATEWAY/g" docker-compose-final.yml
-sed -i "s/ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g" docker-compose-final.yml
-sed -i "s/SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g" docker-compose-final.yml
-sed -i "s/IP_ONE/$IP_ONE/g" docker-compose-final.yml
-sed -i "s/SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g" docker-compose-final.yml
-sed -i "s/IP_TWO/$IP_TWO/g" docker-compose-final.yml
-sed -i "s/CLOUDFLARE_DOMAIN/$CLOUDFLARE_DOMAIN/g" docker-compose-final.yml
-sed -i "s/RESTART_POLICY/$RESTART_POLICY/g" docker-compose-final.yml
-sed -i "s/USER_ID/$USER_ID/g" docker-compose-final.yml
-sed -i "s/GROUP_ID/$GROUP_ID/g" docker-compose-final.yml
-sed -i "s/TIMEZONE/$TIMEZONE/g" docker-compose-final.yml
-sed -i "s/ADGUARDHOME_SYNC_PORT/$ADGUARDHOME_SYNC_PORT/g" docker-compose-final.yml
+if [ -f "$env_final" ]; then
+ rm -rf $env_final
+fi
+cp "$env" "$env_final"
+sed -i "s/REPLACE_MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g" $env_final
+sed -i "s/REPLACE_MAIN_SUBNET/$MAIN_SUBNET/g" $env_final
+sed -i "s/REPLACE_GATEWAY/$GATEWAY/g" $env_final
+sed -i "s/REPLACE_ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g" $env_final
+sed -i "s/REPLACE_SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g" $env_final
+sed -i "s/REPLACE_IP_ONE/$IP_ONE/g" $env_final
+sed -i "s/REPLACE_SUBDOMAIN_TWO/$SUBDOMAIN_TWO/g" $env_final
+sed -i "s/REPLACE_IP_TWO/$IP_TWO/g" $env_final
+sed -i "s/REPLACE_CLOUDFLARE_DOMAIN/$CLOUDFLARE_DOMAIN/g" $env_final
+sed -i "s/REPLACE_RESTART_POLICY/$RESTART_POLICY/g" $env_final
+sed -i "s/REPLACE_USER_ID/$USER_ID/g" $env_final
+sed -i "s/REPLACE_GROUP_ID/$GROUP_ID/g" $env_final
+sed -i "s/REPLACE_TIMEZONE/$TIMEZONE/g" $env_final
+sed -i "s/REPLACE_ADGUARDHOME_SYNC_PORT/$ADGUARDHOME_SYNC_PORT/g" $env_final
 
 # Copy to final location
 mkdir "/etc/docker/compose/adguardhome"
-cp "./docker-compose-final.yml" "/etc/docker/compose/adguardhome/docker-compose.yml"
+cp "./docker-compose.yml" "/etc/docker/compose/adguardhome/docker-compose.yml"
+cp "$env_final" "/etc/docker/compose/adguardhome/.env"
 
 if whiptail --title "Run now?" --yesno "Do you wish to start this service now?" 20 60 ; then
  systemctl start docker-compose@$app

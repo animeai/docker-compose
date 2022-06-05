@@ -339,7 +339,7 @@ else
 fi
 
 # Get gateway
-GATEWAY=$(whiptail --inputbox --title "Set the gateway IP" " Please set yout gateway IP \n$gateway_detect was detected automatically, ensure it is correct." 20 60 "$gateway_detect" 3>&1 1>&2 2>&3)
+MAIN_GATEWAY=$(whiptail --inputbox --title "Set the gateway IP" " Please set yout gateway IP \n$gateway_detect was detected automatically, ensure it is correct." 20 60 "$gateway_detect" 3>&1 1>&2 2>&3)
 exitstatus=$?
 if [ $exitstatus = "0" ]; then
   if [ -z "$GATEWAY" ]; then
@@ -395,7 +395,7 @@ fi
 
 # Insert data
 sqlite $database "insert into settings (name,value,comment) values ('MAIN_NETWORK_ADAPTER', '$MAIN_NETWORK_ADAPTER', 'The network adapter to use for private IPs with macvlan');"
-sqlite $database "insert into settings (name,value,comment) values ('GATEWAY', '$GATEWAY', '');"
+sqlite $database "insert into settings (name,value,comment) values ('MAIN_GATEWAY', '$MAIN_GATEWAY', '');"
 sqlite $database "insert into settings (name,value,comment) values ('MAIN_SUBNET', '$MAIN_SUBNET', '');"
 sqlite $database "insert into settings (name,value,comment) values ('ALLOCATE_SUBNET', '$ALLOCATE_SUBNET', '');"
 sqlite $database "insert into settings (name,value,comment) values ('CLOUDFLARE_DOMAIN', '$CLOUDFLARE_DOMAIN', '');"

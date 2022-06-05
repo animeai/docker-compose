@@ -8,12 +8,12 @@ networks:
   smarthome:
     driver: macvlan
     driver_opts:
-      parent: MAIN_NETWORK_ADAPTER
+      parent: ${MAIN_NETWORK_ADAPTER}
     ipam:
       config:
-        subnet: MAIN_SUBNET
-        gateway: GATEWAY
-        ip_range: ALLOCATE_SUBNET
+        subnet: ${MAIN_SUBNET}
+        gateway: ${MAIN_GATEWAY}
+        ip_range: ${ALLOCATE_SUBNET}
 volumes:
   adguardhome-one-work:
   adguardhome-one-config:
@@ -49,17 +49,17 @@ services:
       - adguardhome-one-work:/opt/adguardhome/work
       - adguardhome-one-config:/opt/adguardhome/conf
       - adguardhome-one-log:/var/log
-    restart: RESTART_POLICY
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.adguardhome-one-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-one-https.entrypoints=https
-      - traefik.http.routers.adguardhome-one-https.rule=Host(`SUBDOMAIN_ONE.CLOUDFLARE_DOMAIN`)
+      - traefik.http.routers.adguardhome-one-https.rule=Host(`${SUBDOMAIN_ONE}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.adguardhome-one-https.tls=true
       - traefik.http.routers.adguardhome-one-https.tls.certresolver=myresolver
     networks:
       smarthome:
-        - ipv4_address: IP_ONE
+        - ipv4_address: ${IP_ONE}
       t2_proxy:
   adguardhome-two:
     image: adguard/adguardhome
@@ -74,19 +74,19 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - adguardhome-two-work :/opt/adguardhome/work
+      - adguardhome-two-work:/opt/adguardhome/work
       - adguardhome-two-config:/opt/adguardhome/conf
       - adguardhome-two-log:/var/log
-    restart: RESTART_POLICY
+    restart: ${RESTART_POLICY}
     networks:
       smarthome:
-        ipv4_address: IP_TWO
+        ipv4_address: ${IP_TWO}
       t2_proxy:
     labels:
       - traefik.enable=true
       - traefik.http.services.adguardhome-two-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-two-https.entrypoints=https
-      - traefik.http.routers.adguardhome-two-https.rule=Host(`SUBDOMAIN_TWO.CLOUDFLARE_DOMAIN`)
+      - traefik.http.routers.adguardhome-two-https.rule=Host(`${SUBDOMAIN_TWO}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.adguardhome-two-https.tls=true
       - traefik.http.routers.adguardhome-two-https.tls.certresolver=myresolver
   adguardhome-sync:
@@ -101,5 +101,5 @@ services:
       - adguardhome-sync-config:/config
       - adguardhome-sync-log:/var/log
     ports:
-      - ADGUARDHOME_SYNC_PORT:8080
-    restart: RESTART_POLICY
+      - ${ADGUARDHOME_SYNC_PORT}:8080
+    restart: ${RESTART_POLICY}

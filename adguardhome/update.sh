@@ -21,21 +21,21 @@ timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 systemctl stop docker-compose@adguardhome
 
 # Get variables from database
-MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
-GATEWAY=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GATEWAY'";)
-MAIN_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'MAIN_SUBNET'";)
-ALLOCATE_SUBNET=$(sqlite $database "SELECT * FROM $settings WHERE name = 'ALLOCATE_SUBNET'";)
-DOMAIN=$(sqlite $database "SELECT * FROM $settings WHERE name = 'DOMAIN'";)
-USER_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'USER_ID'";)
-GROUP_ID=$(sqlite $database "SELECT * FROM $settings WHERE name = 'GROUP_ID'";)
-TIMEZONE=$(sqlite $database "SELECT * FROM $settings WHERE name = 'TIMEZONE'";)
-SUBDOMAIN_ONE=$(sqlite $database "SELECT * FROM $app WHERE name = 'SUBDOMAIN_ONE'";)
-SUBDOMAIN_TWO=$(sqlite $database "SELECT * FROM $app WHERE name = 'SUBDOMAIN_TWO'";)
-IP_ONE=$(sqlite $database "SELECT * FROM $app WHERE name = 'IP_ONE'";)
-IP_TWO=$(sqlite $database "SELECT * FROM $app WHERE name = 'IP_TWO'";)
+MAIN_NETWORK_ADAPTER=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_NETWORK_ADAPTER'";)
+MAIN_GATEWAY=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_GATEWAY'";)
+MAIN_SUBNET=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'MAIN_SUBNET'";)
+ALLOCATE_SUBNET=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'ALLOCATE_SUBNET'";)
+DOMAIN=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'DOMAIN'";)
+USER_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'USER_ID'";)
+GROUP_ID=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'GROUP_ID'";)
+TIMEZONE=$(sqlite $database "SELECT 'value' FROM $settings WHERE name = 'TIMEZONE'";)
+SUBDOMAIN_ONE=$(sqlite $database "SELECT 'value' FROM $app WHERE name = 'SUBDOMAIN_ONE'";)
+SUBDOMAIN_TWO=$(sqlite $database "SELECT 'value' FROM $app WHERE name = 'SUBDOMAIN_TWO'";)
+IP_ONE=$(sqlite $database "SELECT 'value' FROM $app WHERE name = 'IP_ONE'";)
+IP_TWO=$(sqlite $database "SELECT 'value' FROM $app WHERE name = 'IP_TWO'";)
 
 # Final check
-if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n MAIN_SUBNET: $MAIN_SUBNET \n GATEWAY: $GATEWAY \n ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n IP_ONE: $IP_ONE \n IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n RESTART_POLICY: $RESTART_POLICY \n USER_ID: $USER_ID \n GROUP_ID: $GROUP_ID \n TIMEZONE: $TIMEZONE " 20 60 ; then
+if whiptail --title "Continue?" --yesno "Do you wish to use these settings: \n MAIN_NETWORK_ADAPTER: $MAIN_NETWORK_ADAPTER \n MAIN_SUBNET: $MAIN_SUBNET \n GATEWAY: $MAIN_GATEWAY \n ALLOCATE_SUBNET: $ALLOCATE_SUBNET \n SUBDOMAIN_ONE: $SUBDOMAIN_ONE \n SUBDOMAIN_TWO: $SUBDOMAIN_TWO \n IP_ONE: $IP_ONE \n IP_TWO: $IP_TWO \n DOMAIN: $DOMAIN \n RESTART_POLICY: $RESTART_POLICY \n USER_ID: $USER_ID \n GROUP_ID: $GROUP_ID \n TIMEZONE: $TIMEZONE " 20 60 ; then
  echo "Selected yes, continuing"
 else
  fail "Selected no. Modify values in the database if required"
@@ -49,7 +49,7 @@ mv "/etc/docker/compose/adguardhome/docker-compose.yml" "/etc/docker/compose/adg
 cp "./docker-compose.yml" "./docker-compose-final.yml"
 sed -i "s/MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g" docker-compose-final.yml
 sed -i "s/MAIN_SUBNET/$MAIN_SUBNET/g" docker-compose-final.yml
-sed -i "s/GATEWAY/$GATEWAY/g" docker-compose-final.yml
+sed -i "s/MAIN_GATEWAY/$MAIN_GATEWAY/g" docker-compose-final.yml
 sed -i "s/ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g" docker-compose-final.yml
 sed -i "s/SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g" docker-compose-final.yml
 sed -i "s/IP_ONE/$IP_ONE/g" docker-compose-final.yml
