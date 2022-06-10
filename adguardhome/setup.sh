@@ -115,7 +115,7 @@ fi
 cp "$env" "$env_final"
 sed -i "s/REPLACE_MAIN_NETWORK_ADAPTER/$MAIN_NETWORK_ADAPTER/g" $env_final
 sed -i "s/REPLACE_MAIN_SUBNET/$MAIN_SUBNET/g" $env_final
-sed -i "s/REPLACE_GATEWAY/$GATEWAY/g" $env_final
+sed -i "s/REPLACE_GATEWAY/$MAIN_GATEWAY/g" $env_final
 sed -i "s/REPLACE_ALLOCATE_SUBNET/$ALLOCATE_SUBNET/g" $env_final
 sed -i "s/REPLACE_SUBDOMAIN_ONE/$SUBDOMAIN_ONE/g" $env_final
 sed -i "s/REPLACE_IP_ONE/$IP_ONE/g" $env_final

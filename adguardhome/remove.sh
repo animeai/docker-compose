@@ -18,7 +18,7 @@ app=adguardhome
 ports="ports"
 name="AdGuard Home"
 
-if whiptail --title "Delete ALL data for $name Home?" --yesno "Running this script will delete all stored data for $name. Please select Yes to continue, or No to cancel. 20 60 ; then
+if whiptail --title "Delete ALL data for $name Home?" --yesno "Running this script will delete all stored data for $name. Please select Yes to continue, or No to cancel." 20 60 ; then
     echo "Selected yes, continuing"
 else
     fail "User cancelled"
