@@ -1,6 +1,7 @@
 ---
 # https://github.com/bakito/adguardhome-sync
 # Synchronize AdGuardHome config to a replica instance.
+# To Do: Nginx reverse proxy for adguardhome? Issues with ports on t2_proxy network?
 version: "3.8"
 networks:
   t2_proxy:

@@ -1,0 +1,58 @@
+---
+# Turns any MySQL, PostgreSQL, SQL Server, SQLite & MariaDB into a smart-spreadsheet. 
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  nocodb-data:
+  nocodb-db-data:
+  nocodb-db-config:
+  nocodb-db-log:
+      driver_opts:
+      type: tmpfs
+      device: tmpfs
+  nocodb-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  nocodb:
+    image: nocodb/nocodb:latest
+    container_name: nocodb
+    hostname: nocodb
+    environment:
+      - NC_DB: "mysql2://nocodb-db:3306?u=MYSQL_USERNAME&p=MYSQL_PASSWORD&d=DATABASE_NAME"
+    volumes:
+      - nocodb-data:/usr/app/data
+      - nocodb-log:/var/log
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    depends_on:
+      - nocodb-db
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.nocodb-https.loadbalancer.server.port=80
+      - traefik.http.routers.nocodb-https.entrypoints=https
+      - traefik.http.routers.nocodb-https.rule=Host(`${nocodbSUB?nocodb_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.nocodb-https.tls=true
+      - traefik.http.routers.nocodb-https.tls.certresolver=myresolver
+      - traefik.http.routers.nocodb-https.middlewares=authelia@docker
+  nocodb-db:
+    image: mariadb:latest
+    container_name: nocodb-db
+    hostname: nocodb-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: DATABASE_NAME
+      MYSQL_USER: MYSQL_USERNAME
+      MYSQL_PASSWORD: MYSQL_PASSWORD
+    volumes:
+      - nocodb-db-data:/var/lib/mysql
+      - nocodb-db-log:/var/log
+      - nocodb-db-config:/etc/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
