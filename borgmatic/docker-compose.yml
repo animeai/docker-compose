@@ -1,9 +1,6 @@
 ---
 # A little container based on b3vis's work to automate my Borgbackups using the excellent Borgmatic. It uses cron to run the backups at a time you can configure in data/borgmatic.d/crontab.txt.
 version: "3.8"
-networks:
-  t2_proxy:
-    external: true
 volumes:
   borgmatic-config:
   borgmatic-config2:
@@ -15,17 +12,17 @@ volumes:
       device: tmpfs
 services:
   borgmatic:
-    image: modem7/borgmatic-docker
+    image: modem7/borgmatic-docker:${BORGMATIC_VERSION}
     container_name: borgmatic
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     volumes:
-      - /mnt/borgmatic/source:/mnt/source:ro           # backup source
-      - /mnt/borgmatic/target:/mnt/borg-repository     # backup target
+      - ${BORGMATIC_SOURCE_DIRECTORY}:/mnt/source:ro           # backup source
+      - ${BORGMATIC_TARGET_DIRECTORY}:/mnt/borg-repository     # backup target
       - borgmatic-config:/etc/borgmatic.d/        # borgmatic config file(s) + crontab.txt
       - borgmatic-config2:/root/.config/borg      # config and keyfiles
       - borgmatic-ssh:/root/.ssh                  # ssh key for remote repositories
       - borgmatic-cache:/root/.cache/borg         # checksums used for deduplication
       - borgmatic-log:/var/log
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - BORG_PASSPHRASE=${BORG_PASSPHRASE?BORG_PASSPHRASE Variable not set}
+      - TZ=${TIMEZONE}
+      - BORG_PASSPHRASE=${BORGMATIC_PASSPHRASE}

@@ -11,25 +11,23 @@ volumes:
       device: tmpfs
 services:
   beets:
-    image: lscr.io/linuxserver/beets:latest
+    image: lscr.io/linuxserver/beets:${BEETS_VERSION}
     container_name: beets
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - beets-config:/config
       - beets-log:/var/log
-      - /mnt/music:/music
-      - /mnt/downloads/music:/downloads
-    ports:
-      - 8337:8337
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${MUSIC_DIRECTORY}:/music
+      - ${DOWNLOADS_DIRECTORY}/music:/downloads
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
-      - traefik.http.services.beets-https.loadbalancer.server.port=3000
+      - traefik.http.services.beets-https.loadbalancer.server.port=8337
       - traefik.http.routers.beets-https.entrypoints=https
-      - traefik.http.routers.beets-https.rule=Host(`${BEETS_SUB?BEETS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.beets-https.rule=Host(`${BEETS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.beets-https.tls=true
       - traefik.http.routers.beets-https.tls.certresolver=myresolver
       - traefik.http.routers.beets-https.middlewares=authelia@docker

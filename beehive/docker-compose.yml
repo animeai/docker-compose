@@ -12,9 +12,9 @@ volumes:
       device: tmpfs
 services:
   beehive:
-    image: fribbledom/beehive
+    image: fribbledom/beehive:${BEEHIVE_VERSION}
     container_name: beehive
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     volumes:
       - beehive-config:/conf
       - beehive-log:/var/log
@@ -22,7 +22,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.beehive-https.loadbalancer.server.port=8181
       - traefik.http.routers.beehive-https.entrypoints=https
-      - traefik.http.routers.beehive-https.rule=Host(`${BEEHIVE_SUB?BEEHIVE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.beehive-https.rule=Host(`${BEEHIVE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.beehive-https.tls=true
       - traefik.http.routers.beehive-https.tls.certresolver=myresolver
       - traefik.http.routers.beehive-https.middlewares=authelia@docker

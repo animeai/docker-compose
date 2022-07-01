@@ -21,20 +21,20 @@ volumes:
       device: tmpfs
 services:
   drawio:
-    image: jgraph/drawio
+    image: jgraph/drawio:${DRAWIO_VERSION}
     container_name: drawio
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     environment:
       - DRAWIO_SELF_CONTAINED=1
       - PLANTUML_URL=http://plantuml-server:8080/
       - EXPORT_URL=http://image-export:8000/
-      - DRAWIO_BASE_URL=${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
-#      - DRAWIO_CACHE_DOMAIN=${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - DRAWIO_BASE_URL=${DRAWIO_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
+#      - DRAWIO_CACHE_DOMAIN=${DRAWIO_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
     volumes:
       - drawio-fonts:/usr/share/fonts/drawio
       - drawio-log:/var/log
     healthcheck:
-#      test: ["CMD-SHELL", "curl -f http://${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}:8080 || exit 1"]
+#      test: ["CMD-SHELL", "curl -f http://${DRAWIO_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}:8080 || exit 1"]
       test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
       interval: 1m30s
       timeout: 10s
@@ -44,7 +44,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.drawio-https.loadbalancer.server.port=8080  # or 8443
       - traefik.http.routers.drawio-https.entrypoints=https
-      - traefik.http.routers.drawio-https.rule=Host(`${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.drawio-https.rule=Host(`${DRAWIO_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.drawio-https.tls=true
       - traefik.http.routers.drawio-https.tls.certresolver=myresolver
       - traefik.http.routers.drawio-https.middlewares=authelia@docker
@@ -56,14 +56,16 @@ services:
   image-export:
     image: jgraph/export-server
     container_name: image-export
+    hostname: image-export
     volumes:
       - drawio-fonts:/usr/share/fonts/drawio
       - image-export-log:/var/log
     environment:
-      - DRAWIO_SERVER_URL=${DRAWIO_SUB?DRAWIO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - DRAWIO_SERVER_URL=${DRAWIO_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
   plantuml-server:
     image: jgraph/plantuml-server
     container_name: plantuml-server
+    hostname: plantuml-server
     volumes:
       - drawio-fonts:/usr/share/fonts/drawio
       - plantuml-server-log:/var/log

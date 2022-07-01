@@ -11,15 +11,15 @@ volumes:
       device: tmpfs
 services:
   apprise-api:
-    image: lscr.io/linuxserver/apprise-api:latest
+    image: lscr.io/linuxserver/apprise-api:${APPRISE_VERSION}
     container_name: apprise-api
     environment:
-      - PUID=USER_ID
-      - PGID=GROUP_ID
-      - TZ=TIMEZONE
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - apprise-api-config:/config
       - apprise-api-log:/var/log
     ports:
-      - APPRISE_PORT:8000
-    restart: RESTART_POLICY
+      - ${APPRISE_PORT}:8000
+    restart: ${RESTART_POLICY}

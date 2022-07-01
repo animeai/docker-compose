@@ -12,22 +12,22 @@ volumes:
       device: tmpfs
 services:
   cops:
-    image: lscr.io/linuxserver/cops
+    image: lscr.io/linuxserver/cops:${COPS_VERSION}
     container_name: cops
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - cops-config:/config
       - cops-log:/var/log
-      - /mnt/ebooks:/books
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${EBOOKS_DIRECTORY}:/books
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.cops-https.loadbalancer.server.port=80
       - traefik.http.routers.cops-https.entrypoints=https
-      - traefik.http.routers.cops-https.rule=Host(`${COPS_SUB?COPS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.cops-https.rule=Host(`${COPS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.cops-https.tls=true
       - traefik.http.routers.cops-https.tls.certresolver=myresolver
       - traefik.http.routers.cops-https.middlewares=authelia@docker

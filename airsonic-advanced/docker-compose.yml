@@ -12,24 +12,25 @@ volumes:
       device: tmpfs
 services:
   airsonic-advanced:
-    image: lscr.io/linuxserver/airsonic-advanced
+    image: lscr.io/linuxserver/airsonic-advanced:${AIRSONIC_VERSION}
     container_name: airsonic-advanced
     environment:
-      - PUID=USER_ID
-      - PGID=GROUP_ID
-      - TZ=TIMEZONE
-      - CONTEXT_PATH=AIRSONIC_SUBDOMAIN.CLOUDFLARE_DOMAIN  # optional
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - CONTEXT_PATH=${AIRSONIC_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
     volumes:
       - airsonic-advanced-config:/config
-      - /mnt/music:/music
-      - /mnt/playlists:/playlists
-      - /mnt/podcasts:/podcasts
-    restart: RESTART_POLICY
+      - airsonice-advanced-log:/var/log
+      - ${MUSIC_DIRECTORY}:/music
+      - ${PLAYLISTS_DIRECTORY}:/playlists
+      - ${PODCASTS_DIRECTORY}:/podcasts
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.airsonic-https.loadbalancer.server.port=4040
       - traefik.http.routers.airsonic-https.entrypoints=https
-      - traefik.http.routers.airsonic-https.rule=Host(`AIRSONIC_SUBDOMAIN.CLOUDFLARE_DOMAIN`)
+      - traefik.http.routers.airsonic-https.rule=Host(`${AIRSONIC_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.airsonic-https.tls=true
       - traefik.http.routers.airsonic-https.tls.certresolver=myresolver
       - traefik.http.routers.airsonic-https.middlewares=authelia@docker

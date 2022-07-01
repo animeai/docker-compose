@@ -11,14 +11,14 @@ volumes:
       device: tmpfs
 services:
   blender:
-    image: lscr.io/linuxserver/blender:latest
+    image: lscr.io/linuxserver/blender:${BLENDER_VERSION}
     container_name: blender
 #    security_opt:
 #      - seccomp:unconfined  # optional - may be necessary depending on docker storage setup
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - SUBFOLDER=/  # optional
       - KEYBOARD=en-us-qwerty  # optional
     volumes:
@@ -26,12 +26,12 @@ services:
       - blender-log:/var/log
     devices:
       - /dev/dri:/dev/dri  # optional - for hardware acceleration (linux only)
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.blender-https.loadbalancer.server.port=3000
       - traefik.http.routers.blender-https.entrypoints=https
-      - traefik.http.routers.blender-https.rule=Host(`${BLENDER_SUB?BLENDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.blender-https.rule=Host(`${BLENDER_SUBDOMAIN}.${CLOUDFLAER_DOMAIN}`)
       - traefik.http.routers.blender-https.tls=true
       - traefik.http.routers.blender-https.tls.certresolver=myresolver
       - traefik.http.routers.blender-https.middlewares=authelia@docker

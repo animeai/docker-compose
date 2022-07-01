@@ -12,23 +12,23 @@ volumes:
       device: tmpfs
 services:
   bazarr:
-    image: lscr.io/linuxserver/bazarr
+    image: lscr.io/linuxserver/bazarr:${BAZARR_VERSION}
     container_name: bazarr
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - bazarr-config:/config
       - bazarr-log:/var/log
-      - /mnt/movies:/movies
-      - /mnt/tv:/tv
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${MOVIES_DIRECTORY}:/movies
+      - ${TV_DIRECTORY}:/tv
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.bazarr-https.loadbalancer.server.port=6767
       - traefik.http.routers.bazarr-https.entrypoints=https
-      - traefik.http.routers.bazarr-https.rule=Host(`${BAZARR_SUB?BAZARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.bazarr-https.rule=Host(`${BAZARR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.bazarr-https.tls=true
       - traefik.http.routers.bazarr-https.tls.certresolver=myresolver
       - traefik.http.routers.bazarr-https.middlewares=authelia@docker

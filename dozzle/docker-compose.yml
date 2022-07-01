@@ -11,7 +11,7 @@ volumes:
       device: tmpfs
 services:
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:${DOZZLE_VERSION}
     container_name: dozzle
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -20,7 +20,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.dozzle-https.loadbalancer.server.port=8080
       - traefik.http.routers.dozzle-https.entrypoints=https
-      - traefik.http.routers.dozzle-https.rule=Host(`${DOZZLE_SUB?DOZZLE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dozzle-https.rule=Host(`${DOZZLE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.dozzle-https.tls=true
       - traefik.http.routers.dozzle-https.tls.certresolver=myresolver
       - traefik.http.routers.dozzle-https.middlewares=authelia@docker

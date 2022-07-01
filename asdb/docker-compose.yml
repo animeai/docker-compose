@@ -65,117 +65,117 @@ volumes:
       device: tmpfs
 services:
   adsbexchange:
-    image: mikenye/adsbexchange:latest
+    image: mikenye/adsbexchange:${ADSBEXCHANGE_VERSION}
     tty: true
     container_name: adsbexchange
     hostname: adsbexchange
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
       - BEASTHOST=readsb
-      - LAT=${LAT?LAT Variable not set}
-      - LONG=${LONG?LONG Variable not set}
-      - ALT=${ALT?ALT Variable not set}
-      - SITENAME=${ADSBEXCHANGE_SITENAME?ADSBEXCHANGE_SITENAME Variable not set}
-      - UUID=${ADSBEXCHANGE_UUID?ADSBEXCHANGE_UUID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - REDUCE_INTERVAL=${ADSBEXCHANGE_REDUCE_INTERVAL?ADSBEXCHANGE_REDUCE_INTERVAL Variable not set}
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - ALT=${ALT}
+      - SITENAME=${ADSBEXCHANGE_SITENAME}
+      - UUID=${ADSBEXCHANGE_UUID}
+      - TZ=${TIMEZONE}
+      - REDUCE_INTERVAL=${ADSBEXCHANGE_REDUCE_INTERVAL}
     tmpfs:
-      - /run:exec,size=64M,${PUID?PUID Variable not set},${PGID?PGID Variable not set}
+      - /run:exec,size=64M,${USER_ID},${GROUP_ID}
     volumes:
       - adsbexchange-log:/var/log
   adsbhub:
-    image: mikenye/adsbhub:latest
+    image: mikenye/adsbhub:${ADSBHUB_VERSION}
     tty: true
     container_name: adsbhub
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - TZ=${TIMEZONE}
       - SBSHOST=readsb
-      - CLIENTKEY=${ADSBHUB_CLIENTKEY?ADSBHUB_CLIENTKEY Variable not set}
+      - CLIENTKEY=${ADSBHUB_CLIENTKEY}
     volume:
       - adsbhub-log:/var/log
   flightairmap:
-    image: mikenye/flightairmap:latest
+    image: mikenye/flightairmap:${FLIGHTAIRMAP_VERSION}
     tty: true
     container_name: flightairmap
     hostname: flightairmap
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - TZ=${TIMEZONE}
       - BASESTATIONHOST=readsb
-      - FAM_INSTALLPASSWORD=${FLIGHTAIRMAP_INSTALL_PASS?FLIGHTAIRMAP_INSTALL_PASS Variable not set}
+      - FAM_INSTALLPASSWORD=${FLIGHTAIRMAP_INSTALL_PASS}
       - MYSQLHOSTNAME=flightairmap-db
       - MYSQLDATABASE=flightairmap
       - MYSQLUSERNAME=flightairmap
-      - MYSQLPASSWORD=${FLIGHTAIRMAP_MYSQL_PASS?FLIGHTAIRMAP_MYSQL_PASS Variable not set}
-      - MYSQLROOTPASSWORD=${FLIGHTAIRMAP_MYSQL_ROOT?FLIGHTAIRMAP_MYSQL_ROOT Variable not set}
-      - FAM_BINGKEY=${BINGKEY?BINGKEY Variable not set}
-      - FAM_LATITUDECENTER=${LAT?LAT Variable not set}
-      - FAM_LONGITUDECENTER=${LONG?LONG Variable not set}
-      - FAM_SQUAWK_COUNTRY=${SQUAWK_COUNTRY?SQUAWK_COUNTRY Variable not set}
-      - FAM_FLIGHTAWAREUSERNAME=${FLIGHTAIRMAP_USERNAME?FLIGHTAIRMAP_USERNAME Variable not set}
-      - FAM_FLIGHTAWAREPASSWORD=${FLIGHTAIRMAP_PASS?FLIGHTAIRMAP_PASS Variable not set}
+      - MYSQLPASSWORD=${FLIGHTAIRMAP_MYSQL_PASS}
+      - MYSQLROOTPASSWORD=${FLIGHTAIRMAP_MYSQL_ROOT}
+      - FAM_BINGKEY=${BINGKEY}
+      - FAM_LATITUDECENTER=${LAT}
+      - FAM_LONGITUDECENTER=${LONG}
+      - FAM_SQUAWK_COUNTRY=${SQUAWK_COUNTRY}
+      - FAM_FLIGHTAWAREUSERNAME=${FLIGHTAIRMAP_USERNAME}
+      - FAM_FLIGHTAWAREPASSWORD=${FLIGHTAIRMAP_PASS}
     labels:
       - traefik.enable=true
       - traefik.http.services.flightairmap.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.flightairmap-https.rule=Host(`${FLIGHTAIRMAP_SUB?FLIGHTAIRMAP_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.flightairmap-https.rule=Host(`${FLIGHTAIRMAP_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.flightairmap-https.entrypoints=https
       - traefik.http.routers.flightairmap-https.tls=true
       - traefik.http.routers.flightairmap-https.tls.certresolver=myresolver
     volumes:
       - flightairmap-log:/var/log
   flightairmap-db:
-    image: mariadb
+    image: mariadb:${FLIGHTAIRMAP_MARIADB_VERSION}
     command: --default-authentication-plugin=mysql_native_password
     tty: true
     container_name: flightairmap-db
     hostname: flightairmab-db
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
-      - MYSQL_ROOT_PASSWORD=${FLIGHTAIRMAP_MYSQL_ROOT?FLIGHTAIRMAP_MYSQL_ROOT Variable not set}
+      - MYSQL_ROOT_PASSWORD=${FLIGHTAIRMAP_MYSQL_ROOT}
       - MYSQL_DATABASE=flightairmap
       - MYSQL_USER=flightairmap
-      - MYSQL_PASSWORD=${FLIGHTAIRMAP_MYSQL_PASS?FLIGHTAIRMAP_MYSQL_PASS Variable not set}
+      - MYSQL_PASSWORD=${FLIGHTAIRMAP_MYSQL_PASS}
     volumes:
       - flightairmap-db-mysql:/var/lib/mysql
       - flightairmap-db-log:/var/log
   flightradar-24:
-    image: mikenye/fr24feed:latest
+    image: mikenye/fr24feed:${FR24FEED_VERSION}
     tty: true
     container_name: fr24
     hostname: fr24
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
       - BEASTHOST=readsb
       - BEASTPORT=30005
-      - FR24KEY=${FR24_KEY?FR24_KEY Variable not set}
-      - MLAT=${FR24_MLAT?FR24_MLAT Variable not set}
+      - FR24KEY=${FR24_KEY}
+      - MLAT=${FR24_MLAT}
       - FR24_EMAIL=nathankeir@outlook.com
-      - FEEDER_ALT_FT=${ALT_FT?ALT_FT Variable not set}
-      - FEEDER_LAT=${LAT?LAT Variable not set}
-      - FEEDER_LONG=${LAT?LAT Variable not set}
+      - FEEDER_ALT_FT=${ALT_FT}
+      - FEEDER_LAT=${LAT}
+      - FEEDER_LONG=${LONG}
     volumes:
       - fr24-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.fr24.loadbalancer.server.port=8754
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.fr24-https.rule=(`${FR24_SUB?FR24_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.fr24-https.rule=(`${FR24_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.fr24-https.entrypoints=https
       - traefik.http.routers.fr24-https.tls=true
       - traefik.http.routers.fr24-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   graphs1090:
-    image: mikenye/graphs1090:latest
+    image: mikenye/graphs1090:${GRAPHS1090_VERSION}
     tty: true
     container_name: graphs1090
     hostname: graphs1090
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - LAT=${LAT?LAT Variable not set}
-      - LONG=${LONG?LONG Variable not set}
+      - TZ=${TIMEZONE}
+      - LAT=${LAT}
+      - LONG=${LONG}
       - BEASTHOST=readsb
     networks:
       - t2_proxy
@@ -183,48 +183,48 @@ services:
       - traefik.enable=true
       - traefik.http.services.graphs.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.graphs-https.rule=Host(`${GRAPHS1090_SUB?GRAPHS1090_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.graphs-https.rule=Host(`${GRAPHS1090_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.graphs-https.entrypoints=https
       - traefik.http.routers.graphs-https.tls=true
       - traefik.http.routers.graphs-https.tls.certresolver=myresolver
     volumes:
       - graphs1090-log:/var/log
   opensky:
-    image: mikenye/opensky-network:latest
+    image: mikenye/opensky-network:${OPENSKY_NETWORK_VERSION}
     tty: true
     container_name: opensky
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - TZ=${TIMEZONE}
       - BEASTHOST=readsb
-      - LAT=${LAT?LAT Variable not set}
-      - LONG=${LONG?LONG Variable not set}
-      - ALT=${ALT?ALT Variable not set}
-      - OPENSKY_USERNAME=${OPENSKY_USERNAME?OPENSKY_USERNAME Variable not set}
-      - OPENSKY_SERIAL=-${OPENSKY_SERIAL?OPENSKY_SERIAL Variable not set}
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - ALT=${ALT}
+      - OPENSKY_USERNAME=${OPENSKY_USERNAME}
+      - OPENSKY_SERIAL=-${OPENSKY_SERIAL}
     tmpfs:
       - /run:exec,size=64M
     volumes:
       - opensky-log:/var/log
   planefinder:
-    image: mikenye/planefinder:latest
+    image: mikenye/planefinder:${PLANEFINDER_VERSION}
     tty: true
     container_name: planefinder
     hostname: planefinder
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}`)
+      - TZ=${TIMEZONE}
       - BEASTHOST=readsb
-      - LAT=${LAT?LAT Variable not set}`)
-      - LONG=${LONG?LONG Variable not set}`)
-      - SHARECODE=${PLANEFINDER_SHARECODE?PLANEFINDER_SHARECODE Variable not set}`)
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - SHARECODE=${PLANEFINDER_SHARECODE}
     tmpfs:
       - /run:exec,size=64M
     labels:
       - traefik.enable=true
       - traefik.http.services.planefinder.loadbalancer.server.port=30053
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.planefinder-https.rule=Host(`${PLANEFINDER_SUB?PLANEFINDER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.planefinder-https.rule=Host(`${PLANEFINDER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.planefinder-https.entrypoints=https
       - traefik.http.routers.planefinder-https.tls=true
       - traefik.http.routers.planefinder-https.tls.certresolver=myresolver
@@ -233,23 +233,23 @@ services:
     networks:
       t2_proxy:
   piaware:
-    image: mikenye/piaware:latest
+    image: mikenye/piaware:${PIAWARE_VERSION}
     container_name: piaware
     hostname: piaware
     tty: true
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - LAT=${LAT?LAT Variable not set}
-      - LONG=${LONG?LONG Variable not set}
-      - FEEDER_ID=${PIAWARE_FEEDERID?PIAWARE_FEEDERID Variable not set}
-      - ALLOW_MLAT=${PIAWARE_ALLOW_MLAT?PIAWARE_ALLOW_MLAT Variable not set}
-      - MLAT_RESULTS=${PIAWARE_MLAT_RESULTS?PIAWARE_FEEDERID Variable not set}
-      - ALLOW_MODEAC=${PIAWARE_ALLOW_MODEAC?PIAWARE_ALLOW_MODEAC Variable not set}
-      - BINGMAPSAPIKEY=${TIMEZONE?TIMEZONE Variable not set}
+      - TZ=${TIMEZONE}
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - FEEDER_ID=${PIAWARE_FEEDERID}
+      - ALLOW_MLAT=${PIAWARE_ALLOW_MLAT}
+      - MLAT_RESULTS=${PIAWARE_MLAT_RESULTS}
+      - ALLOW_MODEAC=${PIAWARE_ALLOW_MODEAC}
+      - BINGMAPSAPIKEY=${BINGKEY}
       - RECEIVER_TYPE=relay
       - BEASTHOST=readsb
       - BEASTPORT=30005
-      - VERBOSE_LOGGING=${PIAWARE_VERBOSE_LOGGING?PIAWARE_VERBOSE_LOGGING Variable not set}
+      - VERBOSE_LOGGING=${PIAWARE_VERBOSE_LOGGING}
     volumes:
       - piaware-cache:/var/cache/piaware
       - piaware-log:/var/log
@@ -259,34 +259,34 @@ services:
       - traefik.enable=true
       - traefik.http.services.piaware.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.piaware-https.rule=Host(`${PIAWARE_SUB?PIAWARE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.piaware-https.rule=Host(`${PIAWARE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.piaware-https.entrypoints=https
       - traefik.http.routers.piaware-https.tls=true
       - traefik.http.routers.piaware-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   radarbox:
-    image: mikenye/radarbox:latest
+    image: mikenye/radarbox:${RADARBOX_VERSION}
     tty: true
     container_name: radarbox
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
       - BEASTHOST=readsb
-      - LAT=${LAT?LAT Variable not set}
-      - LONG=${LONG?LONG Variable not set}
-      - ALT=${ALT?ALT Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - SHARING_KEY=${RADARBOX_SHARING_KEY?RADARBOX_SHARING_KEY Variable not set}
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - ALT=${ALT}
+      - TZ=${TIMEZONE}
+      - SHARING_KEY=${RADARBOX_SHARING_KEY}
     tmpfs:
       - /run:exec,size=64M
     volumes:
       - radarbox-log:/var/log
   readsb:
-    image: mikenye/readsb-protobuf:latest
+    image: mikenye/readsb-protobuf:${READSB_VERSION}
     tty: true
     container_name: readsb
     hostname: readsb
-    restart: always
+    restart: ${RESTART_POLICY}
     devices:
       - /dev/bus/usb:/dev/bus/usb
     ports:
@@ -294,22 +294,22 @@ services:
       - 30005:30005
       - 30105:30105
     environment:
-      - READSB_MLAT=${READSB_MLAT?READSB_MLAT Variable not set}
-      - READSB_DEVICE_TYPE=${READSB_DEVICE_TYPE?READSB_DEVICE_TYPE Variable not set}
-      - READSB_GAIN=${READSB_GAIN?READSB_GAIN Variable not set}
-      - READSB_GNSS=${READSB_GNSS?READSB_GNSS Variable not set}
-      - READSB_LAT=${LAT?LAT Variable not set}
-      - READSB_LON=${LONG?LONG Variable not set}
-      - READSB_MAX_RANGE=${READSB_MAX_RANGE?READSB_MAX_RANGE Variable not set}
-      - READSB_MODEAC=${READSB_MODEAC?READSB_MODEAC Variable not set}
-      - READSB_NET_ENABLE=${READSB_NET_ENABLE?READSB_NET_ENABLE Variable not set}
-      - READSB_RX_LOCATION_ACCURACY=${READSB_RX_LOCATION_ACCURACY?READSB_RX_LOCATION_ACCURACY Variable not set}
-      - READSB_STATS_RANGE=${READSB_STATS_RANGE?READSB_STATS_RANGE Variable not set}
-      - READSB_STATS_EVERY=${READSB_STATS_EVERY?READSB_STATS_EVERY Variable not set}
-      - READSB_NET_BEAST_REDUCE_INTERVAL=${READSB_NET_BEAST_REDUCE_INTERVAL?READSB_NET_BEAST_REDUCE_INTERVAL Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - READSB_BEAST_MODEAC=${READSB_BEAST_MODEAC?READSB_BEAST_MODEAC Variable not set}
-      - READSB_FORWARD_MLAT=${READSB_FORWARD_MLAT?READSB_FORWARD_MLAT Variable not set}
+      - READSB_MLAT=${READSB_MLAT}
+      - READSB_DEVICE_TYPE=${READSB_DEVICE_TYPE}
+      - READSB_GAIN=${READSB_GAIN}
+      - READSB_GNSS=${READSB_GNSS}
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LONG}
+      - READSB_MAX_RANGE=${READSB_MAX_RANGE}
+      - READSB_MODEAC=${READSB_MODEAC}
+      - READSB_NET_ENABLE=${READSB_NET_ENABLE}
+      - READSB_RX_LOCATION_ACCURACY=${READSB_RX_LOCATION_ACCURACY}
+      - READSB_STATS_RANGE=${READSB_STATS_RANGE}
+      - READSB_STATS_EVERY=${READSB_STATS_EVERY}
+      - READSB_NET_BEAST_REDUCE_INTERVAL=${READSB_NET_BEAST_REDUCE_INTERVAL}
+      - TZ=${TIMEZONE}
+      - READSB_BEAST_MODEAC=${READSB_BEAST_MODEAC}
+      - READSB_FORWARD_MLAT=${READSB_FORWARD_MLAT}
     volumes:
       - readsb-collectd_rrd:/run/collectd
       - readsb-autogain:/run/autogain
@@ -319,25 +319,25 @@ services:
       - traefik.enable=true
       - traefik.http.services.readsb.loadbalancer.server.port=8080
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.readsb-https.rule=Host${READSB_SUB?READSB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.readsb-https.rule=Host(`${READSB_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.readsb-https.entrypoints=https
       - traefik.http.routers.readsb-https.tls=true
       - traefik.http.routers.readsb-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   tar1090:
-    image: mikenye/tar1090:latest
+    image: mikenye/tar1090:${TAR1090_VERSION}
     tty: true
     container_name: tar1090
     hostname: tar1090
-    restart: always
+    restart: ${RESTART_POLICY}
     environment:
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}`)
+      - TZ=${TIMEZONE}
       - BEASTHOST=readsb
-      - LAT=${LAT?LAT Variable not set}`)
-      - LONG=${LONG?LONG Variable not set}`)
-      - TAR1090_DEFAULTCENTERLAT=${LAT?LAT Variable not set}`)
-      - TAR1090_DEFAULTCENTERLON=${LONG?LONG Variable not set}`)
+      - LAT=${LAT}
+      - LONG=${LONG}
+      - TAR1090_DEFAULTCENTERLAT=${LAT}
+      - TAR1090_DEFAULTCENTERLON=${LONG}
     tmpfs:
       - /run:exec,size=64M
     volumes:
@@ -346,31 +346,31 @@ services:
       - traefik.enable=true
       - traefik.http.services.tar1090.loadbalancer.server.port=80
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.tar1090-https.rule=Host(`${TAR1090_SUB?TAR1090_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.tar1090-https.rule=Host(`${TAR1090_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.tar1090-https.entrypoints=https
       - traefik.http.routers.tar1090-https.tls=true
       - traefik.http.routers.tar1090-https.tls.certresolver=myresolver
     networks:
       t2_proxy:
   virtualradarserver:
-    image: mikenye/virtualradarserver:latest
+    image: mikenye/virtualradarserver:${VIRTUALRADARSERVER_VERSION}
     tty: true
     container_name: virtualradarserver
     hostname: virtualradarserver
-    restart: always
+    restart: ${RESTART_POLICY}
     volumes:
       - virtualradarserver-config:/config
       - virtualradarserver-log:/var/log
     environment:
-      - USERNAME=${VIRTUALRADARSERVER_USERNAME?VIRTUALRADARSERVER_USERNAME Variable not set}`)
-      - PASSWORD=${VIRTUALRADARSERVER_PASS?VIRTUALRADARSERVER_PASS Variable not set}`)
+      - USERNAME=${VIRTUALRADARSERVER_USERNAME}
+      - PASSWORD=${VIRTUALRADARSERVER_PASS}
       - BEASTHOST=readsb
       - MLATHOST=readsb
     labels:
       - traefik.enable=true
       - traefik.http.services.virtualradarserver.loadbalancer.server.port=8080
       - traefik.docker.network=t2_proxy
-      - traefik.http.routers.virtualradarserver-https.rule=Host(`${DOZZLE_SUB?DOZZLE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.virtualradarserver-https.rule=Host(`${VIRTUALRADARSERVER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.virtualradarserver-https.entrypoints=https
       - traefik.http.routers.virtualradarserver-https.tls=true
       - traefik.http.routers.virtualradarserver-https.tls.certresolver=myresolver

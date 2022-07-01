@@ -12,24 +12,24 @@ volumes:
       device: tmpfs
 services:
   booksonic-air:
-    image: lscr.io/linuxserver/booksonic-air
+    image: lscr.io/linuxserver/booksonic-air:${BOOKSONIC_VERSION}
     container_name: booksonic-air
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - CONTEXT_PATH=${BOOKSONIC_SUB?BOOKSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - CONTEXT_PATH=${BOOKSONIC_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
     volumes:
       - booksonic-config:/config
       - booksonic-log:/var/log
       - /mnt/audiobooks:/audiobooks
       - /mnt/podcasts:/podcasts
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.booksonic-https.loadbalancer.server.port=4040
       - traefik.http.routers.booksonic-https.entrypoints=https
-      - traefik.http.routers.booksonic-https.rule=Host(`${BOOKSONIC_SUB?BOOKSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.booksonic-https.rule=Host(`${BOOKSONIC_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.booksonic-https.tls=true
       - traefik.http.routers.booksonic-https.tls.certresolver=myresolver
       - traefik.http.routers.booksonic-https.middlewares=authelia@docker

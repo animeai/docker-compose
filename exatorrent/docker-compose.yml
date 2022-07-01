@@ -12,19 +12,19 @@ volumes:
       device: tmpfs
 services:
   exatorrent:
-    image: ghcr.io/varbhat/exatorrent:latest
+    image: ghcr.io/varbhat/exatorrent:${EXATORRENT_VERSION}
     container_name: exatorrent
     volumes:
-      - /mnt/exatorrent:/exa/exadir
+      - ${DOWNLOADS_DIRECTORY}:/exa/exadir
       - exatorrent-log:/var/log
     ports:
-      - ${EXATORRENT_PORT?EXATORRENT_PORT Variable not set}:42069
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${EXATORRENT_PORT}:42069
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.exatorrent-https.loadbalancer.server.port=5000
       - traefik.http.routers.exatorrent-https.entrypoints=https
-      - traefik.http.routers.exatorrent-https.rule=Host(`${EXATORRENT_SUB?EXATORRENT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.exatorrent-https.rule=Host(`${EXATORRENT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.exatorrent-https.tls=true
       - traefik.http.routers.exatorrent-https.tls.certresolver=myresolver
       - traefik.http.routers.exatorrent-https.middlewares=authelia@docker

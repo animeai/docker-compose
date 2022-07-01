@@ -35,7 +35,7 @@ volumes:
       device: tmpfs
 services:
   adguardhome-one:
-    image: adguard/adguardhome
+    image: adguard/adguardhome:${ADGUARDHOME_VERSION}
     container_name: adguardhome-one
     hostname: adguardhome
     ports:
@@ -55,15 +55,15 @@ services:
       - traefik.enable=true
       - traefik.http.services.adguardhome-one-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-one-https.entrypoints=https
-      - traefik.http.routers.adguardhome-one-https.rule=Host(`${SUBDOMAIN_ONE}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.adguardhome-one-https.rule=Host(`${ADGUARDHOME_SUBDOMAIN_ONE}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.adguardhome-one-https.tls=true
       - traefik.http.routers.adguardhome-one-https.tls.certresolver=myresolver
     networks:
       smarthome:
-        - ipv4_address: ${IP_ONE}
+        - ipv4_address: ${ADGUARDHOME_IP_ONE}
       t2_proxy:
   adguardhome-two:
-    image: adguard/adguardhome
+    image: adguard/adguardhome:${ADGUARDHOME_VERSION}
     container_name: adguardhome-two
     hostname: adguardhome-two
     ports:
@@ -81,17 +81,17 @@ services:
     restart: ${RESTART_POLICY}
     networks:
       smarthome:
-        ipv4_address: ${IP_TWO}
+        ipv4_address: ${ADGUARDHOME_IP_TWO}
       t2_proxy:
     labels:
       - traefik.enable=true
       - traefik.http.services.adguardhome-two-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-two-https.entrypoints=https
-      - traefik.http.routers.adguardhome-two-https.rule=Host(`${SUBDOMAIN_TWO}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.adguardhome-two-https.rule=Host(`${ADGUARDHOME_SUBDOMAIN_TWO}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.adguardhome-two-https.tls=true
       - traefik.http.routers.adguardhome-two-https.tls.certresolver=myresolver
   adguardhome-sync:
-    image: lscr.io/linuxserver/adguardhome-sync
+    image: lscr.io/linuxserver/adguardhome-sync:${ADGUARDHOME_SYNC_VERSION}
     container_name: adguardhome-sync
     environment:
       - PUID=USER_ID

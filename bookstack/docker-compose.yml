@@ -18,25 +18,25 @@ volumes:
       device: tmpfs
 services:
   bookstack:
-    image: lscr.io/linuxserver/bookstack
+    image: lscr.io/linuxserver/bookstack:${BOOKSTACK_VERSION}
     container_name: bookstack
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - APP_URL=https://${BOOKSTACK_SUB?BOOKSTACK_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - APP_URL=https://${BOOKSTACK_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
       - DB_HOST=bookstack-db
-      - DB_USER=bookstack
-      - DB_PASS=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT Variable not set}
+      - DB_USER=${BOOKSTACK_MYSQL_USER}
+      - DB_PASS=${BOOKSTACK_MYSQL_PASSWORD}
       - DB_DATABASE=bookstackapp
     volumes:
       - bookstack-config:/config
       - bookstack-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.bookstack-https.loadbalancer.server.port=80
       - traefik.http.routers.bookstack-https.entrypoints=https
-      - traefik.http.routers.bookstack-https.rule=Host(`${BOOKSTACK_SUB?BOOKSTACK_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.bookstack-https.rule=Host(`${BOOKSTACK_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.bookstack-https.tls=true
       - traefik.http.routers.bookstack-https.tls.certresolver=myresolver
       - traefik.http.routers.bookstack-https.middlewares=authelia@docker
@@ -45,22 +45,22 @@ services:
     networks:
       t2_proxy:
   bookstack-db:
-    image: lscr.io/linuxserver/mariadb
-    container_name: bookstack_db
+    image: lscr.io/linuxserver/mariadb:${BOOKSTACK_MARIADB_VERSION}
+    container_name: bookstack-db
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - MYSQL_DATABASE=bookstackapp
-      - MYSQL_USER=bookstack
-      - MYSQL_PASSWORD=${BOOKSTACK_MYSQL?BOOKSTACK_MYSQL Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - MYSQL_ROOT_PASSWORD=${BOOKSTACK_MYSQL_ROOT_PASSWORD}
+      - TZ=${TIMEZONE}
+      - MYSQL_DATABASE=${BOOKSTACK_MYSQL_DATABASE}
+      - MYSQL_USER=${BOOKSTACK_MYSQL_USER}
+      - MYSQL_PASSWORD=${BOOKSTACK_MYSQL_PASSWORD}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${BOOKSTACK_MYSQL_ROOT?BOOKSTACK_MYSQL_ROOT variable does not exist}"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${BOOKSTACK_MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
       - bookstack-db-config:/config
       - bookstack-db-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
