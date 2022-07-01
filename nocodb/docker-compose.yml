@@ -1,5 +1,5 @@
 ---
-# Turns any MySQL, PostgreSQL, SQL Server, SQLite & MariaDB into a smart-spreadsheet. 
+# Turns any MySQL, PostgreSQL, SQL Server, SQLite & MariaDB into a smart-spreadsheet.
 version: "3.8"
 networks:
   t2_proxy:

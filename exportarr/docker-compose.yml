@@ -1,6 +1,6 @@
 ---
 # Allows you to share your Radarr lists with others, without having to give them your Radarr API key.
-#TO DO: Check build stuff https://github.com/petersem/exportarr
+# TO DO: Check build stuff https://github.com/petersem/exportarr
 version: "3.8"
 networks:
   t2_proxy:

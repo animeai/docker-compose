@@ -1,6 +1,6 @@
 ---
-#ThreatMapper https://github.com/deepfence/ThreatMapper
-#TO DO: tmpfs, layout, testing
+# ThreatMapper https://github.com/deepfence/ThreatMapper
+# TO DO: tmpfs, layout, testing
 version: "3.8"
 services:
 
@@ -94,15 +94,15 @@ services:
           cpus: ".2"
     restart: on-failure
     environment:
-    - MGMT_CONSOLE_URL=127.0.0.1
-    - MGMT_CONSOLE_PORT=8443
+      - MGMT_CONSOLE_URL=127.0.0.1
+      - MGMT_CONSOLE_PORT=8443
     network_mode: "host"
     volumes:
-    - /sys/kernel/debug:/sys/kernel/debug:rw
-    - /var/log/fenced
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /var/lib/docker/:/fenced/mnt/host/var/lib/docker/:rw
-    - /:/fenced/mnt/host/:ro
+      - /sys/kernel/debug:/sys/kernel/debug:rw
+      - /var/log/fenced
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/:/fenced/mnt/host/var/lib/docker/:rw
+      - /:/fenced/mnt/host/:ro
     privileged: true
     logging:
       driver: "json-file"
@@ -120,7 +120,7 @@ services:
     environment:
       - DF_PROG_NAME="es_master"
       - node.name=deepfence-es
-      #- discovery.seed_hosts=deepfence-es-slave1,deepfence-es-slave2
+#      - discovery.seed_hosts=deepfence-es-slave1,deepfence-es-slave2
       - cluster.initial_master_nodes=deepfence-es
     ulimits:
       core: 0
@@ -249,12 +249,12 @@ services:
     networks:
       - deepfence_net
     ports:
-    - "127.0.0.1:8443:443"
+      - "127.0.0.1:8443:443"
     environment:
       ENABLE_AUTH: "false"
     restart: always
     volumes:
-    - /etc/deepfence/certs:/etc/deepfence/certs/:ro
+      - /etc/deepfence/certs:/etc/deepfence/certs/:ro
     logging:
       driver: "json-file"
       options:
@@ -378,12 +378,11 @@ services:
     networks:
       - deepfence_net
     entrypoint: /home/deepfence/usr/SecretScanner
-    command: ["-config-path","/home/deepfence/usr", "-http-port", "8011"]
+    command: ["-config-path", "/home/deepfence/usr", "-http-port", "8011"]
     logging:
       driver: "json-file"
       options:
         max-size: "1g"
-        
   deepfence-package-scanner:
     container_name: deepfence-package-scanner
     image: deepfenceio/deepfence_package_scanner_ce:latest

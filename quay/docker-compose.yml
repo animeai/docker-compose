@@ -1,5 +1,5 @@
 ---
-#TO DO: passwords/users, /var/log, network, test
+# TO DO: passwords/users, /var/log, network, test
 version: "3.8"
 volumes:
   quay-db-data:
@@ -86,7 +86,7 @@ services:
       WORKER_COUNT_UNSUPPORTED_MINIMUM: "1"
       WORKER_COUNT: "1"
 
-  # clair is configured to share it's network 
+  # clair is configured to share it's network
   # namespace with quay. this allows quay to serve
   # layers to clair over localhost.
   clair:
