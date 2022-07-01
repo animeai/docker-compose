@@ -390,7 +390,7 @@ services:
       core: 0
     restart: always
     networks:
-    - deepfence_net
+      - deepfence_net
     environment:
       MGMT_CONSOLE_URL: "deepfence-internal-router"
       MGMT_CONSOLE_PORT: "443"

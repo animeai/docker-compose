@@ -9,7 +9,7 @@ volumes:
   nocodb-db-data:
   nocodb-db-config:
   nocodb-db-log:
-      driver_opts:
+    driver_opts:
       type: tmpfs
       device: tmpfs
   nocodb-log:

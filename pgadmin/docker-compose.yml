@@ -48,12 +48,12 @@ services:
       # container will listen on port 443 for TLS connections. When TLS is enabled, a certificate and key must be
       # provided. Typically these should be stored on the host file system and mounted from the container. The expected
       # paths are /certs/server.crt and /certs/server.key
-      #PGADMIN_ENABLE_TLS: 'false'
+      # PGADMIN_ENABLE_TLS: 'false'
 
       # Allows the port that the server listens on to be set to a specific value rather than using the default.
       # Default: 80 or 443 (if TLS is enabled)
-      #PGADMIN_LISTEN_PORT: 80
+      # PGADMIN_LISTEN_PORT: 80
 
       # Adjust the number of threads the Gunicorn server uses to handle incoming requests. This should typically be
       # left as-is, except in highly loaded systems where it may be increased.
-      #GUNICORN_THREADS: 25
+      # GUNICORN_THREADS: 25
