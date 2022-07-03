@@ -11,11 +11,11 @@ if [ $UID = 0 ] ; then # double []?
 fi
 
 # Variables
-database="../variables.db"  # Set the database path
-settings="settings"  # Set the main settings table
-check=$(sqlite $database "SELECT * FROM sqlite_master WHERE type = 'table'";)
-app=adguardhome
-ports="ports"
+# database="../variables.db"  # Set the database path
+# settings="settings"  # Set the main settings table
+# check=$(sqlite $database "SELECT * FROM sqlite_master WHERE type = 'table'";)
+# app=adguardhome
+# ports="ports"
 name="AdGuard Home"
 
 if whiptail --title "Delete ALL data for $name Home?" --yesno "Running this script will delete all stored data for $name. Please select Yes to continue, or No to cancel." 20 60 ; then
@@ -23,6 +23,3 @@ if whiptail --title "Delete ALL data for $name Home?" --yesno "Running this scri
 else
     fail "User cancelled"
 fi
-
-# Linting
-echo $database $settings $check $app $ports $name
