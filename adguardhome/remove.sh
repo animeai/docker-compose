@@ -23,3 +23,11 @@ if whiptail --title "Delete ALL data for $name Home?" --yesno "Running this scri
 else
     fail "User cancelled"
 fi
+
+# Linting
+export $database
+export $settings
+export $check
+export $app
+export $ports
+export $name
