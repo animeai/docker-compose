@@ -12,21 +12,21 @@ volumes:
       device: tmpfs
 services:
   htpcmanager:
-    image: lscr.io/linuxserver/htpcmanager
+    image: lscr.io/linuxserver/htpcmanager:${HTPCMANAGER_VERSION}
     container_name: htpcmanager
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - htpcmanager-config:/config
       - htpcmanager-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.htpcmanager-https.loadbalancer.server.port=8085
       - traefik.http.routers.htpcmanager-https.entrypoints=https
-      - traefik.http.routers.htpcmanager-https.rule=Host(`${HTPCMANAGER_SUB?HTPCMANAGER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.htpcmanager-https.rule=Host(`${HTPCMANAGER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.htpcmanager-https.tls=true
       - traefik.http.routers.htpcmanager-https.tls.certresolver=myresolver
       - traefik.http.routers.htpcmanager-https.middlewares=authelia@docker

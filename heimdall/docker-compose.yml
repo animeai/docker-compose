@@ -12,21 +12,21 @@ volumes:
       device: tmpfs
 services:
   heimdall:
-    image: lscr.io/linuxserver/heimdall
+    image: lscr.io/linuxserver/heimdall:${HEIMDALL_VERSION}
     container_name: heimdall
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - heimdall-config:/config
       - heimdall-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.heimdall-https.loadbalancer.server.port=80
       - traefik.http.routers.heimdall-https.entrypoints=https
-      - traefik.http.routers.heimdall-https.rule=Host(`${HEIMDALL_SUB?HEIMDALL_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.heimdall-https.rule=Host(`${HEIMDALL_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.heimdall-https.tls=true
       - traefik.http.routers.heimdall-https.tls.certresolver=myresolver
       - traefik.http.routers.heimdall-https.middlewares=authelia@docker

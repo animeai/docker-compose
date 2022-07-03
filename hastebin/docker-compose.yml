@@ -17,17 +17,17 @@ volumes:
       device: tmpfs
 services:
   hastebin:
-    image: rlister/hastebin
+    image: rlister/hastebin:${HASTEBIN_VERSION}
     container_name: hastebin
     environment:
       STORAGE_TYPE: redis
       STORAGE_HOST: hastebin-redis
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.privatebin-https.loadbalancer.server.port=7777
       - traefik.http.routers.privatebin-https.entrypoints=https
-      - traefik.http.routers.privatebin-https.rule=Host(`${HASTEBIN_SUB?HASTEBIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.privatebin-https.rule=Host(`${HASTEBIN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.privatebin-https.tls=true
       - traefik.http.routers.privatebin-https.tls.certresolver=myresolver
       - traefik.http.routers.privatebin-https.middlewares=authelia@docker
@@ -38,7 +38,7 @@ services:
     depends_on:
       - hastebin-redis
   hastebin-redis:
-    image: redis
+    image: redis:${HASTEBIN_REDIS_VERSION}
     container_name: hostbin-redis
     hostname: hostbin-redis
     volumes:

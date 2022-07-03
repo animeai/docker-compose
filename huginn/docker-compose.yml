@@ -17,21 +17,21 @@ volumes:
       device: tmpfs
 services:
   huginn:
-    image: huginn/huginn
+    image: huginn/huginn:${HUGINN_VERSION}
     container_name: huginn
     environment:
       - MYSQL_PORT_3306_TCP_ADDR=huginn-db
-      - HUGINN_DATABASE_NAME=${HUGINNDB_DB?HUGINNDB_DB Variable not set}
-      - HUGINN_DATABASE_USERNAME=${HUGINNDB_USER?HUGINNDB_USER Variable not set}
-      - HUGINN_DATABASE_PASSWORD=${HUGINNDB_PASS?HUGINNDB_PASS Variable not set}
+      - HUGINN_DATABASE_NAME=${HUGINNDB_DB}
+      - HUGINN_DATABASE_USERNAME=${HUGINNDB_USER}
+      - HUGINN_DATABASE_PASSWORD=${HUGINNDB_PASS}
     volumes:
       - huginn-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.huginn-https.loadbalancer.server.port=3000
       - traefik.http.routers.huginn-https.entrypoints=https
-      - traefik.http.routers.huginn-https.rule=Host(`${HUGINN_SUB?HUGINN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.huginn-https.rule=Host(`${HUGINN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.huginn-https.tls=true
       - traefik.http.routers.huginn-https.tls.certresolver=myresolver
       - traefik.http.routers.huginn-https.middlewares=authelia@docker
@@ -40,21 +40,21 @@ services:
     depends_on:
       - huginn-db
   huginn-db:
-    image: mariadb:latest
+    image: mariadb:${HUGINN_MYSQL_VERSION}
     container_name: huginn-db
     hostname: huginn-db
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: ${HUGINNDB_ROOT?HUGINNDB_ROOT Variable not set}
-      MYSQL_DATABASE: ${HUGINNDB_DB?HUGINNDB_DB Variable not set}
-      MYSQL_USER: ${HUGINNDB_USER?HUGINNDB_USER Variable not set}
-      MYSQL_PASSWORD: ${HUGINNDB_PASS?HUGINNDB_PASS Variable not set}
+      MYSQL_ROOT_PASSWORD: ${HUGINNDB_ROOT}
+      MYSQL_DATABASE: ${HUGINNDB_DB}
+      MYSQL_USER: ${HUGINNDB_USER}
+      MYSQL_PASSWORD: ${HUGINNDB_PASS}
     volumes:
       - huginn-db-data:/var/lib/mysql
       - huginn-db-log:/var/log
       - huginn-db-config:/etc/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${HUGINNDB_ROOT?HUGINNDB_ROOT variable does not exist}"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${HUGINNDB_ROOT}"]
       interval: 10s
       timeout: 5s
       retries: 5
