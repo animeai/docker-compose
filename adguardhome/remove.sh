@@ -25,9 +25,4 @@ else
 fi
 
 # Linting
-export $database
-export $settings
-export $check
-export $app
-export $ports
-export $name
+echo $database $settings $check $app $ports $name
