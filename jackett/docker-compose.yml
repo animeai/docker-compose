@@ -12,22 +12,22 @@ volumes:
       device: tmpfs
 services:
   jackett:
-    image: lscr.io/linuxserver/jackett
+    image: lscr.io/linuxserver/jackett:${JACKETT_VERSION}
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - AUTO_UPDATE=true
     volumes:
       - jackett-config:/config
       - jackett-log:/var/log
-      - /mnt/downloads:/downloads
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${DOWNLOAD_DIRECTORY}:/downloads
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.jackett-https.loadbalancer.server.port=9117
       - traefik.http.routers.jackett-https.entrypoints=https
-      - traefik.http.routers.jackett-https.rule=Host(`${JACKETT_SUB?JACKETT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.jackett-https.rule=Host(`${JACKETT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.jackett-https.tls=true
       - traefik.http.routers.jackett-https.tls.certresolver=myresolver
       - traefik.http.routers.jackett-https.middlewares=authelia@docker

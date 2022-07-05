@@ -18,29 +18,29 @@ volumes:
       device: tmpfs
 services:
   librespeed:
-    image: lscr.io/linuxserver/librespeed
+    image: lscr.io/linuxserver/librespeed:${LIBRESPEED_VERSION}
     container_name: librespeed
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - PASSWORD=${LIBRESPEED_PASS?LIBRESPEED_PASS Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - PASSWORD=${LIBRESPEED_PASSWORD}
       - CUSTOM_RESULTS=false
       - DB_TYPE=mysql
       - DB_HOSTNAME=librespeed-db
-      - DB_NAME=${LIBRESPEEDDB_DB?LIBRESPEEDDB_DB Variable not set}
-      - DB_USERNAME=${LIBRESPEEDDB_USER?LIBRESPEEDDB_USER Variable not set}
-      - DB_PASSWORD=${LIBRESPEEDDB_PASS?LIBRESPEEDDB_PASS Variable not set}
+      - DB_NAME=${LIBRESPEEDDB_DB}
+      - DB_USERNAME=${LIBRESPEEDDB_USER}
+      - DB_PASSWORD=${LIBRESPEEDDB_PASS}
       - DB_PORT=3306
     volumes:
       - librespeed-config:/config
       - librespeed-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.exportarr-https.loadbalancer.server.port=80
       - traefik.http.routers.exportarr-https.entrypoints=https
-      - traefik.http.routers.exportarr-https.rule=Host(`${LIBRESPEED_SUB?LIBRESPEED_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.exportarr-https.rule=Host(`${LIBRESPEED_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.exportarr-https.tls=true
       - traefik.http.routers.exportarr-https.tls.certresolver=myresolver
       - traefik.http.routers.exportarr-https.middlewares=authelia@docker
@@ -49,21 +49,21 @@ services:
     depends_on:
       - librespeed-db
   librespeed-db:
-    image: mariadb:latest
+    image: mariadb:${LIBRESPEEDDB_VERSION}
     container_name: librespeed-db
     hostname: librespeed-db
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: ${LIBRESPEEDDB_ROOT?LIBRESPEEDDB_ROOT Variable not set}
-      MYSQL_DATABASE: ${LIBRESPEEDDB_DB?LIBRESPEEDDB_DB Variable not set}
-      MYSQL_USER: ${LIBRESPEEDDB_USER?LIBRESPEEDDB_USER Variable not set}
-      MYSQL_PASSWORD: ${LIBRESPEEDDB_PASS?LIBRESPEEDDB_PASS Variable not set}
+      MYSQL_ROOT_PASSWORD: ${LIBRESPEEDDB_ROOT}
+      MYSQL_DATABASE: ${LIBRESPEEDDB_DB}
+      MYSQL_USER: ${LIBRESPEEDDB_USER}
+      MYSQL_PASSWORD: ${LIBRESPEEDDB_PASS}
     volumes:
       - librespeed-db-data:/var/lib/mysql
       - librespeed-db-log:/var/log
       - librespeed-db-config:/etc/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${LIBRESPEEDDB_ROOT?LIBRESPEEDDB_ROOT variable does not exist}"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${LIBRESPEEDDB_ROOT}"]
       interval: 10s
       timeout: 5s
       retries: 5

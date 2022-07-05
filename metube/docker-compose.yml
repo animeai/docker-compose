@@ -11,17 +11,17 @@ volumes:
       device: tmpfs
 services:
   metube:
-    image: alexta69/metube
+    image: alexta69/metube:${METUBE_VERSION}
     container_name: metube
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     volumes:
-      - /mnt/downloads:/downloads
+      - ${DOWNLOAD_DIRECTORY}:/downloads
       - metube-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.metatube-https.loadbalancer.server.port=8081
       - traefik.http.routers.metatube-https.entrypoints=https
-      - traefik.http.routers.metatube-https.rule=Host(`${METUBE_SUB?METUBE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.metatube-https.rule=Host(`${METUBE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.metatube-https.tls=true
       - traefik.http.routers.metatube-https.tls.certresolver=myresolver
       - traefik.http.routers.metatube-https.middlewares=authelia@docker

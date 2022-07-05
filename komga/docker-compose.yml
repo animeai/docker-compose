@@ -12,20 +12,20 @@ volumes:
       device: tmpfs
 services:
   komga:
-    image: gotson/komga
+    image: gotson/komga:${KOMEGA_VERSION}
     container_name: komga
     volumes:
       - komga-config:/config
-      - /mnt/manga:/data/manga
-      - /mnt/comics:/data/comics
+      - ${MANGA_DIRECTORY}:/data/manga
+      - ${COMICS_DIRECTORY}:/data/comics
       - /etc/timezone:/etc/timezone:ro
       - komga-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.komga-https.loadbalancer.server.port=8080
       - traefik.http.routers.komga-https.entrypoints=https
-      - traefik.http.routers.komga-https.rule=Host(`${KOMGA_SUB?KOMGA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.komga-https.rule=Host(`${KOMGA_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.komga-https.tls=true
       - traefik.http.routers.komga-https.tls.certresolver=myresolver
       - traefik.http.routers.komga-https.middlewares=authelia@docker

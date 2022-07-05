@@ -13,12 +13,12 @@ volumes:
 services:
   mealie:
     container_name: mealie
-    image: hkotel/mealie:latest
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    image: hkotel/mealie:${MEALIE_VERSION}
+    restart: ${RESTART_POLICY}
     environment:
-      PUID: 0
-      PGID: 0
-      TZ: ${TIMEZONE?TIMEZONE Variable not set}
+      PUID: ${USER_ID}
+      PGID: ${GROUP_ID}
+      TZ: ${TIMEZONE}
       RECIPE_PUBLIC: 'true'
       RECIPE_SHOW_NUTRITION: 'true'
       RECIPE_SHOW_ASSETS: 'true'
@@ -32,7 +32,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.mealie-https.loadbalancer.server.port=80
       - traefik.http.routers.mealie-https.entrypoints=https
-      - traefik.http.routers.mealie-https.rule=Host(`${MEALIE_SUB?MEALIE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.mealie-https.rule=Host(`${MEALIE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.mealie-https.tls=true
       - traefik.http.routers.mealie-https.tls.certresolver=myresolver
       - traefik.http.routers.mealie-https.middlewares=authelia@docker

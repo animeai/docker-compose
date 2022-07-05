@@ -12,25 +12,25 @@ volumes:
       device: tmpfs
 services:
   lazylibrarian:
-    image: lscr.io/linuxserver/lazylibrarian
+    image: lscr.io/linuxserver/lazylibrarian:${LAZYLIBRARIAN_VERSION}
     container_name: lazylibrarian
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - DOCKER_MODS=linuxserver/calibre-web:calibre|linuxserver/mods:lazylibrarian-ffmpeg  # optional
     volumes:
       - lazylibrarian-config:/config
-      - /mnt/downloads:/downloads
-      - /mnt/books:/books
-      - /mnt/audiobooks:/audiobooks
+      - ${DOWNLOAD_DIRECTORY}:/downloads
+      - ${EBOOKS_DIRECTORY}:/books
+      - ${AUDIOBOOKS_DIRECTORY}:/audiobooks
       - lazylibrarian-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true
       - traefik.http.services.lazylibrarian-https.loadbalancer.server.port=5299
       - traefik.http.routers.lazylibrarian-https.entrypoints=https
-      - traefik.http.routers.lazylibrarian-https.rule=Host(`${LAZYLIBRARIAN_SUB?LAZYLIBRARIAN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.lazylibrarian-https.rule=Host(`${LAZYLIBRARIAN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.lazylibrarian-https.tls=true
       - traefik.http.routers.lazylibrarian-https.tls.certresolver=myresolver
       - traefik.http.routers.lazylibrarian-https.middlewares=authelia@docker

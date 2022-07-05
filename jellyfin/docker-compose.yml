@@ -12,13 +12,13 @@ volumes:
       device: tmpfs
 services:
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin
+    image: lscr.io/linuxserver/jellyfin:${JELLYFIN_VERSION}
     container_name: jellyfin
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SUB?JELLYFIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
     volumes:
       - jellyfin-config:/config
       - jellyfin-log:/var/log
@@ -26,13 +26,13 @@ services:
       - /mnt/movies:/data/movies
       - /mnt/anime:/data/anime
     ports:
-      - 7359:7359/udp
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - 7359:7359/udp # Local jellyfin server discovery
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.jellyfin-https.loadbalancer.server.port=8096
       - traefik.http.routers.jellyfin-https.entrypoints=https
-      - traefik.http.routers.jellyfin-https.rule=Host(`${JELLYFIN_SUB?JELLYFIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.jellyfin-https.rule=Host(`${JELLYFIN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.jellyfin-https.tls=true
       - traefik.http.routers.jellyfin-https.tls.certresolver=myresolver
       - traefik.http.routers.jellyfin-https.middlewares=authelia@docker

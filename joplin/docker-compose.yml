@@ -1,5 +1,6 @@
 ---
 # Joplin is an excellent open source note taking application with plenty of features. You can take notes, make to-do list and sync your notes across devices
+#TO DO: Check db port works without mapping and remove ports if it does
 version: "3.8"
 networks:
   t2_proxy:
@@ -16,23 +17,23 @@ volumes:
       device: tmpfs
 services:
   joplin:
-    image: joplin/server:latest
+    image: joplin/server:${JOPLIN_VERSION}
     container_name: joplin
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     environment:
       - APP_PORT=22300
-      - APP_BASE_URL=${JOPLIN_SUB?JOPLIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - APP_BASE_URL=${JOPLIN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
       - DB_CLIENT=pg
-      - POSTGRES_PASSWORD=${JOPLINDB_PASS?JOPLINDB_PASS Variable not set}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-      - POSTGRES_USER=${JOPLINDB_USER?JOPLINDB_USER Variable not set}
-      - POSTGRES_PORT=${JOPLINDB_PORT?JOPLINDB_PORT Variable not set}
-      - POSTGRES_HOST=joplindb
+      - POSTGRES_PASSWORD=${JOPLINDB_PASS}
+      - POSTGRES_DATABASE=${JOPLIN_POSTGRES_DATABASE}
+      - POSTGRES_USER=${JOPLINDB_USER}
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=joplin-db
     labels:
       - traefik.enable=true
       - traefik.http.services.whiteboard-https.loadbalancer.server.port=22300
       - traefik.http.routers.whiteboard-https.entrypoints=https
-      - traefik.http.routers.whiteboard-https.rule=Host(`${JOPLIN_SUB?JOPLIN_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.whiteboard-https.rule=Host(`${JOPLIN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.whiteboard-https.tls=true
       - traefik.http.routers.whiteboard-https.tls.certresolver=myresolver
       - traefik.http.routers.whiteboard-https.middlewares=authelia@docker
@@ -49,10 +50,10 @@ services:
     volumes:
       - joplin-db-data:/var/lib/postgresql
       - joplin-db-log:/var/log
-    ports:
-      - "${JOPLINDB_PORT?JOPLINDB_PORT Variable not set}:5432"
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+#    ports:
+#      - "${JOPLINDB_PORT}:5432"
+    restart: ${RESTART_POLICY}
     environment:
-      - POSTGRES_PASSWORD=${JOPLINDB_PASS?JOPLINDB_PASS Variable not set}
-      - POSTGRES_USER=${JOPLINDB_USER?JOPLINDB_USER Variable not set}
-      - POSTGRES_DB=${JOPLINDB_DB?JOPLINDB_DB Variable not set}
+      - POSTGRES_PASSWORD=${JOPLINDB_PASS}
+      - POSTGRES_USER=${JOPLINDB_USER}
+      - POSTGRES_DB=${JOPLIN_POSTGRES_DATABASE}

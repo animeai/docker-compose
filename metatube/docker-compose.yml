@@ -12,21 +12,21 @@ volumes:
       device: tmpfs
 services:
   metatube:
-    restart: always
-    image: jvt038/metatube:latest
+    image: jvt038/metatube:${METATUBE_VERSION}
     container_name: metatube
     environment:
       - PORT=5000
       - HOST=0.0.0.0
     volumes:
-      - /mnt/downloads:/downloads
+      - ${DOWNLOAD_DIRECTORY}:/downloads
       - metatube-data:/database
       - metatube-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.metatube-https.loadbalancer.server.port=5000
       - traefik.http.routers.metatube-https.entrypoints=https
-      - traefik.http.routers.metatube-https.rule=Host(`${METATUBE_SUB?METATUBE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.metatube-https.rule=Host(`${METATUBE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.metatube-https.tls=true
       - traefik.http.routers.metatube-https.tls.certresolver=myresolver
       - traefik.http.routers.metatube-https.middlewares=authelia@docker

@@ -12,21 +12,21 @@ networks:
     external: true
 services:
   monitorr:
-    image: monitorr/monitorr
+    image: monitorr/monitorr:${MONITORR_VERSION}
     container_name: monitorr
     environment:
-      TZ: ${TIMEZONE?TIMEZONE Variable not set}
-      PGID: 0
-      PUGI: 0
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - monitorr-app:/app
       - monitorr-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.monitorr-https.loadbalancer.server.port=80
       - traefik.http.routers.monitorr-https.entrypoints=https
-      - traefik.http.routers.monitorr-https.rule=Host(`${MONITORR_SUB?MONITORR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.monitorr-https.rule=Host(`${MONITORR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.monitorr-https.tls=true
       - traefik.http.routers.monitorr-https.tls.certresolver=myresolver
       - traefik.http.routers.monitorr-https.middlewares=authelia@docker

@@ -12,23 +12,23 @@ volumes:
       device: tmpfs
 services:
   lidarr:
-    image: lscr.io/linuxserver/lidarr
+    image: lscr.io/linuxserver/lidarr:${LIDARR_VERSION}
     container_name: lidarr
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - lidarr-config:/config
       - lidarr-log:/var/log
-      - /mnt/music:/music
-      - /mnt/downloads:/downloads
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${MUSIC_DIRECTORY}:/music
+      - ${DOWNLOADS_DIRECTORY}:/downloads
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.lidarr-https.loadbalancer.server.port=8686
       - traefik.http.routers.lidarr-https.entrypoints=https
-      - traefik.http.routers.lidarr-https.rule=Host(`${LIDARR_SUB?LIDARR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.lidarr-https.rule=Host(`${LIDARR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.lidarr-https.tls=true
       - traefik.http.routers.lidarr-https.tls.certresolver=myresolver
       - traefik.http.routers.lidarr-https.middlewares=authelia@docker
