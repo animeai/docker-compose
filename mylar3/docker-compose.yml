@@ -11,23 +11,24 @@ networks:
       device: tmpfs
 services:
   mylar3:
-    image: lscr.io/linuxserver/mylar3
+    image: lscr.io/linuxserver/mylar3:${MYLAR_VERSION}
     container_name: mylar3
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - mylar3-config:/config
       - mylar3-log:/var/log
-      - /mnt/comics:/comics
-      - /mnt/manga:/manga
-      - /mnt/downloads:/downloads
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${COMICS_DIRECTORY}:/comics
+      - ${MANGA_DIRECTORY}:/manga
+      - ${DOWNLOAD_DIRECTORY}:/downloads
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.mylar-https.loadbalancer.server.port=8090
       - traefik.http.routers.mylar-https.entrypoints=https
-      - traefik.http.routers.mylar-https.rule=Host(`${MYLAR_SUB?MYLAR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.mylar-https.rule=Host(`${MYLAR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.mylar-https.tls=true
       - traefik.http.routers.mylar-https.tls.certresolver=myresolver
       - traefik.http.routers.mylar-https.middlewares=authelia@docker

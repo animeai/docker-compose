@@ -12,22 +12,22 @@ volumes:
       device: tmpfs
 services:
   mstream:
-    image: lscr.io/linuxserver/mstream
+    image: lscr.io/linuxserver/mstream:${MSTREAM_VERSION}
     container_name: mstream
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - mstream-config:/config
-      - /mnt/music:/music
-      - /mnt/audiobooks:/audiobooks
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${MUSIC_DIRECTORY}:/music
+      - ${AUDIOBOOKS_DIRECTORY}:/audiobooks
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.mstream-https.loadbalancer.server.port=3000
       - traefik.http.routers.mstream-https.entrypoints=https
-      - traefik.http.routers.mstream-https.rule=Host(`${MSTREAM_SUB?MSTREAM_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.mstream-https.rule=Host(`${MSTREAM_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.mstream-https.tls=true
       - traefik.http.routers.mstream-https.tls.certresolver=myresolver
       - traefik.http.routers.mstream-https.middlewares=authelia@docker
