@@ -1,6 +1,6 @@
 ---
 # Joplin is an excellent open source note taking application with plenty of features. You can take notes, make to-do list and sync your notes across devices
-#TO DO: Check db port works without mapping and remove ports if it does
+# TO DO: Check db port works without mapping and remove ports if it does
 version: "3.8"
 networks:
   t2_proxy:

@@ -1,3 +1,4 @@
+---
 version: '3'
 # TODO: Everything
 # https://github.com/itzg/mc-monitor/blob/master/examples/mc-monitor-prom/docker-compose.yml
