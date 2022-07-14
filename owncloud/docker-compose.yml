@@ -13,7 +13,7 @@ volumes:
   owncloud-mariadb-data:
   owncloud-mariadb-conf:
   owncloud-mariadb-log:
-      driver_opts:
+    driver_opts:
       type: tmpfs
       device: tmpfs
   owncloud-redis-data:
