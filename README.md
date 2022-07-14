@@ -1,5 +1,9 @@
 Dockarr Composarr
 ===
+Current version
+---
+Pre 0.1, not public.
+
 Why the weird name?
 ---
 Decided in the tradition of apps like radarr, sonarr, and a multitude of others. This is a play on "docker-compose" => "docker-composer" => "dockarr-composarr"... Sorry!
@@ -12,10 +16,12 @@ Main branch is always stable and tested. New apps, code changes, etc will always
 
 0.1-testing branch is the latest version of the code.
 
+There are no plans to document the latest tested versions. If the "latest" tag on a docker container fails, raise an issue so it can be investigated and fixed. Major version upgrades to containers can sometimes introduce breaking changes. Docker images should be updated frequently for security patches.
+
 Features
 ---
-* sqlite database to store environment variables for your docker containers
-* whiptail installer to write custom .env, and set your app up as a systemd service
+* sqlite database to store environment variables for your docker containers.
+* whiptail installer to write custom .env, and set your app up as a systemd service.
 
 Requirements
 ---
@@ -23,7 +29,7 @@ Requirements
 * Docker-compose
 * Tested on Ubuntu 22.04 but should work on any *nix system with the above
 
-Version convention
+Version naming convention
 ---
 * V0.1 early alpha - Do not expect this to be stable! Do not expect this to be fully tested! Expect to have to start from scratch when updated!
 * V0.2 mostly stable beta - Final schema and V1 functionality should be in place. There is a very small potential that breaking changes may be introduced but this should not happen unless major security flaws are discovered.
@@ -31,27 +37,27 @@ Version convention
 * V1.0 first fully tested new release. The first stable and fully tested release! Breaking changes from this point onwards will require additional code to manage existing installations.
 * V1.0.1 bugfix or new app added
 * V1.1 new minor functionality added
-* V2.0 new major functionality added
+* V2.0 new milestone reached or major functionality added.
 
-After V1.0 there will be no beta or testing releases. All testing will be done in branches as each pull request generates its own branch where the testing will occur. Major features 
+After V1.0 there will be no beta or testing releases. All testing will be done in branches as each pull request generates its own branch where the testing will occur.
 
 Roadmap
 ---
 V0.1 Initial release
-* Finish adding .env file to all apps (0.1-testing branch) <= In progress
-* Write install.sh for all apps (0.1-testing branch) <= In progress
-* Test all docker-compose.yml to ensure the container starts (0.1-testing branch)
-* Release to public when the above are completed
+* Finish adding .env file to all apps (0.1-testing branch) <= In progress.
+* Write install.sh for all apps (0.1-testing branch) <= In progress.
+* Test all docker-compose.yml to ensure the container starts (0.1-testing branch).
+* Release to public when the above are completed.
 
 V0.1.1+
 * Add any new apps
-* Write uninstall.sh for all apps (0.1-testing branch)
-* Write update.sh for all apps (0.1-testing branch)
-* Review /var/log filesystem for all apps and remove from docker-compose if this directory is not used. (0.1-testing branch)
-* Investigate the use of docker secrets to store passwords and other sensitive information rather than .env files
-  * Would need testing to see if it can be automated with bash (and via php shell_exec later)
-  * Would need to be implemented prior to V0.2 as this would break existing installs and require additional code to fix
-* Release as V0.2 when the above are complete
+* Write uninstall.sh for all apps (0.1-testing branch).
+* Write update.sh for all apps (0.1-testing branch).
+* Review /var/log filesystem for all apps and remove from docker-compose if this directory is not used. (0.1-testing branch).
+* Investigate the use of docker secrets to store passwords and other sensitive information rather than .env files.
+  * Would need testing to see if it can be automated with bash (and via php shell_exec later).
+  * Would need to be implemented prior to V0.2 as this would break existing installs and require additional code to fix.
+* Release as V0.2 when the above are complete.
 
 V0.2 First "stable" and mostly tested release
 * Begin to test functionality of docker containers. Begin testing for fixable bugs (i.e. config issues/errors) and refer upstream bugs to container providers.
@@ -61,21 +67,34 @@ V0.2 First "stable" and mostly tested release
 
 V1.0/1.1
 * Test in multiple environments (AMD64, ARMv7, ARM64, bare metal, VPS, VM) and fix issues. Flag containers as unusable if attempting to install on unsupported architecture.
+* Test on multiple operating systems
+  * Ubuntu 
+  * Debian
+  * Arch Linux
+  * Fedora
+  * openSUSE
+  * CentOS
+  * FreeBSD
 * Finished testing all added apps for functionality and fixable bugs (i.e. config bugs). Refer upstream bugs to container providers.
+* Add README.md to each app folder explaining variables, use and ports.
 * Add a Cloudflare cname management docker container and test.
+  * To test: 
+    * https://hub.docker.com/r/tiredofit/traefik-cloudflare-companion
+    * cloudflared to tunnel externally accessible apps.
 * Add the ability to flag apps as "unsafe" meaning the user needs to click "continue" after a warning stating there are security flaws and that it should not be used in a production environment. Unsafe apps would be fine on a private home network using Cloudflare tunnels or Zerotier but risky if public facing, even higher risk with exposed and mapped ports.
 
 V2.0+
 * Add a web interface to compliment the manual CLI interface (new branch for web interface)
-  * This will likely require an install.php (or similar) script for each app along with a central control panel and will be a long way in the future. Likely scheduled for V2
+  * This will likely require an install.php (or similar) script for each app along with a central control panel and will be a long way in the future. Likely scheduled for V2.
   * PHP shell_exec allows bash commands to be run, and sqlite3 is well supported. The whiptail section of the intall/uninstall/update script would be replaced with a php form which on submit updates the sqlite database and creates the service files etc. This would need appropriate access control. PHP pam_auth could be used for simple authentication.
-  * I would need to learn how to build docker containers (rather than just use them) before this is possible if no other developers help out
-  * Completion of this feature is the most likely trigger for a V2.0 release
+  * I would need to learn how to build docker containers (rather than just use them) before this is possible if no other developers help out.
+  * Completion of this feature is the most likely trigger for a V2.0 release.
 * Add the ability to include both a local (Zerotier compatible) domain as well as a Cloudflare fully qualified domain name. 
   * You can map Cloudflare DNS to local IPs so foo.bar.com points to your external IP, but local-foo.bar.com points to your internal IP. 
   * This would mess with a Cloudflare cname provisioning docker container as we would need to be able to specify which subdomains are local, and which are public. 
   * This would also mess with letsencrypt so https would either need to be wildcard, self-signed, or disabled.
-  * Likely scheduled for V2/3
+  * Likely scheduled for V2/3.
+* Add backup and restore for docker volumes to allow for safe upgrading of container images. Support for remote backups should be included in this feature. Likely scheduled for V2.
 * Optional MySQL container to store variables
   * Likely scheduled for V2/3 if ever. This isn't intended to be a multi-use application and sqlite is only used to store variables. There is negligible benefit in using MySQL here.
 
@@ -109,25 +128,30 @@ TBD - currently unfinished!
 
 Manual use of the docker-compose.yml file should be possible but these are all untested, may contain bugs, and contain extra lines of code for finding bad container (i.e. logs stored in /var/log and not published).
 
-Once completed initial install should be as simple as:
+(Scheduled for V0.1) Once completed initial install should be as simple as:
 * git clone
 * cd to directory
 * "bash install.sh" and follow the whiptail instructions
 * cd to "traefik" directory
 * "bash install.sh" and follow the whiptail instructions
 
-Once completed, application install should be as simple as:
+(Scheduled for V0.1) Once completed, application install should be as simple as:
 * perform initial install (required once only)
 * cd to app directory
 * "bash install.sh" and follow the whiptail instructions
 
-Once completed, application uninstall should be as simple as:
+(Scheduled for V0.1) Once completed, application uninstall should be as simple as:
 * cd to app directory
 * "bash uninstall.sh" and follow the whiptail instructions
 
-Once completed, update to running container and/or env variables should be as simple as:
+(Scheduled for V0.1) Once completed, update to running container and/or env variables should be as simple as:
 * cd to app directory
 * "bash update.sh" and follow the whiptail instructions
+
+(Scheduled for V2.0 or earlier) Once completed, upgrading the container to the most recent "latest" tag should be as simple as:
+* cd to app directory
+* "bash backup.sh" and follow the whiptail instructions to back up the volume(s)
+* "bash restore.sh" and follow the whiptail instructions to return to one of the saved backups
 
 To recover any password for an app (or just show any stored variables)
 * cd to app directory

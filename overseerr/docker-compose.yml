@@ -12,21 +12,21 @@ volumes:
       device: tmpfs
 services:
   overseerr:
-    image: lscr.io/linuxserver/overseerr
+    image: lscr.io/linuxserver/overseerr:${OVERSEER_VERSION}
     container_name: overseerr
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
       - overseerr-config:/config
       - overseer-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.overseerr-https.loadbalancer.server.port=5055
       - traefik.http.routers.overseerr-https.entrypoints=https
-      - traefik.http.routers.overseerr-https.rule=Host(`${OVERSEERR_SUB?OVERSEERR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.overseerr-https.rule=Host(`${OVERSEERR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.overseerr-https.tls=true
       - traefik.http.routers.overseerr-https.tls.certresolver=myresolver
       - traefik.http.routers.overseerr-https.middlewares=authelia@docker

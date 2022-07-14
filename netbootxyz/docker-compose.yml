@@ -1,5 +1,6 @@
 ---
 # netboot.xyz enables you to PXE boot many Operating System installers and utilities from a simple to use menu powered by the iPXE project.
+# Ports 69 and 3000 need to be mapped and open. This container needs an IP on the network you wish to PXE from.
 version: "3.8"
 networks:
   t2_proxy:
@@ -7,12 +8,12 @@ networks:
   netbootxyz:
     driver: macvlan
     driver_opts:
-      parent: ${ETHERNET_PORT?ETHERNET_PORT Variable not set}
+      parent: ${ETHERNET_PORT}
     ipam:
       config:
-        subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
-        gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
-        ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+        subnet: ${SUBNET_IP}
+        gateway: ${GATEWAY_IP}
+        ip_range: ${SUBNET_RANGE}
 volumes:
   netbootxyz-config:
   netbootxyz-log:
@@ -21,32 +22,33 @@ volumes:
       device: tmpfs
 services:
   netbootxyz:
-    image: lscr.io/linuxserver/netbootxyz
+    image: lscr.io/linuxserver/netbootxyz:${NETBOOTXYZ_VERSION}
     container_name: netbootxyz
     mac_address: 26:59:70:99:9d:78
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
 #      - MENU_VERSION=1.9.9 #Leave commented for latest, uncomment to select
       - PORT_RANGE=30000:30010  # optional
       - SUBFOLDER=/  # optional
     volumes:
       - netbootxyz-config:/config
       - netbootxyz-log:/var/log
-      - /mnt/iso:/assets  # optional
+      - ${ISO_DIRECTORY}:/assets  # optional
     ports:
       - 3000:3000
       - 69:69/udp
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.netbootxyz-https.loadbalancer.server.port=80
       - traefik.http.routers.netbootxyz-https.entrypoints=https
-      - traefik.http.routers.netbootxyz-https.rule=Host(`${NETBOOT_SUB?NETBOOT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.netbootxyz-https.rule=Host(`${NETBOOT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.netbootxyz-https.tls=true
       - traefik.http.routers.netbootxyz-https.tls.certresolver=myresolver
       - traefik.http.routers.netbootxyz-https.middlewares=authelia@docker
     networks:
       t2_proxy:
       netbootxzy:
-        ipv4_address: ${NETBOOTXYZ_IP?NETBOOTXYZ_IP Variable not set}
+        ipv4_address: ${NETBOOTXYZ_IP}

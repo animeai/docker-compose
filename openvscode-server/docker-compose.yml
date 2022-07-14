@@ -12,25 +12,25 @@ volumes:
       device: tmpfs
 services:
   openvscode-server:
-    image: lscr.io/linuxserver/openvscode-server
+    image: lscr.io/linuxserver/openvscode-server:${OPENVSCODE_SERVER_VERSION}
     container_name: openvscode-server
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - CONNECTION_TOKEN=${OPENVSCODE_SERVER_PASS?OPENVSCODE_SERVER_PASS Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - CONNECTION_TOKEN=${OPENVSCODE_SERVER_PASSWORD}
 #      - CONNECTION_SECRET= #optional path to internal file overrides CONNECTION_TOKEN
-      - SUDO_PASSWORD=${OPENVSCODE_SERVER_SUDO_PASS?OPENVSCODE_SERVER_SUDO_PASS Variable not set}  # optional
+      - SUDO_PASSWORD=${OPENVSCODE_SERVER_SUDO_PASSWORD}  # optional
 #      - SUDO_PASSWORD_HASH=${SUDO_PASSWORD_HASH?SUDO_PASSWORD_HASH Variable not set} #optional set sudo password via hash (takes priority over SUDO_PASSWORD var). Format is $type$salt$hashed
     volumes:
       - openvscode-config:/config
       - openvscode-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.vscode-https.loadbalancer.server.port=3000
       - traefik.http.routers.vscode-https.entrypoints=https
-      - traefik.http.routers.vscode-https.rule=Host(`${VSCODE_SUB?VSCODE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.vscode-https.rule=Host(`${OPENVSCODE_SERVER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.vscode-https.tls=true
       - traefik.http.routers.vscode-https.tls.certresolver=myresolver
       - traefik.http.routers.vscode-https.middlewares=authelia@docker

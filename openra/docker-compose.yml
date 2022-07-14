@@ -11,21 +11,21 @@ volumes:
       device: tmpfs
 services:
   openra:
-    image: rmoriz/openra
+    image: rmoriz/openra:${OPENRA_VERSION}
     container_name: openra
     environment:
-      - Name=${OPENRA_SERVERNAME?OPENRA_SERVERNAME Variable not set}
+      - Name=${OPENRA_SERVER_NAME}
       - Mod=ra
       - ListenPort=1234
       - AdvertiseOnline=false
-      - Password=${OPENRA_PASS?OPENRA_PASS Variable not set}
-      - EnableSingleplayer=${OPENRA_SINGLE?OPENRA_SINGLE Variable not set}
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - Password=${OPENRA_PASSWORD}
+      - EnableSingleplayer=${OPENRA_SINGLE_PLAYER}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.openra-https.loadbalancer.server.port=1234
       - traefik.http.routers.openra-https.entrypoints=https
-      - traefik.http.routers.openra-https.rule=Host(`${OPENRA_SUB?OPENRA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.openra-https.rule=Host(`${OPENRA_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.openra-https.tls=true
       - traefik.http.routers.openra-https.tls.certresolver=myresolver
       - traefik.http.routers.openra-https.middlewares=authelia@docker

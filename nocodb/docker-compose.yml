@@ -18,41 +18,41 @@ volumes:
       device: tmpfs
 services:
   nocodb:
-    image: nocodb/nocodb:latest
+    image: nocodb/nocodb:${NOCODB_VERSION}
     container_name: nocodb
     hostname: nocodb
     environment:
-      - NC_DB: "mysql2://nocodb-db:3306?u=MYSQL_USERNAME&p=MYSQL_PASSWORD&d=DATABASE_NAME"
+      - NC_DB: "mysql2://nocodb-db:3306?u=${NOCODB_MYSQL_USERNAME}&p=${NOCODB_MYSQL_PASSWORD}&d=${NOCODB_DATABASE_NAME}"
     volumes:
       - nocodb-data:/usr/app/data
       - nocodb-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     depends_on:
       - nocodb-db
     labels:
       - traefik.enable=true
       - traefik.http.services.nocodb-https.loadbalancer.server.port=80
       - traefik.http.routers.nocodb-https.entrypoints=https
-      - traefik.http.routers.nocodb-https.rule=Host(`${nocodbSUB?nocodb_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.nocodb-https.rule=Host(`${NOCODB_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.nocodb-https.tls=true
       - traefik.http.routers.nocodb-https.tls.certresolver=myresolver
       - traefik.http.routers.nocodb-https.middlewares=authelia@docker
   nocodb-db:
-    image: mariadb:latest
+    image: mariadb:${NOCODB_MYSQL_VERSION}
     container_name: nocodb-db
     hostname: nocodb-db
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
-      MYSQL_DATABASE: DATABASE_NAME
-      MYSQL_USER: MYSQL_USERNAME
-      MYSQL_PASSWORD: MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: ${NOCODB_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${NOCODB_DATABASE_NAME}
+      MYSQL_USER: ${NOCODB_MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${NOCODB_MYSQL_PASSWORD}
     volumes:
       - nocodb-db-data:/var/lib/mysql
       - nocodb-db-log:/var/log
       - nocodb-db-config:/etc/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=MYSQL_ROOT_PASSWORD"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${NOCODB_MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
