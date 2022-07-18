@@ -1,0 +1,49 @@
+---
+version: "3.8"  # Latest version of docker-compose
+networks:
+  t2_proxy:  # Join the default traefik network
+    external: true  # Specify that the network has been created externally
+volumes:
+  replaceme-data:  # Create or reuse the docker volume for data. Be sure to map this accurately below.
+  replaceme-log:  # Create the tmpfs volume for /var/log within the container (see volume mapping below). The following 3 lines are required.
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  replaceme:  # The service name. Typically the app name.
+    image: replaceme/replaceme  # Set the docker image and repository to use.
+    container_name: replaceme  # Set the name for the container.
+    hostname: replaceme  # Set the hostname for the container. Typically not needed but useful to ensure containers can talk.
+    environment:
+      - replaceme=replaceme  # Set any environment variables
+    volumes:
+      - replaceme-data:
+      - replaceme-log:/var/log  # Map all of /var/log to a tmpfs to allow monitoring in the case of badly written docker images.
+    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}  # Set the restart policy.
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.replaceme-https.loadbalancer.server.port=80  # Tell Traefik the port this webapp runs on.
+      - traefik.http.routers.replaceme-https.entrypoints=https  # Only listen for https. The default Traefik set up reroutes all http to https for us.
+      - traefik.http.routers.replaceme-https.rule=Host(`${REPLACEMESUB?REPLACEME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)  # Set the URL for external access.
+      - traefik.http.routers.replaceme-https.tls=true  # Use letsencrypt.
+      - traefik.http.routers.replaceme-https.tls.certresolver=myresolver  # Standard resolver set up in traefik.
+      - traefik.http.routers.replaceme-https.middlewares=authelia@docker  # If authelia authentication is required.
+  replaceme-db:  # If the image requires a database, be sure to include the 3 volumes, 4 environment variables., and healthchecks
+    image: mariadb:latest  # Verified and working
+    container_name: replaceme-db
+    hostname: replaceme-db
+    command: --default-authentication-plugin=mysql_native_password  # Set the authentication plugin
+    environment:
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD  # Use generate_password in install.sh and store as variable to replace in this yml file.
+      MYSQL_DATABASE: DATABASE_NAME  # Use generate_database_name in install.sh and store as variable to replace in this yml file.
+      MYSQL_USER: MYSQL_USERNAME  # Use generate_database_name
+      MYSQL_PASSWORD: MYSQL_PASSWORD
+    volumes:
+      - replaceme-db-data:/var/lib/mysql  # Data files for the database
+      - replaceme-db-log:/var/log  # Database logs not output to console
+      - replaceme-db-config:/etc/mysql  # Database configuration file
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

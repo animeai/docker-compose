@@ -1,0 +1,60 @@
+---
+# Huginn is a system for building agents that perform automated tasks for you online. They can read the web, watch for events, and take actions on your behalf. Huginn's Agents create and consume events, propagating them along a directed graph. Think of it as a hackable version of IFTTT or Zapier on your own server. You always know who has your data. You do.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  huginn-db-data:
+  huginn-db-config:
+  huginn-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  huginn-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  huginn:
+    image: huginn/huginn:${HUGINN_VERSION}
+    container_name: huginn
+    environment:
+      - MYSQL_PORT_3306_TCP_ADDR=huginn-db
+      - HUGINN_DATABASE_NAME=${HUGINNDB_DB}
+      - HUGINN_DATABASE_USERNAME=${HUGINNDB_USER}
+      - HUGINN_DATABASE_PASSWORD=${HUGINNDB_PASS}
+    volumes:
+      - huginn-log:/var/log
+    restart: ${RESTART_POLICY}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.huginn-https.loadbalancer.server.port=3000
+      - traefik.http.routers.huginn-https.entrypoints=https
+      - traefik.http.routers.huginn-https.rule=Host(`${HUGINN_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.huginn-https.tls=true
+      - traefik.http.routers.huginn-https.tls.certresolver=myresolver
+      - traefik.http.routers.huginn-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
+    depends_on:
+      - huginn-db
+  huginn-db:
+    image: mariadb:${HUGINN_MYSQL_VERSION}
+    container_name: huginn-db
+    hostname: huginn-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${HUGINNDB_ROOT}
+      MYSQL_DATABASE: ${HUGINNDB_DB}
+      MYSQL_USER: ${HUGINNDB_USER}
+      MYSQL_PASSWORD: ${HUGINNDB_PASS}
+    volumes:
+      - huginn-db-data:/var/lib/mysql
+      - huginn-db-log:/var/log
+      - huginn-db-config:/etc/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${HUGINNDB_ROOT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

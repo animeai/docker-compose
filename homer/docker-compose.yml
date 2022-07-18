@@ -4,21 +4,28 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  homer-assets:
+  homer-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   homer:
-    image: b4bz/homer
+    image: b4bz/homer:${HOMER_VERSION}
     container_name: homer
     volumes:
-      - /var/data/homer/assets:/www/assets
+      - homer-assets:/www/assets
+      - homer-log:/var/log
     environment:
-      - UID=${PUID?PUID Variable not set}
-      - GID=${PGID?PGID Variable not set}
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - UID=${USER_ID}
+      - GID=${GROUP_ID}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.homer-https.loadbalancer.server.port=8080
       - traefik.http.routers.homer-https.entrypoints=https
-      - traefik.http.routers.homer-https.rule=Host(`${HOMER_SUB?FLAME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.homer-https.rule=Host(`${HOMER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.homer-https.tls=true
       - traefik.http.routers.homer-https.tls.certresolver=myresolver
       - traefik.http.routers.homer-https.middlewares=authelia@docker

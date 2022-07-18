@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  transmission-config:
+  transmission-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   transmission:
     image: lscr.io/linuxserver/transmission
@@ -14,9 +20,10 @@ services:
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
       - TRANSMISSION_WEB_HOME=/combustion-release/  # optional
     volumes:
-      - /var/data/transmission/config:/config
+      - transmission-config:/config
+      - transmission-log:/var/log
       - /mnt/downloads:/downloads
-      - /var/data/transmission/watch:/watch
+      - /mnt/transmission/watch:/watch
     ports:
       - ${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}:${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}
       - ${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}:${TRANSMISSION_PORT?TRANSMISSION_PORT Variable not set}/udp

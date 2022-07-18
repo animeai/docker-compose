@@ -4,18 +4,25 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  moviematch-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   moviematch:
-    image: lukechannings/moviematch:latest
+    image: lukechannings/moviematch:${MOVIEMATCH_VERSION}
     container_name: moviematch
+    volumes:
+      - moviematch-log:/var/log
     environment:
-      - PLEX_URL: "${PLEX_SUB?PLEX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}"
-      - PLEX_TOKEN: "PLEX_TOKEN?PLEX_TOKEN Variable not set}"
+      - PLEX_URL: "${PLEX_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}"
+      - PLEX_TOKEN: "PLEX_TOKEN}"
     labels:
       - traefik.enable=true
       - traefik.http.services.dashmachine-https.loadbalancer.server.port=8000
       - traefik.http.routers.dashmachine-https.entrypoints=https
-      - traefik.http.routers.dashmachine-https.rule=Host(`${MOVIEMATCH_SUB?MOVIEMATCH_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dashmachine-https.rule=Host(`${MOVIEMATCH_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.dashmachine-https.tls=true
       - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
       - traefik.http.routers.dashmachine-https.middlewares=authelia@docker

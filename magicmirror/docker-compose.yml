@@ -4,20 +4,28 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  magicmirror-config:
+  magicmirror-modules:
+  magicmirror-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   magicmirror:
     container_name: magicmirror
-    image: bastilimbach/docker-magicmirror
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    image: bastilimbach/docker-magicmirror:${MAGICMIRROR_VERSION}
+    restart: ${RESTART_POLICY}
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /var/data/magic_mirror/config:/opt/magic_mirror/config
-      - /var/data/magic_mirror/modules:/opt/magic_mirror/modules
+      - magicmirror-config:/opt/magic_mirror/config
+      - magicmirror-modules:/opt/magic_mirror/modules
+      - magicmirror-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.magicmirror-https.loadbalancer.server.port=8080
       - traefik.http.routers.magicmirror-https.entrypoints=https
-      - traefik.http.routers.magicmirror-https.rule=Host(`${MAGICMIRROR_SUB?RUTORRENT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.magicmirror-https.rule=Host(`${MAGICMIRROR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.magicmirror-https.tls=true
       - traefik.http.routers.magicmirror-https.tls.certresolver=myresolver
       - traefik.http.routers.magicmirror-https.middlewares=authelia@docker

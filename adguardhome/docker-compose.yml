@@ -1,23 +1,43 @@
 ---
 # https://github.com/bakito/adguardhome-sync
 # Synchronize AdGuardHome config to a replica instance.
+# To Do: Nginx reverse proxy for adguardhome? Issues with ports on t2_proxy network?
 version: "3.8"
 networks:
   t2_proxy:
     external:
-services:
-  smarthome:
+  adguardhome:
     driver: macvlan
     driver_opts:
-      parent: ${ETHERNET_PORT?ETHERNET_PORT Variable not set}
+      parent: ${MAIN_NETWORK_ADAPTER}
     ipam:
       config:
-        subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
-        gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
-        ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+        subnet: ${MAIN_SUBNET}
+        gateway: ${MAIN_GATEWAY}
+        ip_range: ${ALLOCATE_SUBNET}
+volumes:
+  adguardhome-one-work:
+  adguardhome-one-config:
+  adguardhome-one-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  adguardhome-two-work:
+  adguardhome-two-config:
+  adguardhome-two-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  adguardhome-sync-config:
+  adguardhome-sync-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
   adguardhome-one:
-    image: adguard/adguardhome
+    image: adguard/adguardhome:${ADGUARDHOME_VERSION}
     container_name: adguardhome-one
+    hostname: adguardhome
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -27,50 +47,60 @@ services:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
-      - /var/data/adguardhome/work:/opt/adguardhome/work
-      - /var/data/adguardhome/config:/opt/adguardhome/conf
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
-    networks:
-      smarthome:
-        - ipv4_address: ${ADGUARDHOME_ONE_IP?ADGUARDHOME_ONE_IP Variable not set}
-      t2_proxy:
-  adguardhome-two:
-    image: adguard/adguardhome
-    container_name: adguardhome-two
-    ports:
-      - 53:53/tcp
-      - 53:53/udp
-      - 784:784/udp
-      - 853:853/tcp
-      - 3000:3000/tcp
-      - 80:80/tcp
-      - 443:443/tcp
-    volumes:
-      - /var/data/adguardhome2/work :/opt/adguardhome/work
-      - /var/data/adguardhome2/config:/opt/adguardhome/conf
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
-    networks:
-      smarthome:
-        ipv4_address: ${ADGUARDHOME_TWO_IP?ADGUARDHOME_TWO_IP Variable not set}
-      t2_proxy:
+      - adguardhome-one-work:/opt/adguardhome/work
+      - adguardhome-one-config:/opt/adguardhome/conf
+      - adguardhome-one-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.adguardhome-one-https.loadbalancer.server.port=443
       - traefik.http.routers.adguardhome-one-https.entrypoints=https
-      - traefik.http.routers.adguardhome-one-https.rule=Host(`${ADGUARDHOME_TWO_SUB?ADGUARDHOME_TWO_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.adguardhome-one-https.rule=Host(`${ADGUARDHOME_SUBDOMAIN_ONE}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.adguardhome-one-https.tls=true
       - traefik.http.routers.adguardhome-one-https.tls.certresolver=myresolver
-      - traefik.http.routers.adguardhome-one-https.middlewares=authelia@docker
+    networks:
+      adguardhome:
+        - ipv4_address: ${ADGUARDHOME_IP_ONE}
+      t2_proxy:
+  adguardhome-two:
+    image: adguard/adguardhome:${ADGUARDHOME_VERSION}
+    container_name: adguardhome-two
+    hostname: adguardhome-two
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 784:784/udp
+      - 853:853/tcp
+      - 3000:3000/tcp
+      - 80:80/tcp
+      - 443:443/tcp
+    volumes:
+      - adguardhome-two-work:/opt/adguardhome/work
+      - adguardhome-two-config:/opt/adguardhome/conf
+      - adguardhome-two-log:/var/log
+    restart: ${RESTART_POLICY}
+    networks:
+      adguardhome:
+        ipv4_address: ${ADGUARDHOME_IP_TWO}
+      t2_proxy:
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.adguardhome-two-https.loadbalancer.server.port=443
+      - traefik.http.routers.adguardhome-two-https.entrypoints=https
+      - traefik.http.routers.adguardhome-two-https.rule=Host(`${ADGUARDHOME_SUBDOMAIN_TWO}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.adguardhome-two-https.tls=true
+      - traefik.http.routers.adguardhome-two-https.tls.certresolver=myresolver
   adguardhome-sync:
-    image: lscr.io/linuxserver/adguardhome-sync
+    image: lscr.io/linuxserver/adguardhome-sync:${ADGUARDHOME_SYNC_VERSION}
     container_name: adguardhome-sync
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - CONFIGFILE=/config/adguardhome-sync.yaml  # optional
+      - PUID=USER_ID
+      - PGID=GROUP_ID
+      - TZ=TIMEZONE
+      - CONFIGFILE=/config/adguardhome-sync.yaml
     volumes:
-      - /var/data/adguardhome-sync/config:/config
+      - adguardhome-sync-config:/config
+      - adguardhome-sync-log:/var/log
     ports:
-      - 8080:8080
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ${ADGUARDHOME_SYNC_PORT}:8080
+    restart: ${RESTART_POLICY}

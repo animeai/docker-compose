@@ -1,0 +1,413 @@
+---
+# ThreatMapper https://github.com/deepfence/ThreatMapper
+# TO DO: tmpfs, layout, testing
+version: "3.8"
+services:
+
+  deepfence-init-container:
+    container_name: df-init-container
+    image: deepfenceio/deepfence_init_ce:latest
+    privileged: true
+    ulimits:
+      core: 0
+    network_mode: "host"
+    pid: "host"
+    restart: "no"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-postgres:
+    container_name: deepfence-postgres
+    image: deepfenceio/deepfence_postgres_ce:latest
+    ulimits:
+      core: 0
+    restart: on-failure
+    networks:
+      - deepfence_net
+    volumes:
+      - deepfence_data:/data:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-redis:
+    container_name: deepfence-redis
+    image: deepfenceio/deepfence_redis_ce:latest
+    environment:
+      INITIALIZE_REDIS: "Y"
+    ulimits:
+      core: 0
+    restart: on-failure
+    networks:
+      - deepfence_net
+    depends_on:
+      - deepfence-init-container
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-fetcher:
+    container_name: deepfence-fetcher
+    image: deepfenceio/deepfence_fetcher_ce:latest
+    ulimits:
+      core: 0
+    depends_on:
+      - deepfence-postgres
+    networks:
+      - deepfence_net
+    restart: on-failure
+    volumes:
+      - deepfence_data:/data:rw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-topology:
+    container_name: deepfence-topology
+    image: deepfenceio/deepfence_discovery_ce:latest
+    ulimits:
+      core: 0
+    networks:
+      - deepfence_net
+    ports:
+      - "127.0.0.1:8004:8004"
+    restart: on-failure
+    command: topology
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-console-agent:
+    container_name: deepfence-console-agent
+    image: deepfenceio/deepfence_agent_ce:latest
+    ulimits:
+      core: 0
+    deploy:
+      resources:
+        limits:
+          cpus: ".2"
+    restart: on-failure
+    environment:
+      - MGMT_CONSOLE_URL=127.0.0.1
+      - MGMT_CONSOLE_PORT=8443
+    network_mode: "host"
+    volumes:
+      - /sys/kernel/debug:/sys/kernel/debug:rw
+      - /var/log/fenced
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/:/fenced/mnt/host/var/lib/docker/:rw
+      - /:/fenced/mnt/host/:ro
+    privileged: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-es:
+    container_name: deepfence-es-master
+    image: deepfenceio/deepfence_elastic_ce:latest
+    restart: on-failure
+    networks:
+      - deepfence_net
+    volumes:
+      - deepfence_data:/data:rw
+    environment:
+      - DF_PROG_NAME="es_master"
+      - node.name=deepfence-es
+#      - discovery.seed_hosts=deepfence-es-slave1,deepfence-es-slave2
+      - cluster.initial_master_nodes=deepfence-es
+    ulimits:
+      core: 0
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 2g
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  #  deepfence-es-slave1:
+  #    container_name: deepfence-es-slave1
+  #    image: ${IMAGE_REPOSITORY:-deepfenceio}/deepfence_elastic_ce:${DF_IMG_TAG:-1.3.1}
+  #    restart: on-failure
+  #    networks:
+  #      - deepfence_net
+  #    volumes:
+  #      - deepfence_data:/data:rw
+  #    environment:
+  #      - DF_PROG_NAME="es_slave1"
+  #      - node.name=deepfence-es-slave1
+  #      - discovery.seed_hosts=deepfence-es,deepfence-es-slave2
+  #      - cluster.initial_master_nodes=deepfence-es
+  #    ulimits:
+  #      core: 0
+  #      memlock:
+  #        soft: -1
+  #        hard: -1
+  #      nofile:
+  #        soft: 65536
+  #        hard: 65536
+  #    cap_add:
+  #      - IPC_LOCK
+  #    deploy:
+  #      resources:
+  #        limits:
+  #          memory: 4g
+  #        reservations:
+  #          memory: 2g
+  #    logging:
+  #      driver: "json-file"
+  #      options:
+  #        max-size: "1g"
+  #
+  #  deepfence-es-slave2:
+  #    container_name: deepfence-es-slave2
+  #    image: ${IMAGE_REPOSITORY:-deepfenceio}/deepfence_elastic_ce:${DF_IMG_TAG:-1.3.1}
+  #    restart: on-failure
+  #    networks:
+  #      - deepfence_net
+  #    volumes:
+  #      - deepfence_data:/data:rw
+  #    environment:
+  #      - DF_PROG_NAME="es_slave2"
+  #      - node.name=deepfence-es-slave2
+  #      - discovery.seed_hosts=deepfence-es,deepfence-es-slave1
+  #      - cluster.initial_master_nodes=deepfence-es
+  #    ulimits:
+  #      core: 0
+  #      memlock:
+  #        soft: -1
+  #        hard: -1
+  #      nofile:
+  #        soft: 65536
+  #        hard: 65536
+  #    cap_add:
+  #      - IPC_LOCK
+  #    deploy:
+  #      resources:
+  #        limits:
+  #          memory: 4g
+  #        reservations:
+  #          memory: 2g
+  #    logging:
+  #      driver: "json-file"
+  #      options:
+  #        max-size: "1g"
+
+  deepfence-router:
+    container_name: deepfence-router
+    image: deepfenceio/deepfence_router_ce:latest
+    ulimits:
+      core: 0
+    networks:
+      - deepfence_net
+      - t2_proxy
+    restart: always
+#    ports:
+#      - "80:80"
+#      - "${MGMT_CONSOLE_PORT:-443}:443"
+    volumes:
+      - /etc/deepfence/certs:/etc/deepfence/certs/:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.replaceme-https.loadbalancer.server.port=80  # Tell Traefik the port this webapp runs on.
+      - traefik.http.routers.replaceme-https.entrypoints=https  # Only listen for https. The default Traefik set up reroutes all http to https for us.
+      - traefik.http.routers.replaceme-https.rule=Host(`${REPLACEMESUB?REPLACEME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)  # Set the URL for external access.
+      - traefik.http.routers.replaceme-https.tls=true  # Use letsencrypt.
+      - traefik.http.routers.replaceme-https.tls.certresolver=myresolver  # Standard resolver set up in traefik.
+      - traefik.http.routers.replaceme-https.middlewares=authelia@docker  # If authelia authentication is required.
+
+  deepfence-internal-router:
+    container_name: deepfence-internal-router
+    image: deepfenceio/deepfence_router_ce:latest
+    ulimits:
+      core: 0
+    networks:
+      - deepfence_net
+    ports:
+      - "127.0.0.1:8443:443"
+    environment:
+      ENABLE_AUTH: "false"
+    restart: always
+    volumes:
+      - /etc/deepfence/certs:/etc/deepfence/certs/:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-api:
+    container_name: deepfence-api
+    image: deepfenceio/deepfence_api_ce:latest
+    ulimits:
+      core: 0
+    tmpfs:
+      - /tmp
+    environment:
+      ANALYZER_REPLICATION_FACTOR: 1
+      ANALYZER_SERVICE_NAME_PREFIX: "deepfence-analyzer-"
+      ELASTICSEARCH_SCHEME: "http"
+    networks:
+      - deepfence_net
+    depends_on:
+      - deepfence-es
+#      - deepfence-es-slave1
+#      - deepfence-es-slave2
+      - deepfence-redis
+      - deepfence-postgres
+    volumes:
+      - /etc/docker/certs.d:/etc/docker/certs.d:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: /app/code/dockerify/api/entrypoint.sh
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-celery:
+    container_name: deepfence-celery
+    image: deepfenceio/deepfence_api_ce:latest
+    ulimits:
+      core: 0
+    entrypoint: /app/code/dockerify/celery/entrypoint.sh
+    restart: on-failure
+    networks:
+      - deepfence_net
+    depends_on:
+      - deepfence-redis
+      - deepfence-postgres
+    volumes:
+      - /etc/docker/certs.d:/etc/docker/certs.d:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-backend:
+    container_name: deepfence-backend
+    image: deepfenceio/deepfence_api_ce:latest
+    ulimits:
+      core: 0
+    entrypoint: /app/code/dockerify/backend/entrypoint.sh
+    restart: on-failure
+    networks:
+      - deepfence_net
+    depends_on:
+      - deepfence-init-container
+      - deepfence-redis
+      - deepfence-postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-ui:
+    container_name: deepfence-ui
+    image: deepfenceio/deepfence_ui_ce:latest
+    ulimits:
+      core: 0
+    networks:
+      - deepfence_net
+    restart: on-failure
+    depends_on:
+      - deepfence-topology
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-diagnosis:
+    container_name: deepfence-diagnosis
+    image: deepfenceio/deepfence_diagnosis_ce:latest
+    ulimits:
+      core: 0
+    networks:
+      - deepfence_net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-vulnerability-mapper:
+    container_name: deepfence-vulnerability-mapper
+    image: deepfenceio/deepfence_vulnerability_mapper_ce:latest
+    ulimits:
+      core: 0
+    restart: always
+    networks:
+      - deepfence_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+  deepfence-secret-scanner:
+    container_name: deepfence-secret-scanner
+    image: deepfenceio/deepfence_secret_scanner_ce:latest
+    ulimits:
+      core: 0
+    restart: always
+    networks:
+      - deepfence_net
+    entrypoint: /home/deepfence/usr/SecretScanner
+    command: ["-config-path", "/home/deepfence/usr", "-http-port", "8011"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+  deepfence-package-scanner:
+    container_name: deepfence-package-scanner
+    image: deepfenceio/deepfence_package_scanner_ce:latest
+    ulimits:
+      core: 0
+    restart: always
+    networks:
+      - deepfence_net
+    environment:
+      MGMT_CONSOLE_URL: "deepfence-internal-router"
+      MGMT_CONSOLE_PORT: "443"
+      PACKAGE_SCAN_CONCURRENCY: "5"
+    entrypoint: /usr/local/bin/package-scanner
+    command: ["-mode", "http-server", "-port", "8005"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1g"
+
+volumes:
+  deepfence_data:
+    driver: local
+
+networks:
+  deepfence_net:
+    driver: bridge
+  t2_proxy:
+    external: true

@@ -4,30 +4,43 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  gitea-data:
+  gitea-db-data:
+  gitea-db-config:
+  gitea-db-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  gitea-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   gitea:
-    image: gitea/gitea:1.16.4
+    image: gitea/gitea:$(GITEA_VERSION)
     container_name: gitea
     environment:
       - USER_UID=0
       - USER_GID=0
       - GITEA__database__DB_TYPE=mysql
       - GITEA__database__HOST=gitea-db:3306
-      - GITEA__database__NAME=${GITEADB_DB?GITEADB_DB Variable not set}
-      - GITEA__database__USER=${GITEADB_USER?GITEADB_USER Variable not set}
-      - GITEA__database__PASSWD=${GITEADB_PASS?GITEADB_PASS Variable not set}
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - GITEA__database__NAME=${GITEADB_DB}
+      - GITEA__database__USER=${GITEADB_USER}
+      - GITEA__database__PASSWD=${GITEADB_PASS}
+    restart: ${RESTART_POLICY}
     volumes:
-      - /var/data/gitea/data:/data
+      - gitea-data:/data
+      - gitea-log:/var/log
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - ${GITEA_SSHPORT?GITEA_SSHPORT Variable not set}:22
+      - ${GITEA_SSH_PORT}:22
     labels:
       - traefik.enable=true
       - traefik.http.services.gitea-https.loadbalancer.server.port=3000
       - traefik.http.routers.gitea-https.entrypoints=https
-      - traefik.http.routers.gitea-https.rule=Host(`${GITEA_SUB?GITEA_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.gitea-https.rule=Host(`${GITEA_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.gitea-https.tls=true
       - traefik.http.routers.gitea-https.tls.certresolver=myresolver
       - traefik.http.routers.gitea-https.middlewares=authelia@docker
@@ -36,19 +49,21 @@ services:
     networks:
       t2_proxy:
   gitea-db:
-    image: mysql:8
+    image: mysql:${GITEA_MYSQL_VERSION}
     container_name: gitea-db
     hostname: gitea-db
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     environment:
-      - MYSQL_ROOT_PASSWORD=${GITEADB_ROOTPASS?GITEADB_ROOTPASS Variable not set}
-      - MYSQL_USER=${GITEADB_USER?GITEADB_USER Variable not set}
-      - MYSQL_PASSWORD=${GITEADB_PASS?GITEADB_PASS Variable not set}
-      - MYSQL_DATABASE=${GITEADB_DB?GITEADB_DB Variable not set}
+      - MYSQL_ROOT_PASSWORD=${GITEADB_ROOTPASS}
+      - MYSQL_USER=${GITEADB_USER}
+      - MYSQL_PASSWORD=${GITEADB_PASS}
+      - MYSQL_DATABASE=${GITEADB_DB}
     volumes:
-      - /var/data/gitea/mysql:/var/lib/mysql
+      - gitea-db-data:/var/lib/mysql
+      - gitea-db-log:/var/log
+      - gitea-db-config:/etc/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${GITEADB_ROOTPASS?GITEADB_ROOTPASS variable does not exist}"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${GITEADB_ROOTPASS}"]
       interval: 10s
       timeout: 5s
       retries: 5

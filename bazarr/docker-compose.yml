@@ -4,24 +4,31 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  bazarr-config:
+  bazarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   bazarr:
-    image: lscr.io/linuxserver/bazarr
+    image: lscr.io/linuxserver/bazarr:${BAZARR_VERSION}
     container_name: bazarr
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
-      - /var/data/bazarr/config:/config
-      - /mnt/movies:/movies
-      - /mnt/tv:/tv
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - bazarr-config:/config
+      - bazarr-log:/var/log
+      - ${MOVIES_DIRECTORY}:/movies
+      - ${TV_DIRECTORY}:/tv
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.bazarr-https.loadbalancer.server.port=6767
       - traefik.http.routers.bazarr-https.entrypoints=https
-      - traefik.http.routers.bazarr-https.rule=Host(`${BAZ?AIRSONIC_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.bazarr-https.rule=Host(`${BAZARR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.bazarr-https.tls=true
       - traefik.http.routers.bazarr-https.tls.certresolver=myresolver
       - traefik.http.routers.bazarr-https.middlewares=authelia@docker

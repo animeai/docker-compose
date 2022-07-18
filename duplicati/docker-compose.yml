@@ -4,25 +4,32 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  duplicati-config:
+  duplicati-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   duplicati:
-    image: lscr.io/linuxserver/duplicati
+    image: lscr.io/linuxserver/duplicati:${DUPLICATI_VERSION}
     container_name: duplicati
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
 #      - CLI_ARGS= #optional
     volumes:
-      - /var/data/duplicati/config:/config
-      - /mnt/backups:/backups
-      - /mnt/duplicati/source:/source
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - duplicati-config:/config
+      - duplicati-log:/var/log
+      - ${BACKUPS_DIRECTORY}:/backups
+      - ${DUPLICATI_BACKUP_SOURCE}:/source
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.duplicati-https.loadbalancer.server.port=8200
       - traefik.http.routers.duplicati-https.entrypoints=https
-      - traefik.http.routers.duplicati-https.rule=Host(`${DUPLICATI_SUB?DUPLICATI_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.duplicati-https.rule=Host(`${DUPLICATI_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.duplicati-https.tls=true
       - traefik.http.routers.duplicati-https.tls.certresolver=myresolver
       - traefik.http.routers.duplicati-https.middlewares=authelia@docker

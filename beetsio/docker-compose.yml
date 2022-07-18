@@ -1,0 +1,37 @@
+---
+# beets.io based man-in-the-middle of your torrent client and music player
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  beetsio-data:
+  beetsio-config-beets:
+  beetsio-config-betanin:
+  beetsio-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  beetsio:
+    image: sentriz/betanin:${BETANIN_VERSION}
+    container_name: beetzio
+    restart: ${RESTART_POLICY}
+    environment:
+      - UID=${USER_ID}
+      - GID=${GROUP_ID}
+    volumes:
+      - beetsio-data:/b/.local/share/betanin
+      - beetsio-config-betanin:/b/.config/betanin
+      - beetsio-config-beets:/b/.config/beets
+      - /mnt/music:/music
+      - /mnt/downloads:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.betanin-https.loadbalancer.server.port=9393
+      - traefik.http.routers.betanin-https.entrypoints=https
+      - traefik.http.routers.betanin-https.rule=Host(`${BETANIN_SUBDOMAIN}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.betanin-https.tls=true
+      - traefik.http.routers.betanin-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

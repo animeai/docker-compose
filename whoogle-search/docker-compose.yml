@@ -4,6 +4,8 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  whoogle-search-log:/var/log
 services:
   whoogle-search:
     image: benbusby/whoogle-search
@@ -11,6 +13,8 @@ services:
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     mem_limit: 512m
     mem_reservation: 128M
+    volumes:
+      - whoogle-search-log:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.services.whoogle-https.loadbalancer.server.port=5000

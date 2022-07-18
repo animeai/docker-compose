@@ -4,30 +4,37 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  emulatorjs-config:
+  emulatorjs-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   emulatorjs:
-    image: lscr.io/linuxserver/emulatorjs
+    image: lscr.io/linuxserver/emulatorjs:${EMULATORJS_VERSION}
     container_name: emulatorjs
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - SUBFOLDER=/  # optional
     volumes:
-      - /var/data/emulatorjs/config:/config
-      - /mnt/emulation:/data
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - emulatorjs-config:/config
+      - emulatorjs-log:/var/log
+      - ${EMULATION_DIRECTORY}:/data
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.emulatorjs-backend-https.loadbalancer.server.port=3000
       - traefik.http.routers.emulatorjs-backend-https.entrypoints=https
-      - traefik.http.routers.emulatorjs-backend-https.rule=Host(`${EMULATORJS_BACKEND_SUB?EMULATORJS_BACKEND_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.emulatorjs-backend-https.rule=Host(`${EMULATORJS_BACKEND_SUBDOMIAN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.emulatorjs-backend-https.tls=true
       - traefik.http.routers.emulatorjs-backend-https.tls.certresolver=myresolver
       - traefik.http.routers.emulatorjs-backend-https.middlewares=authelia@docker
       - traefik.http.services.emulatorjs-https.loadbalancer.server.port=80
       - traefik.http.routers.emulatorjs-https.entrypoints=https
-      - traefik.http.routers.emulatorjs-https.rule=Host(`${EMULATORJS_SUB?EMULATORJS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.emulatorjs-https.rule=Host(`${EMULATORJS_SUBDOMIAN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.emulatorjs-https.tls=true
       - traefik.http.routers.emulatorjs-https.tls.certresolver=myresolver
       - traefik.http.routers.emulatorjs-https.middlewares=authelia@docker

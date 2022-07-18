@@ -4,22 +4,29 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  muximux-config:
+  muximux-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   muximux:
-    image: lscr.io/linuxserver/muximux
+    image: lscr.io/linuxserver/muximux:${MUXIMUX_VERSION}
     container_name: muximux
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
-      - /var/data/muximux/config:/config
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - muximux-config:/config
+      - muximux-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.muximux-https.loadbalancer.server.port=80
       - traefik.http.routers.muximux-https.entrypoints=https
-      - traefik.http.routers.muximux-https.rule=Host(`${MUXIMUX_SUB?MUXIMUX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.muximux-https.rule=Host(`${MUXIMUX_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.muximux-https.tls=true
       - traefik.http.routers.muximux-https.tls.certresolver=myresolver
       - traefik.http.routers.muximux-https.middlewares=authelia@docker

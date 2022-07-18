@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  tautulli-config:
+  tautulli-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   tautulli:
     image: lscr.io/linuxserver/tautulli
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/tautulli/config:/config
+      - tautulli-config:/config
+      - tautulli-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

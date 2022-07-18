@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  radarr-config:
+  radarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   radarr:
     image: lscr.io/linuxserver/radarr
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/radarr/config:/config
+      - radarr-config:/config
+      - radarr-log:/var/log
       - /mnt/movies:/movies
       - /mnt/downloads:/downloads
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

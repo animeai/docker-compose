@@ -4,23 +4,30 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  ombi-config:
+  ombi-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   ombi:
-    image: lscr.io/linuxserver/ombi
+    image: lscr.io/linuxserver/ombi:${OMBI_VERSION}
     container_name: ombi
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - BASE_URL=/ombi  # optional
     volumes:
-      - /var/data/ombi/config:/config
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - ombi-config:/config
+      - ombi-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.ombi-https.loadbalancer.server.port=3579
       - traefik.http.routers.ombi-https.entrypoints=https
-      - traefik.http.routers.ombi-https.rule=Host(`${OMBI_SUB?OMBI_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.ombi-https.rule=Host(`${OMBI_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.ombi-https.tls=true
       - traefik.http.routers.ombi-https.tls.certresolver=myresolver
       - traefik.http.routers.ombi-https.middlewares=authelia@docker

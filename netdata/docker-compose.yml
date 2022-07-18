@@ -1,0 +1,36 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
+services:
+  netdata:
+    image: netdata/netdata:${NETDATA_VERSION}
+    container_name: netdata
+    hostname: ${NETDATA_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.netdata-https.loadbalancer.server.port=19999
+      - traefik.http.routers.netdata-https.entrypoints=https
+      - traefik.http.routers.netdata-https.rule=Host(`${NETDATA_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.netdata-https.tls=true
+      - traefik.http.routers.netdata-https.tls.certresolver=myresolver
+      - traefik.http.routers.netdata-https.middlewares=authelia@docker

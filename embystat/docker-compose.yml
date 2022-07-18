@@ -4,22 +4,29 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  embystat-config:
+  embystat-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   embystat:
-    image: lscr.io/linuxserver/embystat
+    image: lscr.io/linuxserver/embystat:${EMBYSTAT_VERSION}
     container_name: embystat
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
-      - /var/data/embystat/config:/config
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - embystat-config:/config
+      - embystat-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.embystat-https.loadbalancer.server.port=6555
       - traefik.http.routers.embystat-https.entrypoints=https
-      - traefik.http.routers.embystat-https.rule=Host(`${EMBYSTAT_SUB?EMBYSTAT_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.embystat-https.rule=Host(`${EMBYSTAT_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.embystat-https.tls=true
       - traefik.http.routers.embystat-https.tls.certresolver=myresolver
       - traefik.http.routers.embystat-https.middlewares=authelia@docker

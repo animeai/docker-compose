@@ -1,0 +1,40 @@
+---
+# Airsonic-Advanced is a more modern implementation of the Airsonic fork with several key performance and feature enhancements. It adds and supersedes several features in Airsonic.. Airsonic is a free, web-based media streamer, providing ubiquitous access to your music. Use it to share your music with friends, or to listen to your own music while at work. You can stream to multiple players simultaneously, for instance to one player in your kitchen and another in your living room.
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  airsonic-advanced-config:
+  airsonic-advanced-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  airsonic-advanced:
+    image: lscr.io/linuxserver/airsonic-advanced:${AIRSONIC_VERSION}
+    container_name: airsonic-advanced
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - CONTEXT_PATH=${AIRSONIC_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
+    volumes:
+      - airsonic-advanced-config:/config
+      - airsonice-advanced-log:/var/log
+      - ${MUSIC_DIRECTORY}:/music
+      - ${PLAYLISTS_DIRECTORY}:/playlists
+      - ${PODCASTS_DIRECTORY}:/podcasts
+    restart: ${RESTART_POLICY}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.airsonic-https.loadbalancer.server.port=4040
+      - traefik.http.routers.airsonic-https.entrypoints=https
+      - traefik.http.routers.airsonic-https.rule=Host(`${AIRSONIC_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.airsonic-https.tls=true
+      - traefik.http.routers.airsonic-https.tls.certresolver=myresolver
+      - traefik.http.routers.airsonic-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
+    devices:
+      - /dev/snd:/dev/snd

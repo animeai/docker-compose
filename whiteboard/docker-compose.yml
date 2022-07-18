@@ -4,12 +4,19 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  whiteboard-data:
+  whiteboard-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   whiteboard:
     image: lovasoa/wbo:latest
     container_name: whiteboard
     volumes:
-      - /var/data/whiteboard/data:/opt/app/server-data
+      - whiteboard-data:/opt/app/server-data
+      - whiteboard-log:/var/log
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

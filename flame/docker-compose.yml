@@ -4,21 +4,28 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  flame-data:
+  flame-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   flame:
-    image: pawelmalak/flame
+    image: pawelmalak/flame:${FLAME_VERSION}
     container_name: flame
     volumes:
-      - /var/data/flame/data:/app/data
+      - flame-data:/app/data
+      - flame-log:/var/log
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - PASSWORD=${FLAME_PASS?FLAME_PASS Variable not set}
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - PASSWORD=${FLAME_PASSWORD}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.flame-https.loadbalancer.server.port=5005
       - traefik.http.routers.flame-https.entrypoints=https
-      - traefik.http.routers.flame-https.rule=Host(`${FLAME_SUB?FLAME_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.flame-https.rule=Host(`${FLAME_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.flame-https.tls=true
       - traefik.http.routers.flame-https.tls.certresolver=myresolver
       - traefik.http.routers.flame-https.middlewares=authelia@docker

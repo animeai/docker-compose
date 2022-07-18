@@ -4,6 +4,12 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  readarr-config:
+  readarr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   readarr:
     image: lscr.io/linuxserver/readarr:develop
@@ -13,7 +19,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/readarr/config:/config
+      - readarr-config:/config
+      - readarr-log:/var/log
       - /mnt/books:/books
       - /mnt/downloads:/downloads
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}

@@ -1,0 +1,33 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  audacity-config:
+  audacity-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  audacity:
+    image: lscr.io/linuxserver/audacity:${AUDACITY_VERSION}
+    container_name: audacity
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - audacity-config:/config
+      - audacity-log:/var/log
+    restart: ${RESTART_POLICY}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.audacity-https.loadbalancer.server.port=3000
+      - traefik.http.routers.audacity-https.entrypoints=https
+      - traefik.http.routers.audacity-https.rule=Host(`${AUDACITY_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.audacity-https.tls=true
+      - traefik.http.routers.audacity-https.tls.certresolver=myresolver
+      - traefik.http.routers.audacity-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:

@@ -4,11 +4,18 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  supermario-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   supermario:
     image: pengbai/docker-supermario
     container_name: supermario
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    volumes:
+      - supermario-log:/var/data
     labels:
       - traefik.enable=true
       - traefik.http.services.supermario-https.loadbalancer.server.port=8080

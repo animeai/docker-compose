@@ -1,16 +1,22 @@
 ---
-# To test - english or russian?
+# To test - english or russian? What does /mnt/torrents do, should it be /mnt/downloads?
 version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  torrentmonitor-db:
+  torrentmonitor-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   torrentmonitor:
     image: alfonder/torrentmonitor
     container_name: torrentmonitor
     volumes:
-      - /mnt/torrents:/data/htdocs/torrents
-      - /var/data/torrentmonitor/db:/data/htdocs/db
+      - /mnt/torrents:/data/htdocs/torrents  # What does this dir do?
+      - torrentmonitor-db:/data/htdocs/db
     restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
     labels:
       - traefik.enable=true

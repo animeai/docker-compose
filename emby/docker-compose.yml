@@ -4,25 +4,32 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  emby-config:
+  emby-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   emby:
-    image: lscr.io/linuxserver/emby
+    image: lscr.io/linuxserver/emby:${EMBY_VERSION}
     container_name: emby
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
-      - /var/data/emby/config:/config
-      - /mnt/tv:/data/tvshows
-      - /mnt/movies:/data/movies
-      - /mnt/anime:/data/anime
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - emby-config:/config
+      - emby-log:/var/log
+      - ${TV_DIRECTORY}:/data/tvshows
+      - ${MOVIES_DIRECTORY}:/data/movies
+      - ${ANIME_DIRECTORY}:/data/anime
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.emby-https.loadbalancer.server.port=8096
       - traefik.http.routers.emby-https.entrypoints=https
-      - traefik.http.routers.emby-https.rule=Host(`${EMBY_SUB?EMBY_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.emby-https.rule=Host(`${EMBY_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.emby-https.tls=true
       - traefik.http.routers.emby-https.tls.certresolver=myresolver
       - traefik.http.routers.emby-https.middlewares=authelia@docker

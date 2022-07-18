@@ -4,31 +4,38 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  calibre-config:
+  calibre-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   calibre:
-    image: lscr.io/linuxserver/calibre
+    image: lscr.io/linuxserver/calibre:${CALIBRE_VERSION}
     container_name: calibre
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
 #      - PASSWORD= #optional
 #      - CLI_ARGS= #optional
     volumes:
-      - /var/data/calibre/config:/config
-      - /mnt/ebooks:/ebooks
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - calibre-config:/config
+      - calibre-log:/var/log
+      - ${EBOOKS_DIRECTORY}:/ebooks
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.calibre-https.loadbalancer.server.port=8080
       - traefik.http.routers.calibre-https.entrypoints=https
-      - traefik.http.routers.calibre-https.rule=Host(`${CALIBRE_SUB?CALIBRE_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.calibre-https.rule=Host(`${CALIBRE_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.calibre-https.tls=true
       - traefik.http.routers.calibre-https.tls.certresolver=myresolver
       - traefik.http.routers.calibre-https.middlewares=authelia@docker
       - traefik.http.services.calibre-server-https.loadbalancer.server.port=8081
       - traefik.http.routers.calibre-server-https.entrypoints=https
-      - traefik.http.routers.calibre-server-https.rule=Host(`${CALIBRE_SERVER_SUB?CALIBRE_SERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.calibre-server-https.rule=Host(`${CALIBRE_SERVER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.calibre-server-https.tls=true
       - traefik.http.routers.calibre-server-https.tls.certresolver=myresolver
       - traefik.http.routers.calibre-server-https.middlewares=authelia@docker

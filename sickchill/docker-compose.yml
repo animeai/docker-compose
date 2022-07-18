@@ -4,6 +4,9 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  sickchill-config:
+  sickchill-log:
 services:
   sickchill:
     image: lscr.io/linuxserver/sickchill
@@ -13,7 +16,8 @@ services:
       - PGID=${PGID?PGID Variable not set}
       - TZ=${TIMEZONE?TIMEZONE Variable not set}
     volumes:
-      - /var/data/sickchill/config:/config
+      - sickchill-config:/config
+      - sickchill-log:/var/log
       - /mnt/downloads:/downloads
       - /mnt/tv:/tv
       - /mnt/anime:/anime

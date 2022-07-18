@@ -4,18 +4,25 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  gaps-data:
+  gaps-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   gaps:
-    image: housewrecker/gaps:latest  # housewrecker/gaps:arm-latest for pi
+    image: housewrecker/gaps:${GAPS_VERSION}  # housewrecker/gaps:arm-latest for pi
     container_name: gaps
     volumes:
-      - /var/data/gaps/data:/gaps
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - gaps-data:/gaps
+      - gaps-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.gaps-https.loadbalancer.server.port=5000
       - traefik.http.routers.gaps-https.entrypoints=https
-      - traefik.http.routers.gaps-https.rule=Host(`${GAPS_SUB?GAPS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.gaps-https.rule=Host(`${GAPS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.gaps-https.tls=true
       - traefik.http.routers.gaps-https.tls.certresolver=myresolver
       - traefik.http.routers.gaps-https.middlewares=authelia@docker

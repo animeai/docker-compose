@@ -1,25 +1,33 @@
 ---
 # LanguageTool is an Open Source proofreading software for English, French, German, Polish, Russian, and more than 20 other languages.
+# TO DO: Set java options as .env variables
 version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  languagetool-data:
+  languagetool-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   languagetool:
-    image: erikvl87/languagetool
+    image: erikvl87/languagetool:${LANGUAGETOOL_VERSION}
     container_name: languagetool
     environment:
       - langtool_languageModel=/ngrams  # OPTIONAL: Using ngrams data
       - Java_Xms=512m  # OPTIONAL: Setting a minimal Java heap size of 512 mib
       - Java_Xmx=1g  # OPTIONAL: Setting a maximum Java heap size of 1 Gib
     volumes:
-      - /var/data/ngrams/data:/ngrams
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - languagetool-data:/ngrams
+      - languagetool-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.languagetool-https.loadbalancer.server.port=8010
       - traefik.http.routers.languagetool-https.entrypoints=https
-      - traefik.http.routers.languagetool-https.rule=Host(`${LANGUAGETOOL_SUB?LANGUAGETOOL_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.languagetool-https.rule=Host(`${LANGUAGETOOL_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.languagetool-https.tls=true
       - traefik.http.routers.languagetool-https.tls.certresolver=myresolver
       - traefik.http.routers.languagetool-https.middlewares=authelia@docker

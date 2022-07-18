@@ -1,0 +1,25 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  apprise-api-config:
+  apprise-api-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  apprise-api:
+    image: lscr.io/linuxserver/apprise-api:${APPRISE_VERSION}
+    container_name: apprise-api
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - apprise-api-config:/config
+      - apprise-api-log:/var/log
+    ports:
+      - ${APPRISE_PORT}:8000
+    restart: ${RESTART_POLICY}

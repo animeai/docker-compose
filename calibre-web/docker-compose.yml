@@ -4,27 +4,32 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  calibreweb-config:
+  calibreweb-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   calibre-web:
-    image: lscr.io/linuxserver/calibre-web
+    image: lscr.io/linuxserver/calibre-web:${CALIBREWEB_VERSION}
     container_name: calibre-web
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - DOCKER_MODS=linuxserver/calibre-web:calibre  # optional
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1  # optional
     volumes:
-      - /var/data/calibreweb/config:/config
+      - calibreweb-config:/config
+      - calibreweb-log:/var/log
       - /mnt/ebooks:/books
-    ports:
-      - 8083:8083
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.calibreweb-https.loadbalancer.server.port=8083
       - traefik.http.routers.calibreweb-https.entrypoints=https
-      - traefik.http.routers.calibreweb-https.rule=Host(`${CALIBREWEB_SUB?CALIBREWEB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.calibreweb-https.rule=Host(`${CALIBREWEB_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.calibreweb-https.tls=true
       - traefik.http.routers.calibreweb-https.tls.certresolver=myresolver
       - traefik.http.routers.calibre-web-https.middlewares=authelia@docker

@@ -1,25 +1,32 @@
 ---
 # Monitorr is a self-hosted PHP web app that monitors the status of local and remote network services, websites, and applications.
 version: "3.8"
+volumes:
+  monitorr-app:
+  monitorr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 networks:
   t2_proxy:
     external: true
 services:
   monitorr:
-    image: monitorr/monitorr
+    image: monitorr/monitorr:${MONITORR_VERSION}
     container_name: monitorr
     environment:
-      TZ: ${TIMEZONE?TIMEZONE Variable not set}
-      PGID: 0
-      PUGI: 0
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
-      - /var/data/monitorr/app:/app
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - monitorr-app:/app
+      - monitorr-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.monitorr-https.loadbalancer.server.port=80
       - traefik.http.routers.monitorr-https.entrypoints=https
-      - traefik.http.routers.monitorr-https.rule=Host(`${MONITORR_SUB?MONITORR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.monitorr-https.rule=Host(`${MONITORR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.monitorr-https.tls=true
       - traefik.http.routers.monitorr-https.tls.certresolver=myresolver
       - traefik.http.routers.monitorr-https.middlewares=authelia@docker

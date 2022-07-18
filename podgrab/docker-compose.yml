@@ -4,24 +4,31 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  podgrab-config:
+  podgrab-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   podgrab:
-    image: akhilrex/podgrab
+    image: akhilrex/podgrab:${PODGRAB_VERSION}
     container_name: podgrab
     environment:
       - CHECK_FREQUENCY=240
 #      - PASSWORD=password     ## Uncomment to enable basic authentication, username = podgrab
     volumes:
-      - /var/data/podgrab/config:/config
-      - /path/to/data:/assets
+      - podgrab-config:/config
+      - podgrab-log:/var/log
+      - ${PODCASTS_DIRECTORY}:/assets
     ports:
       - 8080:8080
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.podgrab-https.loadbalancer.server.port=8080
       - traefik.http.routers.podgrab-https.entrypoints=https
-      - traefik.http.routers.podgrab-https.rule=Host(`${PODGRAB_SUB?PODGRAB_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.podgrab-https.rule=Host(`${PODGRAB_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.podgrab-https.tls=true
       - traefik.http.routers.podgrab-https.tls.certresolver=myresolver
       - traefik.http.routers.podgrab-https.middlewares=authelia@docker

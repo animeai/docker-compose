@@ -5,20 +5,32 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  owncloud-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  owncloud-mariadb-data:
+  owncloud-mariadb-conf:
+  owncloud-mariadb-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+  owncloud-redis-data:
 services:
   owncloud:
-    image: owncloud/server
+    image: owncloud/server:${OWNCLOUD_VERSION}
     container_name: owncloud
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     environment:
-      - OWNCLOUD_DOMAIN=${OWNCLOUD_SUB?OWNCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - OWNCLOUD_DOMAIN=${OWNCLOUD_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
       - OWNCLOUD_DB_TYPE=mysql
       - OWNCLOUD_DB_NAME=owncloud
-      - OWNCLOUD_DB_USERNAME=${OWNCLOUD_MYSQL_USERNAME?OWNCLOUD_MYSQL_USERNAME variable does not exist}
-      - OWNCLOUD_DB_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD?OWNCLOUD_MYSQL_PASSWORD variable does not exist}
+      - OWNCLOUD_DB_USERNAME=${OWNCLOUD_MYSQL_USERNAME}
+      - OWNCLOUD_DB_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD}
       - OWNCLOUD_DB_HOST=owncloud-mariadb
-      - OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME?OWNCLOUD_ADMIN_USERNAME variable does not exist}
-      - OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD?OWNCLOUD_ADMIN_PASSWORD variable does not exist}
+      - OWNCLOUD_ADMIN_USERNAME=${OWNCLOUD_ADMIN_USERNAME}
+      - OWNCLOUD_ADMIN_PASSWORD=${OWNCLOUD_ADMIN_PASSWORD}
       - OWNCLOUD_MYSQL_UTF8MB4=true
       - OWNCLOUD_REDIS_ENABLED=true
       - OWNCLOUD_REDIS_HOST=owncloud-redis
@@ -33,7 +45,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.owncloud-https.loadbalancer.server.port=8080
       - traefik.http.routers.owncloud-https.entrypoints=https
-      - traefik.http.routers.owncloud-https.rule=Host(`${OWNCLOUD_SUB?OWNCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.owncloud-https.rule=Host(`${OWNCLOUD_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.owncloud-https.tls=true
       - traefik.http.routers.owncloud-https.tls.certresolver=myresolver
       - traefik.http.routers.owncloud-https.middlewares=authelia@docker
@@ -43,28 +55,30 @@ services:
       - owncloud-mariadb
       - owncloud-redis
   owncloud-mariadb:
-    image: mariadb:10.5
+    image: mariadb:${OWNCLOUD_MYSQL_VERSION}
     container_name: owncloud-mariadb
     hostname: owncloud-mariadb
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     environment:
-      - MYSQL_ROOT_PASSWORD=${OWNCLOUD_ROOT_PASSWORD?OWNCLOUD_ROOT_PASSWORD variable does not exist}
-      - MYSQL_USER=${OWNCLOUD_MYSQL_USERNAME?OWNCLOUD_MYSQL_USERNAME variable does not exist}
-      - MYSQL_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD?OWNCLOUD_MYSQL_PASSWORD variable does not exist}
+      - MYSQL_ROOT_PASSWORD=${OWNCLOUD_MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${OWNCLOUD_MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${OWNCLOUD_MYSQL_PASSWORD}
       - MYSQL_DATABASE=owncloud
     command: ["--max-allowed-packet=128M", "--innodb-log-file-size=64M"]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${OWNCLOUD_ROOT_PASSWORD?OWNCLOUD_ROOT_PASSWORD variable does not exist}"]
+      test: ["CMD", "mysqladmin", "ping", "-u", "root", "--password=${OWNCLOUD_MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - /var/data/owncloud/mysql:/var/lib/mysql
+      - owncloud-mysql-data:/var/lib/mysql
+      - owncloud-mysql-config:/etc/mysql
+      - owncloud-mysql-log:/var/log
   owncloud-redis:
-    image: redis:6
+    image: redis:${OWNCLOUD_REDIS_VERSION}
     container_name: owncloud-redis
     hostname: owncloud-redis
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     command: ["--databases", "1"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -72,4 +86,4 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - /var/data/owncloud/redis:/data
+      - owncloud-redis-data:/data

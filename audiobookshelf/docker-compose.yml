@@ -4,20 +4,28 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  audiobookshelf-config:
+  audiobookshelf-metadata:
+  audiobookshelf-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   audiobookshelf:
-    image: advplyr/audiobookshelf
+    image: advplyr/audiobookshelf:${AUDIOBOOKSHELF_VERSION}
     container_name: audiobookshelf
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     volumes:
-      - /var/data/audiobookshelf/config:/config
-      - /var/data/audiobookshelf/metadata:/metadata
-      - /mnt/audiobooks:/audiobooks
+      - audiobookshelf-config:/config
+      - audiobookshelf-metadata:/metadata
+      - audiobookshelf-log:/var/log
+      - ${AUDIOBOOKS_DIRECTORY}:/audiobooks
     labels:
       - traefik.enable=true
       - traefik.http.services.audiobookshelf-https.loadbalancer.server.port=80
       - traefik.http.routers.audiobookshelf-https.entrypoints=https
-      - traefik.http.routers.audiobookshelf-https.rule=Host(`${AUDIOBOOKSHELF_SUB?AUDIOBOOKSHELF_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.audiobookshelf-https.rule=Host(`${AUDIOBOOKSHELF_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.audiobookshelf-https.tls=true
       - traefik.http.routers.audiobookshelf-https.tls.certresolver=myresolver
       - traefik.http.routers.audiobookshelf-https.middlewares=authelia@docker

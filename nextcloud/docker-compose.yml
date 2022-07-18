@@ -4,23 +4,30 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  nextcloud-config:
+  nextcloud-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   nextcloud:
-    image: lscr.io/linuxserver/nextcloud
+    image: lscr.io/linuxserver/nextcloud:${NEXTCLOUD_VERSION}
     container_name: nextcloud
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
     volumes:
-      - /var/data/nextcloud/config:/config
-      - /mnt/nextcloud:/data
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - nextcloud-config:/config
+      - nextcloud-log:/var/log
+      - ${NEXTCLOUD_DIRECTORY}:/data
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.nextcloud-https.loadbalancer.server.port=443
       - traefik.http.routers.nextcloud-https.entrypoints=https
-      - traefik.http.routers.nextcloud-https.rule=Host(`${NEXTCLOUD_SUB?NEXTCLOUD_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.nextcloud-https.rule=Host(`${NEXTCLOUD_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.nextcloud-https.tls=true
       - traefik.http.routers.nextcloud-https.tls.certresolver=myresolver
       - traefik.http.routers.nextcloud-https.middlewares=authelia@docker

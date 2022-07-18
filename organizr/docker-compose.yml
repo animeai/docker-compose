@@ -4,23 +4,30 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  organizr-config:
+  organizr-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   organizr:
-    image: organizr/organizr
+    image: organizr/organizr:${ORGANIZR_VERSION}
     container_name: organizr
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
       - fpm="false"
       - branch="v2-master"
     volumes:
-      - /var/data/organizr/config:/config
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - organizr-config:/config
+      - organizr-log:/var/log
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.organizr-https.loadbalancer.server.port=80
       - traefik.http.routers.organizr-https.entrypoints=https
-      - traefik.http.routers.organizr-https.rule=Host(`${ORGANIZR_SUB?ORGANIZR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.organizr-https.rule=Host(`${ORGANIZR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.organizr-https.tls=true
       - traefik.http.routers.organizr-https.tls.certresolver=myresolver
       - traefik.http.routers.organizr-https.middlewares=authelia@docker

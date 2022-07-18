@@ -4,15 +4,22 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  plex-config:
+  plex-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   plex:
-    image: lscr.io/linuxserver/plex
+    image: lscr.io/linuxserver/plex:${PLEX_VERSION}
     container_name: plex
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
       - VERSION=docker
-      - PLEX_CLAIM=${PLEX_CLAIM?PLEX_CLAIM Variable not set}
+      - PLEX_CLAIM=${PLEX_CLAIM}
     ports:
       - 32400:32400
       - 1900:1900/udp
@@ -25,17 +32,18 @@ services:
       - 32414:32414/udp
       - 32469:32469
     volumes:
-      - /mnt/plex/config:/config
-      - /mnt/tv:/tv
-      - /mnt/anime:/anime
-      - /mnt/movies:/movies
-      - /mnt/music:/music
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - plex-config:/config
+      - plex-log:/var/log
+      - ${TV_DIRECTORY}:/tv
+      - ${ANIME_DIRECTORY}:/anime
+      - ${MOVIES_DIRECTORY}:/movies
+      - ${MUSIC_DIRECTORY}:/music
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.plex-https.loadbalancer.server.port=32400
       - traefik.http.routers.plex-https.entrypoints=https
-      - traefik.http.routers.plex-https.rule=Host(`${PLEX_SUB?PLEX_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.plex-https.rule=Host(`${PLEX_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.plex-https.tls=true
       - traefik.http.routers.plex-https.tls.certresolver=myresolver
       - traefik.http.routers.plex-https.middlewares=authelia@docker

@@ -4,30 +4,37 @@ version: "3.8"
 networks:
   t2_proxy:
     external: true
+volumes:
+  codeserver-config:
+  codeserver-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 services:
   code-server:
-    image: lscr.io/linuxserver/code-server
+    image: lscr.io/linuxserver/code-server:${CODESERVER_VERSION}
     container_name: code-server
     environment:
-      - PUID=${PUID?PUID Variable not set}
-      - PGID=${PGID?PGID Variable not set}
-      - TZ=${TIMEZONE?TIMEZONE Variable not set}
-      - PASSWORD=${CODE_SERVER_PASS?CODE_SERVER_PASS Variable not set}
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - PASSWORD=${CODE_SERVER_PASSWORD}
 #      - HASHED_PASSWORD= #optional
-      - SUDO_PASSWORD=${CODE_SERVER_SUDO_PASS?CODE_SERVER_SUDO_PASS Variable not set}
+      - SUDO_PASSWORD=${CODE_SERVER_SUDO_PASSWORD}
 #      - SUDO_PASSWORD_HASH= #optional
-      - PROXY_DOMAIN=${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}  # optional
+      - PROXY_DOMAIN=${CODESERVER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}  # optional
       - DEFAULT_WORKSPACE=/config/workspace  # optional
     volumes:
-      - /var/data/codeserver/config:/config
-      - /mnt/code:/code
-      - /mnt/home:/mnt/home
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+      - codeserver-config:/config
+      - codeserver-log:/var/log
+      - ${CODE_DIRECTORY}:/code
+      - ${HOME_DIRECTORY}:/mnt/home
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.codeserver-https.loadbalancer.server.port=8443
       - traefik.http.routers.codeserver-https.entrypoints=https
-      - traefik.http.routers.codeserver-https.rule=Host(`${CODESERVER_SUB?CODESERVER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.codeserver-https.rule=Host(`${CODESERVER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.codeserver-https.tls=true
       - traefik.http.routers.codeserver-https.tls.certresolver=myresolver
       - traefik.http.routers.codeserver-https.middlewares=authelia@docker

@@ -1,0 +1,35 @@
+---
+version: "3.8"
+networks:
+  t2_proxy:
+    external: true
+volumes:
+  beets-config:
+  beets-log:
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+services:
+  beets:
+    image: lscr.io/linuxserver/beets:${BEETS_VERSION}
+    container_name: beets
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - beets-config:/config
+      - beets-log:/var/log
+      - ${MUSIC_DIRECTORY}:/music
+      - ${DOWNLOADS_DIRECTORY}/music:/downloads
+    restart: ${RESTART_POLICY}
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.beets-https.loadbalancer.server.port=8337
+      - traefik.http.routers.beets-https.entrypoints=https
+      - traefik.http.routers.beets-https.rule=Host(`${BEETS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
+      - traefik.http.routers.beets-https.tls=true
+      - traefik.http.routers.beets-https.tls.certresolver=myresolver
+      - traefik.http.routers.beets-https.middlewares=authelia@docker
+    networks:
+      t2_proxy:
