@@ -6,7 +6,7 @@ version: "3.8"
 networks:
   t2_proxy:
     external:
-  smarthome:
+  adguardhome:
     driver: macvlan
     driver_opts:
       parent: ${MAIN_NETWORK_ADAPTER}
@@ -59,7 +59,7 @@ services:
       - traefik.http.routers.adguardhome-one-https.tls=true
       - traefik.http.routers.adguardhome-one-https.tls.certresolver=myresolver
     networks:
-      smarthome:
+      adguardhome:
         - ipv4_address: ${ADGUARDHOME_IP_ONE}
       t2_proxy:
   adguardhome-two:
@@ -80,7 +80,7 @@ services:
       - adguardhome-two-log:/var/log
     restart: ${RESTART_POLICY}
     networks:
-      smarthome:
+      adguardhome:
         ipv4_address: ${ADGUARDHOME_IP_TWO}
       t2_proxy:
     labels:

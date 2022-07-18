@@ -12,7 +12,7 @@ volumes:
       device: tmpfs
 services:
   portainer:
-    image: portainer/portainer-ce:latest
+    image: portainer/portainer-ce:${PORTAINER_VERSION}
     container_name: portainer
     command: -H tcp://tasks.agent:9001 --tlsskipverify
     ports:
@@ -21,11 +21,13 @@ services:
     volumes:
       - portainer-data:/data
       - portainer-log:/var/log
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - traefik.enable=true
       - traefik.http.services.portainer-https.loadbalancer.server.port=9443
       - traefik.http.routers.portainer-https.entrypoints=https
-      - traefik.http.routers.portainer-https.rule=Host(`${PORTAINER_SUB?PORTAINER_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.portainer-https.rule=Host(`${PORTAINER_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.portainer-https.tls=true
       - traefik.http.routers.portainer-https.tls.certresolver=myresolver
       - traefik.http.routers.portainer-https.middlewares=authelia@docker

@@ -13,20 +13,20 @@ volumes:
       device: tmpfs
 services:
   posterr:
-    image: petersem/posterr
+    image: petersem/posterr:${POSTERR_VERSION}
     environment:
-      TZ: ${TIMEZONE?TIMEZONE Variable not set}
+      TZ: ${TIMEZONE}
       BASEPATH: ""
     volumes:
       - posterr-config:/usr/src/app/config
       - posterr-custom:/usr/src/app/public/custom
       - posterr-log:/var/log
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     labels:
       - traefik.enable=true
       - traefik.http.services.dashmachine-https.loadbalancer.server.port=3000
       - traefik.http.routers.dashmachine-https.entrypoints=https
-      - traefik.http.routers.dashmachine-https.rule=Host(`${POSTERR_SUB?POSTERR_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.dashmachine-https.rule=Host(`${POSTERR_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.dashmachine-https.tls=true
       - traefik.http.routers.dashmachine-https.tls.certresolver=myresolver
       - traefik.http.routers.dashmachine-https.middlewares=authelia@docker

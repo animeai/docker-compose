@@ -1,19 +1,19 @@
 ---
 # Portus is a Self hosted registry
-# TODO: Set IP on the registry not the app? Test what works etc. Work out what to do with portus-clair.conf and portus.crt
+# TODO: Set IP on the registry not the app? Test what works etc. Work out what to do with portus-clair.conf and portus.crt. Set up database to not use root. Check "development" vs "latest". MySQL normal image and healthchecks.
 version: "3.8"
 networks:
   t2_proxy:
     external: true
-  pihole:
+  portus:
     driver: macvlan
     driver_opts:
-      parent: ${ETHERNET_PORT?ETHERNET_PORT Variable not set}
+      parent: ${MAIN_NETWORK_ADAPTER}
     ipam:
       config:
-        subnet: ${SUBNET_IP?SUBNET_IP Variable not set}
-        gateway: ${GATEWAY_IP?GATEWAY_IP Variable not set}
-        ip_range: ${SUBNET_RANGE?SUBNET_RANGE Variable not set}
+        subnet: ${MAIN_SUBNET}
+        gateway: ${MAIN_GATEWAY}
+        ip_range: ${ALLOCATE_SUBNET}
 volumes:
   portus-data:
   portus-background:
@@ -43,18 +43,18 @@ volumes:
 services:
   portus:
     build: .
-    image: opensuse/portus:development
+    image: opensuse/portus:${PORTUS_VERION}  # "development"?
     container_name: portus
     mac_address: e1:23:df:35:0d:5c
     command: bundle exec rails runner /srv/Portus/examples/development/compose/init.rb
     environment:
-      - PORTUS_MACHINE_FQDN_VALUE=${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - PORTUS_MACHINE_FQDN_VALUE=${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
       - PORTUS_PUMA_HOST=0.0.0.0:3000
       - PORTUS_CHECK_SSL_USAGE_ENABLED=false
       - PORTUS_SECURITY_CLAIR_SERVER=http://portus-clair:6060
       - CCONFIG_PREFIX=PORTUS
       - PORTUS_DB_HOST=portus-db
-      - PORTUS_DB_PASSWORD=${PORTUSDB_PASS?PORTUSDB_PASS Variable not set}
+      - PORTUS_DB_PASSWORD=${PORTUS_MYSQL_ROOT_PASS}
       - PORTUS_DB_POOL=5
       - RAILS_SERVE_STATIC_FILES=true
     ports:
@@ -63,12 +63,13 @@ services:
       - traefik.enable=true
       - traefik.http.services.portus-https.loadbalancer.server.port=5000
       - traefik.http.routers.portus-https.entrypoints=https
-      - traefik.http.routers.portus-https.rule=Host(`${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.portus-https.rule=Host(`${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.portus-https.tls=true
       - traefik.http.routers.portus-https.tls.certresolver=myresolver
 #      - traefik.http.routers.portus-https.middlewares=authelia@docker
     volumes:
       - portus-data:/srv/Portus
+    restart: ${RESTART_POLICY}
     depends_on:
       - portus-clair
       - portus-background
@@ -77,26 +78,27 @@ services:
   networks:
     t2_proxy:
     portus:
-      ipv4_address: ${PORTUS_IP?PORTUS_IP Variable not set}
+      ipv4_address: ${PORTUS_IP}
   portus-background:
-    image: opensuse/portus:development
+    image: opensuse/portus:${PORTUS_BACKGROUND_VERSION}  # "development"?
     container_name: portus-background
     entrypoint: bundle exec rails runner /srv/Portus/bin/background.rb
     environment:
-      - PORTUS_MACHINE_FQDN_VALUE=${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      - PORTUS_MACHINE_FQDN_VALUE=${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
       - PORTUS_SECURITY_CLAIR_SERVER=http://portus-clair:6060
       - CCONFIG_PREFIX=PORTUS
       - PORTUS_DB_HOST=portus-db
-      - PORTUS_DB_PASSWORD=${PORTUSDB_PASS?PORTUSDB_PASS Variable not set}
+      - PORTUS_DB_PASSWORD=${PORTUS_MYSQL_ROOT_PASS}
       - PORTUS_DB_POOL=5
     volumes:
       - portus-background:/srv/Portus
       - portus-background-log:/var/log
+    restart: ${RESTART_POLICY}
     depends_on:
       - portus-clair
       - portus-db
   portus-webpack:
-    image: kkarczmarczyk/node-yarn:latest
+    image: kkarczmarczyk/node-yarn:${PORTUS_WEBPACK_VERSION}
     container_name: portus-webpack
     command: bash /srv/Portus/examples/development/compose/bootstrap-webpack
     working_dir: /srv/Portus
@@ -106,25 +108,25 @@ services:
   portus-clair:
     image: quay.io/coreos/clair:v2.0.2
     container_name: portus-clair
-    restart: ${RESTART_POLICY?RESTART_POLICY Variable not set}
+    restart: ${RESTART_POLICY}
     volumes:
       - portus-clair-tmp:/tmp
       - portus-clair-log:/var/log
       - /var/data/portus/clair/clair.yml:/clair.yml
     command: [-config, /clair.yml]
   portus-db:
-    image: library/mariadb:10.0.23
+    image: library/mariadb:${PORTUS_MYSQL_VERSION}
     container_name: portus-db
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
     environment:
-      MYSQL_ROOT_PASSWORD: ${PORTUSDB_PASS?PORTUSDB_PASS Variable not set}
+      MYSQL_ROOT_PASSWORD: ${PORTUS_MYSQL_ROOT_PASS}
 #  portus-postgres:
 #    image: library/postgres:10-alpine
 #    container_name: portus-postgres
 #    environment:
 #      POSTGRES_PASSWORD: ${PORTUSDB_PASS?PORTUSDB_PASS Variable not set}
   portus-registry:
-    image: library/registry:2.6
+    image: library/registry:${PORTUS_REGISTRY_VERSION}
     container_name: portus-registry
     environment:
       REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /registry_data
@@ -132,19 +134,19 @@ services:
       REGISTRY_HTTP_ADDR: 0.0.0.0:5000
       REGISTRY_HTTP_DEBUG_ADDR: 0.0.0.0:5001
       REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /etc/docker/registry/portus.crt
-      REGISTRY_AUTH_TOKEN_REALM: http://$${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}:3000/v2/token
-      REGISTRY_AUTH_TOKEN_SERVICE: $${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}:5000
-      REGISTRY_AUTH_TOKEN_ISSUER: ${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}
+      REGISTRY_AUTH_TOKEN_REALM: http://${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}:3000/v2/token
+      REGISTRY_AUTH_TOKEN_SERVICE: ${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}:5000
+      REGISTRY_AUTH_TOKEN_ISSUER: ${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}
       REGISTRY_NOTIFICATIONS_ENDPOINTS: >
         - name: portus
-          url: http://$${PORTUS_SUB?PORTUS_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}:3000/v2/webhooks/events
+          url: http://${PORTUS_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}:3000/v2/webhooks/events
           timeout: 2000ms
           threshold: 5
           backoff: 1s
     volumes:
       - portus-registry:/registry_data
       - portus-registry-log:/var/log
-      - /var/data/portus/certificate/portus.crt:/etc/docker/registry/portus.crt:ro
+      - ./portus.crt:/etc/docker/registry/portus.crt:ro
     ports:
       - 5000:5000
       - 5001:5001
@@ -152,7 +154,7 @@ services:
       - traefik.enable=true
       - traefik.http.services.portus-registry-https.loadbalancer.server.port=5000
       - traefik.http.routers.portus-registry-https.entrypoints=https
-      - traefik.http.routers.portus-registry-https.rule=Host(`${REGISTRY_SUB?REGISTRY_SUB Variable not set}.${DOMAIN?DOMAIN Variable not set}`)
+      - traefik.http.routers.portus-registry-https.rule=Host(`${PORTUS_REGISTRY_SUBDOMAIN}.${CLOUDFLARE_DOMAIN}`)
       - traefik.http.routers.portus-registry-https.tls=true
       - traefik.http.routers.portus-registry-https.tls.certresolver=myresolver
 #        - traefik.http.routers.portus-registry-https.middlewares=authelia@docker
